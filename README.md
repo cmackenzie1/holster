@@ -85,6 +85,9 @@ cf17cfa2-32c5-4182-b81b-983b28cb9fa8
 4610fb40-1e70-426e-807f-2a036df4be73
 ```
 
-## Upcoming
+## Upcoming / Planned
 
 - `hash`: POST data and get the `SHA256`, `MD5` or other support hash back!
+- `stocks`: GET your favorite symbols current price
+- `public`: Static assests, public and cached 😎
+- `send`: End-to-End encrypted file sharing. Limit 25MB, 48 hr TTL.
