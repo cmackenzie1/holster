@@ -12,7 +12,7 @@ export default {
         headers,
         url,
         method,
-      }),
+      }) + '\n',
       { headers: { 'content-type': 'appliction/json' } },
     );
   },

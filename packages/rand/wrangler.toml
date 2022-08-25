@@ -1,6 +1,6 @@
-name = "echo"
+name = "rand"
 main = "src/index.ts"
 compatibility_date = "2022-08-25"
 routes = [
-	{ pattern = "echo.mirio.dev", custom_domain = true }
+	{ pattern = "rand.mirio.dev", custom_domain = true }
 ]
