@@ -1,0 +1,6 @@
+name = "hash"
+main = "src/index.ts"
+compatibility_date = "2022-08-25"
+routes = [
+	{ pattern = "hash.mirio.dev", custom_domain = true }
+]

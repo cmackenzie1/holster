@@ -85,9 +85,34 @@ cf17cfa2-32c5-4182-b81b-983b28cb9fa8
 4610fb40-1e70-426e-807f-2a036df4be73
 ```
 
+## `hash`
+
+POST data and get the `sha256`, `md5` or other supported hash back! Data is returned as the hex encoding of the final digest.
+
+{% note %}
+
+**Note:** When using `curl`, be sure to use `--data-binary` to prevent `curl` from transforming the data before sending it.
+
+{% endnote %}
+
+```
+curl -XPOST https://hash.mirio.dev/md5 --data-binary @data.bin
+c27830b0f2af9af174da9b25e56be6ff
+
+curl -XPOST https://hash.mirio.dev/sha256 --data-binary @data.bin
+d457d2a4c60670d56b6cf5ed36a362d99041f37cc68b91297eecd06de5870301
+```
+
+### Supported algorithms
+
+- `md5`
+- `sha1`
+- `sha256`
+- `sha384`
+- `sha512`
+
 ## Upcoming / Planned
 
-- `hash`: POST data and get the `SHA256`, `MD5` or other support hash back!
 - `stocks`: GET your favorite symbols current price
 - `public`: Static assests, public and cached 😎
 - `send`: End-to-End encrypted file sharing. Limit 25MB, 48 hr TTL.
