@@ -89,11 +89,7 @@ cf17cfa2-32c5-4182-b81b-983b28cb9fa8
 
 POST data and get the `sha256`, `md5` or other supported hash back! Data is returned as the hex encoding of the final digest.
 
-{% note %}
-
 **Note:** When using `curl`, be sure to use `--data-binary` to prevent `curl` from transforming the data before sending it.
-
-{% endnote %}
 
 ```
 curl -XPOST https://hash.mirio.dev/md5 --data-binary @data.bin
