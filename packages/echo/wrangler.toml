@@ -1,0 +1,6 @@
+name = "echo"
+main = "src/index.ts"
+compatibility_date = "2022-08-25"
+routes = [
+    "echo.mirio.dev"
+]
