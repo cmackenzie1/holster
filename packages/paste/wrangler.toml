@@ -1,0 +1,10 @@
+name = "paste"
+main = "src/index.ts"
+compatibility_date = "2022-08-26"
+routes = [
+	{ pattern = "paste.mirio.dev", custom_domain = true }
+]
+
+kv_namespaces = [
+	{ binding = "PASTES", id = "e6dbe58f6d88450eb1ab6819128f5800", preview_id = "e5cd37a39f9641bbb2bb6bb1912105b4" }
+]

@@ -112,3 +112,4 @@ d457d2a4c60670d56b6cf5ed36a362d99041f37cc68b91297eecd06de5870301
 - `stocks`: GET your favorite symbols current price
 - `public`: Static assests, public and cached 😎
 - `send`: End-to-End encrypted file sharing. Limit 25MB, 48 hr TTL.
+- `paste`: Share code and text snippets! Just like gists
