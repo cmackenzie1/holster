@@ -7,13 +7,6 @@ export default {
     [...request.headers.entries()].forEach(([k, v]) => {
       headers[k] = v;
     });
-    return new Response(
-      JSON.stringify({
-        headers,
-        url,
-        method,
-      }) + '\n',
-      { headers: { 'content-type': 'appliction/json' } },
-    );
+    return Response.json({ headers, url, method });
   },
 };

@@ -36,7 +36,9 @@ router.get('/:property', (request: Request) => {
     case 'latlong':
       const lat = request.cf?.latitude || 'unknown';
       const long = request.cf?.longitude || 'unknown';
-      return new Response(`${lat},${long}\n`, { headers: { 'content-type': 'text/csv' } });
+      return new Response(`${lat},${long}\n`, {
+        headers: { 'content-type': 'text/csv', 'content-disposition': 'inline' },
+      });
     case 'region':
       prop = request.cf?.region || 'unknown';
       break;
