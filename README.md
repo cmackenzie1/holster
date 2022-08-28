@@ -8,7 +8,7 @@ A collection of Cloudflare Workers, managed by Lerna.
 | ----- | ----------------- | --------------------------------------------------------------------------------------------- |
 | echo  | `echo.mirio.dev`  | Echos back the received HTTP request.                                                         |
 | hash  | `hash.mirio.dev`  | Returns the hex digest of the payload. Supports `md5`, `sha1`, `sha256` `sha384` and `sha512` |
-| ip    | `ip.mirio.dev     | Information about the clients IP address.                                                     |
+| ip    | `ip.mirio.dev`    | Information about the clients IP address.                                                     |
 | paste | `paste.mirio.dev` | Share small snippets of code using the web! All Pastes expire after 7 days.                   |
 | rand  | `rand.mirio.dev`  | Get random values, like UUID's!                                                               |
 
