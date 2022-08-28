@@ -68,7 +68,7 @@ router.get('/p/:id/raw', async (request: Request, env: Env) => {
     headers: {
       'content-type': metadata?.['content-type'] || 'text/plain',
       'content-disposition': 'inline',
-      ...(metadata?.['paste-id'] && { 'paste-id': metadata?.['paste-id'] })
+      ...(metadata?.['paste-id'] && { 'paste-id': metadata?.['paste-id'] }),
     },
   });
 });
@@ -77,7 +77,7 @@ router.get('/p/:id/metadata', async (request: Request, env: Env) => {
   const { params } = request as IttyRequest;
   const { value, metadata } = await env.PASTES.getWithMetadata<Metadata>(params!.id);
   if (!value) return new Response('Not found.\n', { status: 404 });
-  metadata?.['paste-create-ip'] && delete metadata?.['paste-create-ip']
+  metadata?.['paste-create-ip'] && delete metadata?.['paste-create-ip'];
   return new Response(JSON.stringify(metadata), {
     headers: { 'content-type': 'application/json' },
   });
