@@ -4,13 +4,13 @@ A collection of Cloudflare Workers, managed by Lerna.
 
 ## Apps
 
-| Name  | Host              | Description                                                                                   |
-| ----- | ----------------- | --------------------------------------------------------------------------------------------- |
-| echo  | `echo.mirio.dev`  | Echos back the received HTTP request.                                                         |
-| hash  | `hash.mirio.dev`  | Returns the hex digest of the payload. Supports `md5`, `sha1`, `sha256` `sha384` and `sha512` |
-| ip    | `ip.mirio.dev`    | Information about the clients IP address.                                                     |
-| paste | `paste.mirio.dev` | Share small snippets of code using the web! All Pastes expire after 7 days.                   |
-| rand  | `rand.mirio.dev`  | Get random values, like UUID's!                                                               |
+| Name                                | Host              | Description                                                                                   |
+| ----------------------------------- | ----------------- | --------------------------------------------------------------------------------------------- |
+| [echo](./packages/echo/README.md)   | `echo.mirio.dev`  | Echos back the received HTTP request.                                                         |
+| [hash](./packages/hash/README.md)   | `hash.mirio.dev`  | Returns the hex digest of the payload. Supports `md5`, `sha1`, `sha256` `sha384` and `sha512` |
+| [ip](./packages/ip/README.md)       | `ip.mirio.dev`    | Information about the clients IP address.                                                     |
+| [paste](./packages/paste/README.md) | `paste.mirio.dev` | Share small snippets of code using the web! All Pastes expire after 7 days.                   |
+| [rand](./packages/rand/README.md)   | `rand.mirio.dev`  | Get random values, like UUID's!                                                               |
 
 ### Upcoming / Planned
 
