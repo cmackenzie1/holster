@@ -15,6 +15,7 @@ export interface Env {
 interface Metadata {
   'content-type'?: string | null;
   'content-length'?: string | null;
+  'paste-id'?: string | null;
   'paste-create-time'?: string | null;
   'paste-expire-time'?: string | null;
   'paste-create-ip'?: string | null;
@@ -44,6 +45,7 @@ router.post('/p', async (request: Request, env: Env) => {
   const metadata: Metadata = {
     'content-type': contentType || 'text/plain',
     'content-length': contentLength,
+    'paste-id': id,
     'paste-create-time': `${created.toISOString()}`,
     'paste-expire-time': `${expiration.toISOString()}`,
     'paste-create-ip': request.headers.get('cf-connecting-ip') || '',
@@ -66,6 +68,7 @@ router.get('/p/:id/raw', async (request: Request, env: Env) => {
     headers: {
       'content-type': metadata?.['content-type'] || 'text/plain',
       'content-disposition': 'inline',
+      ...(metadata?.['paste-id'] && { 'paste-id': metadata?.['paste-id'] })
     },
   });
 });
@@ -74,6 +77,7 @@ router.get('/p/:id/metadata', async (request: Request, env: Env) => {
   const { params } = request as IttyRequest;
   const { value, metadata } = await env.PASTES.getWithMetadata<Metadata>(params!.id);
   if (!value) return new Response('Not found.\n', { status: 404 });
+  metadata?.['paste-create-ip'] && delete metadata?.['paste-create-ip']
   return new Response(JSON.stringify(metadata), {
     headers: { 'content-type': 'application/json' },
   });
