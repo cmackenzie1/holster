@@ -1,0 +1,15 @@
+{
+  "name": "stocks",
+  "version": "0.0.0",
+  "devDependencies": {
+    "wrangler": "2.0.27"
+  },
+  "private": true,
+  "scripts": {
+    "start": "wrangler dev",
+    "deploy": "wrangler publish"
+  },
+  "dependencies": {
+    "itty-router": "^2.6.1"
+  }
+}
