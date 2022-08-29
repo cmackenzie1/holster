@@ -21,26 +21,6 @@ A collection of Cloudflare Workers, managed by Lerna.
 
 ## Create a new Worker
 
-```
-npx wrangler init packages/<name>
-⛅️ wrangler 2.0.27
---------------------
-Using npm as package manager.
-✨ Created packages/rand/wrangler.toml
-No package.json found. Would you like to create one? (y/n)
-✨ Created packages/rand/package.json
-Would you like to use TypeScript? (y/n)
-✨ Created packages/rand/tsconfig.json
-Would you like to create a Worker at packages/rand/src/index.ts?
-  None
-❯ Fetch handler
-  Scheduled handler
-✨ Created packages/rand/src/index.ts
-```
-
-```toml
-# wrangler toml
-routes = [
-	{ pattern = "<name>.mirio.dev", custom_domain = true }
-]
+```bash
+./create_app.sh <name>
 ```
