@@ -1,2 +1,6 @@
 node_modules/
 .idea/
+dist/
+.terraform/
+# W.I.P
+packages/auth

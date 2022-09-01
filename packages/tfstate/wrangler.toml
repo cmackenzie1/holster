@@ -1,0 +1,29 @@
+name = "tfstate"
+main = "dist/index.mjs"
+compatibility_date = "2022-08-30"
+routes = [
+    { pattern = "tfstate.mirio.dev", custom_domain = true }
+]
+
+[[r2_buckets]]
+binding = "TFSTATE_BUCKET"
+bucket_name = "tfstate-mirio-dev"
+preview_bucket_name = "tfstate-mirio-dev-preview"
+
+[vars]
+AUTH0_ISSUER = "https://mirio.us.auth0.com/"
+AUTH0_AUDIENCE = "WwJSfQnDjCWoXvg2yJXbOfaaKz3N6jUU"
+AUTH0_JWKS_URL = "https://mirio.us.auth0.com/.well-known/jwks.json"
+AUTH0_CLIENT_ID = "WwJSfQnDjCWoXvg2yJXbOfaaKz3N6jUU"
+
+[durable_objects]
+bindings = [
+    { name = "TFSTATE_LOCK", class_name = "DurableLock" }
+]
+
+[[migrations]]
+tag = "v1"
+new_classes = ["DurableLock"]
+
+[build]
+command = "npm run build"
