@@ -10,7 +10,7 @@ fi
 APP=$1
 
 echo "Creating app ${APP}"
-npx wrangler init packages/${APP} -y 
+npx wrangler init workers/${APP} -y
 
 cat << EOF >> packages/${APP}/wrangler.toml
 routes = [
