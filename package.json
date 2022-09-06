@@ -2,7 +2,7 @@
   "name": "root",
   "private": true,
   "workspaces": [
-    "packages/*"
+    "workers/*"
   ],
   "scripts": {
     "format": "prettier --write '**/*.{js,ts,css,json,md}'"
