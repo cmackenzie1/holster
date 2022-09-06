@@ -1,12 +1,11 @@
 terraform {
   backend "http" {
-    address        = "https://tfstate.mirio.dev/testing/v1"
-    lock_address   = "https://tfstate.mirio.dev/testing/v1/lock"
+    address        = "https://tfstate.mirio.dev/states/tfstate-example"
+    lock_address   = "https://tfstate.mirio.dev/states/tfstate-example/lock"
     lock_method    = "PUT"
-    unlock_address = "https://tfstate.mirio.dev/testing/v1/lock"
+    unlock_address = "https://tfstate.mirio.dev/states/tfstate-example/lock"
     unlock_method  = "DELETE"
     username       = "cole@mirio.dev"
-    password       = "your tfstate.mirio.dev api token"
   }
 
   required_providers {

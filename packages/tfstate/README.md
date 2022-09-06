@@ -7,11 +7,11 @@ Managed Terraform state using the [`http` backend](https://www.terraform.io/lang
 ```terraform
 terraform {
   backend "http" {
-    address        = "https://tfstate.mirio.dev/example/v1"
-    lock_address   = "https://tfstate.mirio.dev/example/v1/lock"
-    lock_method    = "PUT"
-    unlock_address = "https://tfstate.mirio.dev/example/v1/lock"
-    unlock_method  = "DELETE"
+    address        = "https://tfstate.mirio.dev/states/your-project-name"
+    lock_address   = "https://tfstate.mirio.dev/states/your-project-name/lock"
+    lock_method    = "PUT" # also supports "LOCK"
+    unlock_address = "https://tfstate.mirio.dev/e/states/your-project-name/lock"
+    unlock_method  = "DELETE" # also supports "UNLOCK"
     username       = "you@example.com"
     password       = "yourPassword"
   }
@@ -28,10 +28,10 @@ Got yourself in a tfstate*tastrophy*? The following commands may help.
 
 ```curl
 # Get current lock info
-curl https://tfstate.mirio.dev/example/tfstate/lock
+curl https://tfstate.mirio.dev/states/your-project-name/lock
 
 # Manually remove the lock (similar to `terraform force-unlock`)
-curl -X DELETE https://tfstate.mirio.dev/example/tfstate/lock
+curl -X DELETE https://tfstate.mirio.dev/states/your-project-name/lock
 ```
 
 ### I get a 400 Error when attempting to lock

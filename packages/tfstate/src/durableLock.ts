@@ -17,16 +17,15 @@ export class DurableLock {
   async fetch(request: Request): Promise<Response> {
     const router = Router();
     // non-standard routes
-    router.get('/:namespaceId/v1/lock', this.currentLockInfo.bind(this));
-    router.put('/:namespaceId/v1/lock/purge', this.purge.bind(this));
+    router.get('/states/:projectName/lock', this.currentLockInfo.bind(this));
 
     // Lock
-    router.put('/:namespaceId/v1/lock', this.lock.bind(this));
-    router.lock('/:namespaceId/v1/lock', this.lock.bind(this));
+    router.put('/states/:projectName/lock', this.lock.bind(this));
+    router.lock('/states/:projectName/lock', this.lock.bind(this));
 
     // Unlock
-    router.delete('/:namespaceId/v1/lock', this.unlock.bind(this));
-    router.unlock('/:namespaceId/v1/lock', this.unlock.bind(this));
+    router.delete('/states/:projectName/lock', this.unlock.bind(this));
+    router.unlock('/states/:projectName/lock', this.unlock.bind(this));
 
     return router.handle(request);
   }

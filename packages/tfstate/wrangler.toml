@@ -5,6 +5,10 @@ routes = [
     { pattern = "tfstate.mirio.dev", custom_domain = true }
 ]
 
+kv_namespaces = [
+    { binding = "JWKS", id = "d6578c1e31404a27aa2958ae42498cc0", preview_id = "a9f53666aec74cffac85e06b90087c21" },
+]
+
 [[r2_buckets]]
 binding = "TFSTATE_BUCKET"
 bucket_name = "tfstate-mirio-dev"
