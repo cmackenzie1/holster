@@ -12,4 +12,4 @@ bucket_name = "rentwatch-mirio-dev"
 preview_bucket_name = "rentwatch-mirio-dev-preview"
 
 [triggers]
-crons = ["05 */12 * * *"] # Every 12 hours
+crons = ["0 18 * * *"] # Everyday at 11 AM PST
