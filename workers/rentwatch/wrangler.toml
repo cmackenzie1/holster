@@ -1,0 +1,15 @@
+name = "rentwatch"
+main = "src/index.ts"
+compatibility_date = "2022-09-06"
+routes = [
+	{ pattern = "rentwatch.mirio.dev", custom_domain = true }
+]
+
+
+[[r2_buckets]]
+binding = "RENTWATCH_BUCKET"
+bucket_name = "rentwatch-mirio-dev"
+preview_bucket_name = "rentwatch-mirio-dev-preview"
+
+[triggers]
+crons = ["05 */12 * * *"] # Every 12 hours

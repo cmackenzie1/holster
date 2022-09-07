@@ -12,7 +12,7 @@ APP=$1
 echo "Creating app ${APP}"
 npx wrangler init workers/${APP} -y
 
-cat << EOF >> packages/${APP}/wrangler.toml
+cat << EOF >> workers/${APP}/wrangler.toml
 routes = [
 	{ pattern = "${APP}.mirio.dev", custom_domain = true }
 ]
