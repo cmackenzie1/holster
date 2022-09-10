@@ -1,0 +1,11 @@
+name = "apigw"
+compatibility_date = "2022-09-08"
+account_id = "f5686db3c4f5b3e38b8f15b0561a28a8"
+main = "dist/index.mjs"
+
+routes = [
+    { pattern = "apigw.eragon.xyz", custom_domain = true }, # deploying on a separate zone to allow using CF Access on upstream
+]
+
+[build]
+command = "npm run build"
