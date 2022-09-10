@@ -22,5 +22,11 @@ A collection of Cloudflare Workers, managed by Lerna.
 ## Create a new Worker
 
 ```bash
-./create_app.sh <name>
+go run cmd/template/main.go -h
+  -customdomain
+        Create a subdomain to host the Worker under
+  -name string
+        Name of the Worker (default "hello-world")
+  -template string
+        Path to the template to use.
 ```
