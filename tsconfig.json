@@ -1,9 +1,12 @@
 {
   "compilerOptions": {
-    "module": "esnext",
-    "target": "es6",
+    "module": "es2022",
+    "target": "es2022",
+    "lib": ["es2021"],
     "sourceMap": true,
-    "types": ["@cloudflare/workers-types"]
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "types": ["@cloudflare/workers-types", "@types/jest"]
   },
   "exclude": ["node_modules"]
 }

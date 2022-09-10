@@ -42,7 +42,7 @@ export class HollandResidental {
     });
     const resp = await fetch(req);
     if (!resp.ok) throw new Error(`Unable to fetch latest data from Holland Residental Property: ${this.name}`);
-    return resp
+    return resp;
   }
 
   async units(): Promise<Unit[]> {

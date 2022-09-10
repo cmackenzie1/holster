@@ -1,0 +1,13 @@
+{
+  "name": "hello-world",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "wrangler dev",
+    "deploy": "wrangler publish",
+    "build": "node build.mjs",
+    "test": "node build.js && NODE_OPTIONS=--experimental-vm-modules jest --config jest.config.js --verbose"
+  },
+  "devDependencies": {},
+  "dependencies": {}
+}

@@ -1,0 +1,10 @@
+name = "hello-world-dev"
+compatibility_date = "2022-09-08"
+account_id = "f5686db3c4f5b3e38b8f15b0561a28a8"
+main = "dist/index.mjs"
+routes = [
+    { pattern = "hello-world.mirio.dev", custom_domain = true }
+]
+
+[build]
+command = "npm run build"
