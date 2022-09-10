@@ -7,20 +7,9 @@ routes = [
     { pattern = "tfstate.mirio.dev", custom_domain = true }
 ]
 
-kv_namespaces = [
-    { binding = "JWKS", id = "d6578c1e31404a27aa2958ae42498cc0", preview_id = "a9f53666aec74cffac85e06b90087c21" },
+r2_buckets = [
+    { binding = "TFSTATE_BUCKET", bucket_name = "tfstate-mirio-dev", preview_bucket_name = "tfstate-mirio-dev-preview" }
 ]
-
-[[r2_buckets]]
-binding = "TFSTATE_BUCKET"
-bucket_name = "tfstate-mirio-dev"
-preview_bucket_name = "tfstate-mirio-dev-preview"
-
-[vars]
-AUTH0_ISSUER = "https://mirio.us.auth0.com/"
-AUTH0_AUDIENCE = "WwJSfQnDjCWoXvg2yJXbOfaaKz3N6jUU"
-AUTH0_JWKS_URL = "https://mirio.us.auth0.com/.well-known/jwks.json"
-AUTH0_CLIENT_ID = "WwJSfQnDjCWoXvg2yJXbOfaaKz3N6jUU"
 
 [durable_objects]
 bindings = [

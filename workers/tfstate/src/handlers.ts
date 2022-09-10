@@ -8,13 +8,14 @@ import { getObjectKey } from './utils';
  * GET /states/:projectName
  * https://github.com/hashicorp/terraform/blob/cb340207d8840f3d2bc5dab100a5813d1ea3122b/internal/backend/remote-state/http/client.go#L144
  * @param request
+ * @param env
  */
 export const getStateHandler = async (request: RequestWithIdentity & RouteParams, env: Env) => {
-  const { identity, projectName } = request;
-  const { email } = identity.userInfo;
-  if (!projectName) return new Response('No project name specified.', { status: 400 });
-  if (!email) return new Response('Unable to determine email', { status: 500 });
-  const state: R2ObjectBody = await env.TFSTATE_BUCKET.get(getObjectKey(email, projectName));
+  const { projectName } = request;
+  const username = request.identity?.userInfo?.username || '';
+  if (!projectName || projectName === '') return new Response('No project name specified.', { status: 400 });
+  if (!username || username === '') return new Response('Unable to determine username', { status: 500 });
+  const state: R2ObjectBody = await env.TFSTATE_BUCKET.get(getObjectKey(username, projectName));
   if (state === null) return new Response(null, { status: 204 });
   return new Response(await state?.arrayBuffer(), { headers: { 'content-type': 'application/json' } });
 };
@@ -24,13 +25,14 @@ export const getStateHandler = async (request: RequestWithIdentity & RouteParams
  * POST /states/:projectName?ID=<lockID>
  * https://github.com/hashicorp/terraform/blob/cb340207d8840f3d2bc5dab100a5813d1ea3122b/internal/backend/remote-state/http/client.go#L203
  * @param request
+ * @param env
  */
 export const putStateHandler = async (request: RequestWithIdentity & RouteParams, env: Env) => {
-  const { identity, projectName } = request;
-  const { email } = identity.userInfo;
-  if (!projectName) return new Response('No project name specified.', { status: 400 });
-  if (!email) return new Response('Unable to determine email', { status: 500 });
-  const state = await env.TFSTATE_BUCKET.put(getObjectKey(email, projectName), await request.arrayBuffer());
+  const { projectName } = request;
+  const username = request.identity?.userInfo?.username || '';
+  if (!projectName || projectName === '') return new Response('No project name specified.', { status: 400 });
+  if (!username || username === '') return new Response('Unable to determine username', { status: 500 });
+  await env.TFSTATE_BUCKET.put(getObjectKey(username, projectName), await request.arrayBuffer());
   return new Response();
 };
 
@@ -40,13 +42,14 @@ export const putStateHandler = async (request: RequestWithIdentity & RouteParams
  * DELETE /states/:projectName
  * https://github.com/hashicorp/terraform/blob/cb340207d8840f3d2bc5dab100a5813d1ea3122b/internal/backend/remote-state/http/client.go#L241
  * @param request
+ * @param env
  */
 export const deleteStateHandler = async (request: RequestWithIdentity & RouteParams, env: Env) => {
-  const { identity, projectName } = request;
-  const { email } = identity.userInfo;
-  if (!projectName) return new Response('No project name specified.', { status: 400 });
-  if (!email) return new Response('Unable to determine email', { status: 500 });
-  const state = await env.TFSTATE_BUCKET.delete(getObjectKey(email, projectName));
+  const { projectName } = request;
+  const username = request.identity?.userInfo?.username || '';
+  if (!projectName || projectName === '') return new Response('No project name specified.', { status: 400 });
+  if (!username || username === '') return new Response('Unable to determine username', { status: 500 });
+  await env.TFSTATE_BUCKET.delete(getObjectKey(username, projectName));
   return new Response();
 };
 
@@ -56,11 +59,11 @@ export const deleteStateHandler = async (request: RequestWithIdentity & RoutePar
  * @param request
  */
 export const lockStateHandler = async (request: RequestWithIdentity & RouteParams, env: Env) => {
-  const { identity, projectName } = request;
-  const { email } = identity.userInfo;
-  if (!projectName) return new Response('No project name specified.', { status: 400 });
-  if (!email) return new Response('Unable to determine email', { status: 500 });
-  const id = env.TFSTATE_LOCK.idFromName(getObjectKey(email, projectName));
+  const { projectName } = request;
+  const username = request.identity?.userInfo?.username || '';
+  if (!projectName || projectName === '') return new Response('No project name specified.', { status: 400 });
+  if (!username || username === '') return new Response('Unable to determine username', { status: 500 });
+  const id = env.TFSTATE_LOCK.idFromName(getObjectKey(username, projectName));
   const lock = env.TFSTATE_LOCK.get(id);
   return lock.fetch(request);
 };

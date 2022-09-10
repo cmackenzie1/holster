@@ -1,11 +1,11 @@
 terraform {
   backend "http" {
-    address        = "https://tfstate.mirio.dev/states/tfstate-example"
-    lock_address   = "https://tfstate.mirio.dev/states/tfstate-example/lock"
+    address        = "https://apigw.eragon.xyz/tfstate/states/tfstate-example"
+    lock_address   = "https://apigw.eragon.xyz/tfstate/states/tfstate-example/lock"
     lock_method    = "PUT"
-    unlock_address = "https://tfstate.mirio.dev/states/tfstate-example/lock"
+    unlock_address = "https://apigw.eragon.xyz/tfstate/states/tfstate-example/lock"
     unlock_method  = "DELETE"
-    username       = "cole@mirio.dev"
+    username       = "e0f30419b4cca01ba2931345a61cc592.access"
   }
 
   required_providers {
