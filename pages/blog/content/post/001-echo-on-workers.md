@@ -63,7 +63,7 @@ curl -s https://echo.mirio.dev | jq
   "headers": {
     "accept": "*/*",
     "accept-encoding": "gzip",
-    "cf-connecting-ip": "[redacted[",
+    "cf-connecting-ip": "[redacted]",
     "cf-ipcountry": "US",
     "cf-ray": "74a607da58e20889",
     "cf-visitor": "{\"scheme\":\"https\"}",
