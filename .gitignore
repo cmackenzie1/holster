@@ -5,4 +5,4 @@ dist/
 # W.I.P
 packages/auth
 secrets.auto.tfvars
-
+pages/blog/public
