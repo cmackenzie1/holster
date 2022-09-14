@@ -1,0 +1,12 @@
+baseURL = 'https://mirio.dev'
+languageCode = 'en-us'
+title = 'Cole MacKenzie'
+
+theme = 'paper'
+
+[params]
+color = 'linen'
+github = 'cmackenzie1'
+
+#name = 'Cole MacKenzie'
+#bio = 'Systems Engineer @ Cloudflare'
