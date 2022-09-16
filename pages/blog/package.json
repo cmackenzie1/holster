@@ -1,0 +1,7 @@
+{
+  "name": "blog",
+  "version": "1.0.0",
+  "scripts": {
+    "deploy": "hugo && wrangler pages publish public"
+  }
+}
