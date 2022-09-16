@@ -37,7 +37,7 @@ A tunnel works by installing a client on your server and configuring it to estab
 the upstream proxy. In this case I am using `cloudflared` and the upstream connection is Cloudflare's Edge Network. You
 can then configure a route that is used to connect to your service, like `https://plex.example.com`.
 
-![Cloudlfare Tunnel Diagram](https://www.cloudflare.com/static/0837092afda01dcaf73cf70e729b20f5/Argo-tunnel-diagram-2.png)
+![Cloudflare Tunnel Diagram](https://www.cloudflare.com/static/0837092afda01dcaf73cf70e729b20f5/Argo-tunnel-diagram-2.png)
 
 When a user navigates to `https://plex.example.com`, Cloudflare will proxy the client connection to the tunnel created
 between your origin server and Cloudflare. Cloudflare will also filter out any malicious traffic from ever reaching your
