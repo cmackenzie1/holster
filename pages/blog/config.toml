@@ -1,17 +1,20 @@
 baseURL = 'https://mirio.dev'
 languageCode = 'en-us'
 title = 'Mirio Blog'
-
 theme = 'paper'
+
+author = 'Cole MacKenzie'
+DefaultContentLanguage = "en"
+enableInlineShortcodes = true
 
 enableGitInfo = true
 
 [params]
 color = 'linen'
 github = 'cmackenzie1'
+avatar = 'gravatar@mirio.dev'
+name = 'Cole MacKenzie'
+bio = 'Systems Engineer @ Cloudflare'
 
 [permalinks]
 posts = '/:year/:month/:day/:slug'
-
-#name = 'Cole MacKenzie'
-#bio = 'Systems Engineer @ Cloudflare'
