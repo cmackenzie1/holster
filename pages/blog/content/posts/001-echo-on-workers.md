@@ -1,7 +1,7 @@
 ---
-title: "Echo: httpbin on Cloudflare Workers"
+title: 'Echo: httpbin on Cloudflare Workers'
 date: 2022-09-13T20:04:03-07:00
-slug: "echo-httpbin-on-workers"
+slug: 'echo-httpbin-on-workers'
 draft: false
 ---
 
@@ -58,7 +58,7 @@ export default {
 Deploy it using `wrangler publish`, and give it a try!
 
 ```bash
-curl -s https://echo.mirio.dev | jq 
+curl -s https://echo.mirio.dev | jq
 {
   "headers": {
     "accept": "*/*",

@@ -1,7 +1,7 @@
 ---
-title: "Holster: A Cloudflare Workers Monorepo"
+title: 'Holster: A Cloudflare Workers Monorepo'
 date: 2022-09-12T21:46:24-07:00
-slug: "introducing-holster"
+slug: 'introducing-holster'
 draft: false
 ---
 
@@ -33,7 +33,7 @@ by `wrangler init`.
 |       |-- jest.config.js
 |       |-- package.json
 |       |-- src
-|       |   `-- index.ts 
+|       |   `-- index.ts
 |       |-- tsconfig.json
 |       `-- wrangler.toml
 |-- README.md
