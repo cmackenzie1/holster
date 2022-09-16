@@ -39,7 +39,7 @@ can then configure a route that is used to connect to your service, like `https:
 
 ![Cloudlfare Tunnel Diagram](https://www.cloudflare.com/static/0837092afda01dcaf73cf70e729b20f5/Argo-tunnel-diagram-2.png)
 
-When user navigates to `https://plex.example.com`, Cloudflare will proxy the client connection to the tunnel created
+When a user navigates to `https://plex.example.com`, Cloudflare will proxy the client connection to the tunnel created
 between your origin server and Cloudflare. Cloudflare will also filter out any malicious traffic from ever reaching your
 origin server. While this is great for protecting your site from malicious traffic, anyone who knows the URL can still
 access your site! Enter: Cloudflare Zero Trust.
