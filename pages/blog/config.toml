@@ -14,7 +14,7 @@ color = 'linen'
 github = 'cmackenzie1'
 avatar = 'gravatar@mirio.dev'
 name = 'Cole MacKenzie'
-bio = 'Systems Engineer @ Cloudflare'
+bio = 'Software Engineer that likes to build things. All views are my own.'
 
 [permalinks]
 posts = '/:year/:month/:day/:slug'

@@ -2,11 +2,27 @@
 title: 'Securing self-hosted Plex with Cloudflare Tunnels'
 date: 2022-09-15T18:25:14-07:00
 draft: false
-slug: 'securing-plex-with-cloudflare-tunnels'
 keywords: [plex, zero trust, cloudflared, cloudflare]
 tags: [plex, zero trust, cloudflared, cloudflare]
-author: Cole MacKenzie
 ---
+
+**Update 2022-09-16**: After publishing this post I've received a few comments saying it is against Cloudflare ToS to
+stream video using Cloudflare Tunnels.
+
+> 2.8 Limitation on Serving Non-HTML Content
+> The Services are offered primarily as a platform to cache and serve web pages and websites. Unless explicitly included
+> as part of a Paid Service purchased by you, you agree to use the Services solely for the purpose of (i) serving web
+> pages as viewed through a web browser or other functionally equivalent applications, including rendering Hypertext
+> Markup Language (HTML) or other functional equivalents, and (ii) serving web APIs subject to the restrictions set
+> forth in this Section 2.8. Use of the Services for serving video or a disproportionate percentage of pictures, audio
+> files, or
+> other non-HTML content is prohibited, unless purchased separately as part of a Paid Service or expressly allowed under
+> our Supplemental Terms for a specific Service. If we determine you have breached this Section 2.8, we may immediately
+> suspend or restrict your use of the Services, or limit End User access to certain of your resources through the
+> Services. [1]
+
+I use a paid zone plan which is not subject to the same limitations as the free plans. Your mileage may vary.
+Plex was used an as example but this process applies for _ANY self-hosted application you want to secure_. 
 
 ## Introduction
 
@@ -37,7 +53,7 @@ A tunnel works by installing a client on your server and configuring it to estab
 the upstream proxy. In this case I am using `cloudflared` and the upstream connection is Cloudflare's Edge Network. You
 can then configure a route that is used to connect to your service, like `https://plex.example.com`.
 
-![Cloudflare Tunnel Diagram](https://www.cloudflare.com/static/0837092afda01dcaf73cf70e729b20f5/Argo-tunnel-diagram-2.png)
+![Cloudflare Tunnel Diagram](/img/cloudflared-tunnel-architecture.png)
 
 When a user navigates to `https://plex.example.com`, Cloudflare will proxy the client connection to the tunnel created
 between your origin server and Cloudflare. Cloudflare will also filter out any malicious traffic from ever reaching your
@@ -144,5 +160,8 @@ Using Cloudflare Tunnels with Cloudflare Access is an incredible combination to 
 Plex. I personally use this to gate access to PostgreSQL, ClickHouse, SSH and even my Unifi network controller. You can
 go even further and define access policies that can be reused across several Cloudflare Access Applications.
 
-Be sure to visit [Cloudflare Access on the Developer Docs](https://developers.cloudflare.com/cloudflare-one/policies/access/)
+Be sure to
+visit [Cloudflare Access on the Developer Docs](https://developers.cloudflare.com/cloudflare-one/policies/access/)
 for the most up-to-date examples and information.
+
+[1]: https://www.cloudflare.com/terms/
