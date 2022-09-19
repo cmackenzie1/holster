@@ -22,7 +22,7 @@ stream video using Cloudflare Tunnels.
 > Services. [1]
 
 I use a paid zone plan which is not subject to the same limitations as the free plans. Your mileage may vary.
-Plex was used an as example but this process applies for _ANY self-hosted application you want to secure_. 
+Plex was used an as example but this process applies for _ANY self-hosted application you want to secure_.
 
 ## Introduction
 

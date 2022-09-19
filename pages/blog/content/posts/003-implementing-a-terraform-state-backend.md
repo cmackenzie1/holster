@@ -221,7 +221,7 @@ use [HTTP Basic Auth](https://developer.mozilla.org/en-US/docs/Web/HTTP/Authenti
 - `LOCK /states/:projectName/lock`: lock the state for `:projectName`
 - `UNLOCK /states/:projectName/lock`: unlock the state for `:projectName`
 
-Any requests that modify the state will add the query parameter `?lockID=<UUID>`.
+Any requests that modify the state will add the query parameter `?ID=<UUID>`.
 
 The following diagram represents the flow the API will follow. For the sake of brevity, I did not draw `LOCK/UNLOCK`.
 
