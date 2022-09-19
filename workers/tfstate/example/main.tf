@@ -29,7 +29,7 @@ output "pet" {
 }
 
 resource "random_password" "server" {
-  length = 14
+  length = 15
 }
 
 output "pwd" {

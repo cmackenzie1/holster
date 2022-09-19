@@ -6,13 +6,11 @@ import { build } from 'esbuild';
       bundle: true,
       sourcemap: true,
       minify: false,
-      mainFields: ["browser", "node", "main"],
+      mainFields: ['browser', 'node', 'main'],
       platform: 'browser',
       format: 'esm',
       target: ['es2022'],
-      entryPoints: {
-        worker: 'src/index.ts',
-      },
+      entryPoints: ['src/index.ts'],
       outfile: 'dist/index.mjs',
     });
   } catch (e) {

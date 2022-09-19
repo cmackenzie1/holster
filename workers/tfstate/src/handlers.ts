@@ -2,6 +2,7 @@ import { Env } from './types/env';
 import { RouteParams } from './middlewares';
 import { RequestWithIdentity } from './types/request';
 import { getObjectKey } from './utils';
+import { LockInfo } from './types/terraform';
 
 /**
  * Returns the current remote state from the durable storage. Doesn't support locking
@@ -28,11 +29,23 @@ export const getStateHandler = async (request: RequestWithIdentity & RouteParams
  * @param env
  */
 export const putStateHandler = async (request: RequestWithIdentity & RouteParams, env: Env) => {
-  const { projectName } = request;
+  const { projectName, url } = request;
   const username = request.identity?.userInfo?.username || '';
   if (!projectName || projectName === '') return new Response('No project name specified.', { status: 400 });
   if (!username || username === '') return new Response('Unable to determine username', { status: 500 });
-  await env.TFSTATE_BUCKET.put(getObjectKey(username, projectName), await request.arrayBuffer());
+
+  const key = getObjectKey(username, projectName);
+  const id = env.TFSTATE_LOCK.idFromName(key);
+  const lock = env.TFSTATE_LOCK.get(id);
+  const lockResp = await lock.fetch(`https://lock.do/states/${projectName}/lock`);
+  const lockInfo = (await lockResp.json()) as LockInfo;
+
+  if (lockInfo.ID) {
+    const lockId = new URL(url).searchParams.get('ID');
+    if (lockInfo.ID !== lockId) return Response.json(lockInfo, { status: 423 });
+  }
+
+  await env.TFSTATE_BUCKET.put(key, await request.arrayBuffer());
   return new Response();
 };
 

@@ -26,29 +26,26 @@ export class DurableLock {
     // Unlock
     router.delete('/states/:projectName/lock', this.unlock.bind(this));
     router.unlock('/states/:projectName/lock', this.unlock.bind(this));
+    router.all('*', () => new Response(request.url, { status: 404 }));
 
     return router.handle(request);
   }
 
   private async lock(request: Request): Promise<Response> {
-    return this.state.blockConcurrencyWhile(async () => {
-      if (this.lockInfo) return Response.json(this.lockInfo, { status: 423 });
-      const lockInfo = (await request.json()) as LockInfo;
-      await this.state.storage.put('_lock', lockInfo);
-      this.lockInfo = lockInfo;
-      return new Response();
-    });
+    if (this.lockInfo) return Response.json(this.lockInfo, { status: 423 });
+    const lockInfo = (await request.json()) as LockInfo;
+    await this.state.storage.put('_lock', lockInfo);
+    this.lockInfo = lockInfo;
+    return new Response();
   }
 
   private async unlock(request: Request): Promise<Response> {
-    return this.state.blockConcurrencyWhile(async () => {
-      const lockInfo = (await request.json()) as LockInfo;
-      if (!lockInfo.ID) return new Response('Missing ID for unlock state request', { status: 400 });
-      if (this.lockInfo?.ID !== lockInfo.ID) return Response.json(this.lockInfo, { status: 423 });
-      await this.state.storage.delete('_lock');
-      this.lockInfo = null;
-      return new Response();
-    });
+    const lockInfo = (await request.json()) as LockInfo;
+    if (!lockInfo.ID) return new Response('Missing ID for unlock state request', { status: 400 });
+    if (this.lockInfo?.ID !== lockInfo.ID) return Response.json(this.lockInfo, { status: 423 });
+    await this.state.storage.delete('_lock');
+    this.lockInfo = null;
+    return new Response();
   }
 
   private async currentLockInfo(request: Request): Promise<Response> {
