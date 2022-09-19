@@ -1,7 +1,7 @@
 ---
 title: 'Implementing a Terraform state backend on Cloudflare Workers'
 date: 2022-09-18T12:39:23-07:00
-draft: true
+draft: false
 slug: implementing-a-terraform-state-backend
 keywords: [terraform, cloudflare, R2]
 tags: [terraform, cloudflare, r2]
