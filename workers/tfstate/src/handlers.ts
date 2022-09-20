@@ -40,6 +40,7 @@ export const putStateHandler = async (request: RequestWithIdentity & RouteParams
   const lockResp = await lock.fetch(`https://lock.do/states/${projectName}/lock`);
   const lockInfo = (await lockResp.json()) as LockInfo;
 
+  // Lock present, ensure the update request has the correct lock ID
   if (lockInfo.ID) {
     const lockId = new URL(url).searchParams.get('ID');
     if (lockInfo.ID !== lockId) return Response.json(lockInfo, { status: 423 });
@@ -58,10 +59,20 @@ export const putStateHandler = async (request: RequestWithIdentity & RouteParams
  * @param env
  */
 export const deleteStateHandler = async (request: RequestWithIdentity & RouteParams, env: Env) => {
-  const { projectName } = request;
+  const { projectName, url } = request;
   const username = request.identity?.userInfo?.username || '';
   if (!projectName || projectName === '') return new Response('No project name specified.', { status: 400 });
   if (!username || username === '') return new Response('Unable to determine username', { status: 500 });
+
+  const key = getObjectKey(username, projectName);
+  const id = env.TFSTATE_LOCK.idFromName(key);
+  const lock = env.TFSTATE_LOCK.get(id);
+  const lockResp = await lock.fetch(`https://lock.do/states/${projectName}/lock`);
+  const lockInfo = (await lockResp.json()) as LockInfo;
+
+  // Lock present, prevent delete entirely.
+  if (lockInfo.ID) return Response.json(lockInfo, { status: 423 });
+
   await env.TFSTATE_BUCKET.delete(getObjectKey(username, projectName));
   return new Response();
 };
