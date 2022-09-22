@@ -6,7 +6,10 @@ const router = Router();
 
 router.get('/uuid', (request: Request) => {
   const { searchParams } = new URL(request.url);
-  const count: number = parseInt(searchParams.get('n') || '1', 10);
+  const count: number = parseInt(
+    searchParams.get('n') || searchParams.get('count') || searchParams.get('limit') || '1',
+    10,
+  );
   const data = Array(count)
     .fill(0)
     .map(() => crypto.randomUUID());
