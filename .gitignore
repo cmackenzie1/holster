@@ -6,3 +6,4 @@ dist/
 packages/auth
 secrets.auto.tfvars
 pages/blog/public
+pkg/

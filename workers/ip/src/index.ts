@@ -1,68 +1,94 @@
-import { Router, Request as IttyRequest } from 'itty-router';
+import { Router, error, IRequest } from 'itty-router';
 export interface Env {}
 
-const router = Router();
-router.get('/', (request: Request) => {
-  const ip = request.headers.get('cf-connecting-ip') || '';
-  return new Response(`${ip}\n`, {
-    headers: {
-      'content-type': 'text/plain',
-    },
-  });
-});
+const getIp = (request: Request) => request.headers.get('cf-connecting-ip') || '';
 
-router.get('/:property', (request: Request) => {
-  const { params } = request as IttyRequest;
-  if (!params) return new Response(null, { status: 204 });
-  const { cf } = request;
-  if (!cf) return new Response(null, { status: 204 });
-  let prop: any = 'unknown';
-  switch (params.property) {
-    case 'asn':
-      prop = request.cf?.asn || 'unknown';
-      break;
-    case 'aso':
-      prop = request.cf?.asOrganization || 'unknown';
-      break;
-    case 'colo':
-      prop = request.cf?.colo || 'unknown';
-      break;
-    case 'city':
-      prop = request.cf?.city || 'unknown';
-      break;
-    case 'country':
-      prop = request.cf?.country || 'unknown';
-      break;
-    case 'latlong':
+const propertyDefinitions = {
+  asn: 'Autonomous system number (ASN)',
+  aso: 'Autonomous system organization (ASO)',
+  colo: 'Cloudflare colo',
+  city: 'City',
+  country: 'Country',
+  latlong: 'Latitude and longitude',
+  region: 'Region',
+  tlsCipher: 'TLS cipher',
+  tlsVersion: 'TLS version',
+  timezone: 'Timezone',
+};
+
+const propertyMapping: { [key: string]: keyof IncomingRequestCfProperties } = {
+  asn: 'asn',
+  aso: 'asOrganization',
+  colo: 'colo',
+  city: 'city',
+  country: 'country',
+  latlong: 'latlong',
+  region: 'region',
+  tlsCipher: 'tlsCipher',
+  tlsVersion: 'tlsVersion',
+  timezone: 'timezone',
+};
+
+const router = Router();
+
+router
+  .all('*')
+  .get('/', (request: Request) => {
+    const ip = getIp(request);
+    return new Response(`${ip}\n`, {
+      headers: {
+        'content-type': 'text/plain',
+      },
+    });
+  })
+  .get('/help', () => {
+    const properties = Object.entries(propertyDefinitions)
+      .map(([key, value]) => `\t${key}: ${value}`)
+      .join('\n');
+    return new Response(`Usage: curl https://ip.mirio.dev/:property [-4/-6] 
+    
+    Properties:\n${properties}\n`);
+  })
+  .get('/json', (request: Request) => {
+    const { url, cf } = request;
+    const ip = getIp(request);
+    const parsedUrl = new URL(url);
+    const result = { ip, info: cf };
+    const responseBody = parsedUrl.searchParams.get('pretty')
+      ? JSON.stringify(result, null, 2)
+      : JSON.stringify(result);
+
+    return new Response(responseBody, {
+      headers: {
+        'content-type': 'application/json; charset=UTF-8',
+      },
+    });
+  })
+  .get('/:property', (request: IRequest) => {
+    const { params } = request;
+    if (!params) return new Response(null, { status: 204 });
+    const { cf } = request;
+    if (!cf) return new Response(null, { status: 204 });
+
+    const property = propertyMapping[params.property];
+    if (!property) return new Response('Not found.\n', { status: 404 });
+    let prop: any = request.cf?.[property] || 'unknown';
+    if (property === 'latlong') {
       const lat = request.cf?.latitude || 'unknown';
       const long = request.cf?.longitude || 'unknown';
       return new Response(`${lat},${long}\n`, {
         headers: { 'content-type': 'text/csv', 'content-disposition': 'inline' },
       });
-    case 'region':
-      prop = request.cf?.region || 'unknown';
-      break;
-    case 'tlsCipher':
-      prop = request.cf?.tlsCipher || 'unknown';
-      break;
-    case 'tlsVersion':
-      prop = request.cf?.tlsVersion || 'unknown';
-      break;
-    case 'timezone':
-      prop = request.cf?.timezone || 'unknown';
-      break;
-    default:
-      return new Response('Not found.\n', { status: 404 });
-  }
-  return new Response(`${prop}\n`, {
-    headers: {
-      'content-type': 'text/plain',
-    },
+    }
+    return new Response(`${prop}\n`, {
+      headers: {
+        'content-type': 'text/plain',
+      },
+    });
   });
-});
 
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
-    return router.handle(request);
+    return router.handle(request).catch(error);
   },
 };
