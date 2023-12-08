@@ -20,6 +20,7 @@ curl https://echo.mirio.dev | jq
     "x-real-ip": "63.229.18.140"
   },
   "url": "https://echo.mirio.dev/",
-  "method": "GET"
+  "method": "GET",
+  "body": null
 }
 ```

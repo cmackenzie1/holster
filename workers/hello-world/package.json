@@ -4,10 +4,8 @@
   "private": true,
   "scripts": {
     "start": "wrangler dev",
-    "deploy": "wrangler publish",
+    "deploy": "wrangler deploy",
     "build": "node build.mjs",
     "test": "npm run build && NODE_OPTIONS=--experimental-vm-modules jest --config jest.config.js --verbose"
-  },
-  "devDependencies": {},
-  "dependencies": {}
+  }
 }
