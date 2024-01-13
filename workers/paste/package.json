@@ -7,6 +7,10 @@
     "deploy": "wrangler deploy"
   },
   "dependencies": {
-    "base-x": "^4.0.0"
+    "hono": "^3.12.2",
+    "short-unique-id": "^5.0.3"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20231218.0"
   }
 }

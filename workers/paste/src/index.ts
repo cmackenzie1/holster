@@ -1,90 +1,115 @@
-import { Router, Request as IttyRequest } from 'itty-router';
-import baseX from 'base-x';
+import { Context, Hono } from 'hono';
+import { HTTPException } from 'hono/http-exception';
+import ShortUniqueId from 'short-unique-id';
 
-const BASE62 = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-const base62 = baseX(BASE62);
-const newId = (): string => base62.encode(crypto.getRandomValues(new Uint8Array(6)));
+type Bindings = {
+  DB: D1Database;
+};
 
-const ALLOWED_CONTENT_TYPES = new Set(['application/json', 'text/plain', 'text/csv']);
-const TTL = 7 * 24 * 60 * 60; // 7 days
-
-export interface Env {
-  PASTES: KVNamespace;
+interface Paste {
+  id: number;
+  public_id: string;
+  content_type: string;
+  content: string;
+  created_at: string;
+  expires_at: string;
 }
 
-interface Metadata {
-  'content-type'?: string | null;
-  'content-length'?: string | null;
-  'paste-id'?: string | null;
-  'paste-create-time'?: string | null;
-  'paste-expire-time'?: string | null;
-  'paste-create-ip'?: string | null;
-}
+const app = new Hono<{ Bindings: Bindings }>();
+const uid = new ShortUniqueId();
 
-const router = Router();
+app.get('/pastes/:public_id{[0-9A-Za-z]+}', async (c: Context<{ Bindings: Bindings }>) => {
+  const { public_id } = c.req.param();
+  const now = new Date().toISOString();
 
-router.post('/p', async (request: Request, env: Env) => {
-  const url = new URL(request.url);
-  let id = newId();
-  while ((await env.PASTES.get(id)) !== null) {
-    id = newId();
+  console.log(c.req.url, c.req.headers);
+  let result = null;
+  try {
+    result = await c.env.DB.prepare('SELECT * FROM pastes WHERE public_id = ? AND expires_at > ?')
+      .bind(public_id, now)
+      .first();
+  } catch (e) {
+    console.error(e);
+    throw new HTTPException(500, { message: JSON.stringify(e) });
   }
 
-  const contentType = request.headers.get('content-type') || 'text/plain';
-  if (!ALLOWED_CONTENT_TYPES.has(contentType)) {
-    return new Response('Unsupported content type!', { status: 400 });
+  if (!result) {
+    throw new HTTPException(404, { message: 'Paste not found' });
   }
 
-  const contentLength = request.headers.get('content-length');
-  if (!contentLength || parseInt(contentLength, 10) > 25 * 1e6) {
-    return new Response('Entity too large!', { status: 413 });
-  }
-
-  const created = new Date(Date.now());
-  const expiration = new Date(Date.now() + TTL);
-  const metadata: Metadata = {
-    'content-type': contentType || 'text/plain',
-    'content-length': contentLength,
-    'paste-id': id,
-    'paste-create-time': `${created.toISOString()}`,
-    'paste-expire-time': `${expiration.toISOString()}`,
-    'paste-create-ip': request.headers.get('cf-connecting-ip') || '',
-  };
-
-  await env.PASTES.put(id, await request.arrayBuffer(), {
-    metadata,
-    expiration: Math.floor(Date.parse(expiration.toISOString()) / 1000), // unix epoch (seconds)
-  });
-
-  url.pathname = url.pathname + `/${id}/raw`;
-  return new Response(null, { status: 303, headers: { location: url.toString() } });
+  return c.text(result.content, { headers: { 'Content-Type': result.content_type } });
 });
 
-router.get('/p/:id/raw', async (request: Request, env: Env) => {
-  const { params } = request as IttyRequest;
-  const { value, metadata } = await env.PASTES.getWithMetadata<Metadata>(params!.id);
-  if (!value) return new Response('Not found.\n', { status: 404 });
-  return new Response(value, {
-    headers: {
-      'content-type': metadata?.['content-type'] || 'text/plain',
-      'content-disposition': 'inline',
-      ...(metadata?.['paste-id'] && { 'paste-id': metadata?.['paste-id'] }),
-    },
-  });
+app.get('/pastes', async (c: Context<{ Bindings: Bindings }>) => {
+  const result = await c.env.DB.prepare('SELECT * FROM pastes ORDER BY created_at DESC').all();
+  if (result.error) {
+    console.error(result.error);
+    throw new HTTPException(500, { message: JSON.stringify(result.error) });
+  }
+
+  const pastes: Paste[] = result.results.map((row) => ({
+    id: row.id as number,
+    public_id: row.public_id as string,
+    content_type: row.content_type as string,
+    content: row.content as string,
+    created_at: row.created_at as string,
+    expires_at: row.expires_at as string,
+  }));
+
+  return c.json(pastes);
 });
 
-router.get('/p/:id/metadata', async (request: Request, env: Env) => {
-  const { params } = request as IttyRequest;
-  const { value, metadata } = await env.PASTES.getWithMetadata<Metadata>(params!.id);
-  if (!value) return new Response('Not found.\n', { status: 404 });
-  metadata?.['paste-create-ip'] && delete metadata?.['paste-create-ip'];
-  return new Response(JSON.stringify(metadata), {
-    headers: { 'content-type': 'application/json' },
-  });
+app.post('/pastes', async (c: Context<{ Bindings: Bindings }>) => {
+  const content_type = c.req.header('Content-Type') || 'text/plain';
+  const created_at = new Date().toISOString();
+  const expires_at = new Date(Date.now() + 1000 * 60 * 60 * 24 * 7).toISOString();
+
+  if (content_type !== 'text/plain') {
+    throw new HTTPException(400, { message: 'Invalid content type, only text/plain is supported!' });
+  }
+
+  let content = '';
+  try {
+    content = await c.req.text();
+  } catch (e) {
+    console.error(e);
+    throw new HTTPException(500, { message: JSON.stringify(e) });
+  }
+
+  const public_id = uid.rnd();
+  let result = null;
+  try {
+    result = await c.env.DB.prepare(
+      'INSERT INTO pastes (public_id, content_type, content, created_at, expires_at) VALUES (?, ?, ?, ?, ?) RETURNING public_id',
+    )
+      .bind(public_id, content_type, content, created_at, expires_at)
+      .first();
+  } catch (e) {
+    console.error(e);
+    throw new HTTPException(500, { message: JSON.stringify(e) });
+  }
+
+  if (!result) {
+    throw new HTTPException(500, { message: 'Failed to create paste' });
+  }
+
+  const host = c.req.header('Host').split(':')[0] || 'paste.mirio.dev';
+
+  return c.json(
+    { url: `https://${host}/pastes/${result.public_id}` },
+    { status: 201, headers: { Location: `/pastes/${result.public_id}` } },
+  );
 });
 
 export default {
-  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
-    return router.handle(request, env);
+  async scheduled(event, env: Bindings, ctx) {
+    const result = await env.DB.prepare('DELETE FROM pastes WHERE expires_at < ?').bind(new Date().toISOString()).run();
+    if (result.error) {
+      console.error(result.error);
+      throw new Error(result.error);
+    }
+
+    console.log(`Deleted  ${result.meta.changes} pastes in ${result.meta.duration}ms`);
   },
+  ...app,
 };

@@ -3,10 +3,13 @@ main = "src/index.ts"
 compatibility_date = "2022-08-26"
 account_id = "f5686db3c4f5b3e38b8f15b0561a28a8"
 
-routes = [
-	{ pattern = "paste.mirio.dev", custom_domain = true }
-]
+routes = [{ pattern = "paste.mirio.dev", custom_domain = true }]
 
-kv_namespaces = [
-	{ binding = "PASTES", id = "e6dbe58f6d88450eb1ab6819128f5800", preview_id = "e5cd37a39f9641bbb2bb6bb1912105b4" }
-]
+[[d1_databases]]
+binding = "DB"                                       # i.e. available in your Worker on env.DB
+database_name = "paste-db"
+database_id = "7dab7c92-2054-44e2-a7ba-07591f339be8"
+
+# Cleanup old pastes every 30 minutes
+[triggers]
+crons = ["*/30 * * * *"]
