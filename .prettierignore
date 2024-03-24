@@ -5,3 +5,4 @@ build
 .templates/
 pages/blog/public/
 pages/blog/themes/paper
+static/
