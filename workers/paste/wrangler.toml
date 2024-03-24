@@ -1,15 +1,38 @@
-name = "paste"
+name = "paste-local"
 main = "src/index.ts"
 compatibility_date = "2022-08-26"
 account_id = "f5686db3c4f5b3e38b8f15b0561a28a8"
 
-routes = [{ pattern = "paste.mirio.dev", custom_domain = true }]
+[vars]
+HOST = "localhost:8787"
 
 [[d1_databases]]
+binding = "DB"                                       # i.e. available in your Worker on env.DB
+database_name = "paste-local"
+database_id = "04266953-209d-4313-b0a8-7b7f904ac3d1"
+
+# Staging
+[env.staging]
+name = "paste-staging"
+routes = [{ pattern = "paste-staging.mirio.dev", custom_domain = true }]
+vars = { HOST = "paste-staging.mirio.dev" }
+
+[[env.staging.d1_databases]]
+binding = "DB"                                       # i.e. available in your Worker on env.DB
+database_name = "paste-staging-db"
+database_id = "e027ed0d-f9f1-49f6-ba7c-21eecbc1a4e3"
+
+# Production
+[env.production]
+name = "paste"
+routes = [{ pattern = "paste.mirio.dev", custom_domain = true }]
+vars = { HOST = "paste.mirio.dev" }
+
+[[env.production.d1_databases]]
 binding = "DB"                                       # i.e. available in your Worker on env.DB
 database_name = "paste-db"
 database_id = "7dab7c92-2054-44e2-a7ba-07591f339be8"
 
 # Cleanup old pastes every 30 minutes
-[triggers]
+[env.production.triggers]
 crons = ["*/30 * * * *"]

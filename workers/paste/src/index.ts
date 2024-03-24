@@ -1,8 +1,10 @@
 import { Context, Hono } from 'hono';
+import { cors } from 'hono/cors';
 import { HTTPException } from 'hono/http-exception';
 import ShortUniqueId from 'short-unique-id';
 
 type Bindings = {
+  HOST: string;
   DB: D1Database;
 };
 
@@ -17,6 +19,8 @@ interface Paste {
 
 const app = new Hono<{ Bindings: Bindings }>();
 const uid = new ShortUniqueId();
+
+app.all('*', cors());
 
 app.get('/pastes/:public_id{[0-9A-Za-z]+}', async (c: Context<{ Bindings: Bindings }>) => {
   const { public_id } = c.req.param();
@@ -41,7 +45,7 @@ app.get('/pastes/:public_id{[0-9A-Za-z]+}', async (c: Context<{ Bindings: Bindin
 });
 
 app.get('/pastes', async (c: Context<{ Bindings: Bindings }>) => {
-  const result = await c.env.DB.prepare('SELECT * FROM pastes ORDER BY created_at DESC').all();
+  const result = await c.env.DB.prepare('SELECT * FROM pastes').all();
   if (result.error) {
     console.error(result.error);
     throw new HTTPException(500, { message: JSON.stringify(result.error) });
@@ -60,23 +64,28 @@ app.get('/pastes', async (c: Context<{ Bindings: Bindings }>) => {
 });
 
 app.post('/pastes', async (c: Context<{ Bindings: Bindings }>) => {
-  const content_type = c.req.header('Content-Type') || 'text/plain';
+  const content_type = c.req.header('content-type');
+  console.log(c.req.url, c.req.headers);
   const created_at = new Date().toISOString();
   const expires_at = new Date(Date.now() + 1000 * 60 * 60 * 24 * 7).toISOString();
 
-  if (content_type !== 'text/plain') {
-    throw new HTTPException(400, { message: 'Invalid content type, only text/plain is supported!' });
+  if (!content_type) {
+    throw new HTTPException(400, { message: 'Missing Content-Type header' });
   }
 
-  let content = '';
-  try {
-    content = await c.req.text();
-  } catch (e) {
-    console.error(e);
-    throw new HTTPException(500, { message: JSON.stringify(e) });
+  // only accept form data cont
+  if (
+    !content_type.startsWith('multipart/form-data') &&
+    !content_type.startsWith('application/x-www-form-urlencoded')
+  ) {
+    console.log('invalid content type', content_type);
+    throw new HTTPException(400, { message: 'Invalid Content-Type header' });
   }
 
+  const form = await c.req.formData();
+  const content = form.get('content');
   const public_id = uid.rnd();
+
   let result = null;
   try {
     result = await c.env.DB.prepare(
@@ -93,12 +102,9 @@ app.post('/pastes', async (c: Context<{ Bindings: Bindings }>) => {
     throw new HTTPException(500, { message: 'Failed to create paste' });
   }
 
-  const host = c.req.header('Host').split(':')[0] || 'paste.mirio.dev';
+  const host = c.env.HOST || 'paste.mirio.dev';
 
-  return c.json(
-    { url: `https://${host}/pastes/${result.public_id}` },
-    { status: 201, headers: { Location: `/pastes/${result.public_id}` } },
-  );
+  return c.redirect(`/pastes/${result.public_id}`);
 });
 
 export default {
