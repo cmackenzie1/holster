@@ -1,6 +1,6 @@
 # Holster
 
-A collection of Cloudflare Workers, managed by Lerna.
+A collection of Cloudflare Workers, managed using NPM Workspaces.
 
 ## Apps
 

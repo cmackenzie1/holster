@@ -4,13 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "wrangler dev",
-    "deploy": "wrangler deploy"
+    "deploy": "wrangler deploy",
+    "test": "jest"
   },
   "dependencies": {
     "hono": "^4.1.4",
     "short-unique-id": "^5.0.3"
-  },
-  "devDependencies": {
-    "@cloudflare/workers-types": "^4.20231218.0"
   }
 }
