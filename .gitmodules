@@ -1,3 +1,0 @@
-[submodule "pages/blog/themes/paper"]
-	path = pages/blog/themes/paper
-	url = git@github.com:cmackenzie1/hugo-paper.git
