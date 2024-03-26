@@ -17,11 +17,6 @@ A collection of Cloudflare Workers, managed using NPM Workspaces.
 ## Create a new Worker
 
 ```bash
-go run cmd/template/main.go -h
-  -customdomain
-        Create a subdomain to host the Worker under
-  -name string
-        Name of the Worker (default "hello-world")
-  -template string
-        Path to the template to use.
+wrangler generate my-worker [template]
+# pick a template from the list https://github.com/cloudflare/workers-sdk/tree/main/templates
 ```
