@@ -5,7 +5,9 @@
     "workers/*"
   ],
   "scripts": {
-    "format": "prettier --write '**/*.{js,ts,css,json,md}'"
+    "lint": "prettier --check '**/*.{js,ts,css,json,md}'",
+    "format": "prettier --write '**/*.{js,ts,css,json,md}'",
+    "test": "echo 'No tests yet!'"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20231121.0",
