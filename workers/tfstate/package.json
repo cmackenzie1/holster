@@ -1,37 +1,11 @@
 {
   "name": "tfstate",
   "version": "0.0.0",
-  "jest": {
-    "preset": "ts-jest/presets/default-esm",
-    "globals": {
-      "ts-jest": {
-        "useESM": true
-      }
-    },
-    "verbose": true,
-    "testEnvironment": "miniflare",
-    "testEnvironmentOptions": {
-      "modules": true,
-      "scriptPath": "./dist/index.mjs",
-      "durableObjects": {
-        "TFSTATE_LOCK": "DurableLock"
-      }
-    }
-  },
-  "devDependencies": {
-    "@types/jest": "^28.0.0",
-    "esbuild": "^0.20.2",
-    "jest": "^28.0.0",
-    "ts-jest": "^29.1.2"
-  },
   "private": true,
-  "type": "module",
-  "module": "dist/index.mjs",
   "scripts": {
-    "build": "node build.mjs",
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
-    "test": "npm run build && NODE_OPTIONS=--experimental-vm-modules npx jest"
+    "test": "jest"
   },
   "dependencies": {
     "itty-router": "^4.2.2",

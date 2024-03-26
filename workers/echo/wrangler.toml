@@ -3,6 +3,4 @@ main = "src/index.ts"
 compatibility_date = "2022-08-25"
 account_id = "f5686db3c4f5b3e38b8f15b0561a28a8"
 
-routes = [
-	{ pattern = "echo.mirio.dev", custom_domain = true }
-]
+routes = [{ pattern = "echo.mirio.dev", custom_domain = true }]
