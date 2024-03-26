@@ -1,5 +1,13 @@
 export interface Env {}
 
+export interface ResponseBody {
+  headers: Record<string, string>;
+  body: any;
+  url: string;
+  method: string;
+  query: Record<string, string>;
+}
+
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const { url, method, headers } = request;
@@ -19,7 +27,7 @@ export default {
 
     return new Response(responseBody, {
       headers: {
-        'content-type': 'application/json;charset=UTF-8',
+        'content-type': 'application/json',
       },
     });
   },
