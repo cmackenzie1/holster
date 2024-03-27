@@ -6,12 +6,7 @@
     "sourceMap": true,
     "moduleResolution": "node",
     "esModuleInterop": true,
-    "types": [
-      "@cloudflare/workers-types",
-      "@types/jest",
-      "@cloudflare/workers-types/experimental",
-      "@cloudflare/vitest-pool-workers"
-    ]
+    "types": ["@cloudflare/workers-types", "@cloudflare/workers-types/experimental", "@cloudflare/vitest-pool-workers"]
   },
   "exclude": ["node_modules"]
 }
