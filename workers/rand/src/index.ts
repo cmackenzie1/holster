@@ -1,10 +1,10 @@
-import { Router, Request as IttyRequest } from 'itty-router';
+import { Router, IRequest } from 'itty-router';
 
 export interface Env {}
 
 const router = Router();
 
-router.get('/uuid', (request: Request) => {
+router.get('/uuid', (request: IRequest) => {
   const { searchParams } = new URL(request.url);
   const count: number = parseInt(
     searchParams.get('n') || searchParams.get('count') || searchParams.get('limit') || '1',

@@ -1,7 +1,9 @@
 name = "tfstate"
-main = "src/index.ts"
-compatibility_date = "2022-08-30"
 account_id = "f5686db3c4f5b3e38b8f15b0561a28a8"
+compatibility_date = "2024-03-26"
+compatibility_flags = ["nodejs_compat"]
+
+main = "src/index.ts"
 
 routes = [{ pattern = "tfstate.mirio.dev", custom_domain = true }]
 

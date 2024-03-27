@@ -16,4 +16,4 @@ jobs:
           node-version: lts/*
       - run: npm install
       - run: npm run lint
-      - run: npm run test --workspaces --if-present
+      - run: npm run test

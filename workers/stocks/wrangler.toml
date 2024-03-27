@@ -1,8 +1,8 @@
 name = "stocks"
-main = "src/index.ts"
-compatibility_date = "2022-08-28"
 account_id = "f5686db3c4f5b3e38b8f15b0561a28a8"
+compatibility_date = "2024-03-26"
+compatibility_flags = ["nodejs_compat"]
 
-routes = [
-	{ pattern = "stocks.mirio.dev", custom_domain = true }
-]
+main = "src/index.ts"
+
+routes = [{ pattern = "stocks.mirio.dev", custom_domain = true }]

@@ -45,8 +45,8 @@ router
     const properties = Object.entries(propertyDefinitions)
       .map(([key, value]) => `\t${key}: ${value}`)
       .join('\n');
-    return new Response(`Usage: curl https://ip.mirio.dev/:property [-4/-6] 
-    
+    return new Response(`Usage: curl https://ip.mirio.dev/:property [-4/-6]
+
     Properties:\n${properties}\n`);
   })
   .get('/json', (request: Request) => {

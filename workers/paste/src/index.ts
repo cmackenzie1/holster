@@ -26,7 +26,6 @@ app.get('/pastes/:public_id{[0-9A-Za-z]+}', async (c: Context<{ Bindings: Bindin
   const { public_id } = c.req.param();
   const now = new Date().toISOString();
 
-  console.log(c.req.url, c.req.headers);
   let result = null;
   try {
     result = await c.env.DB.prepare('SELECT * FROM pastes WHERE public_id = ? AND expires_at > ?')
