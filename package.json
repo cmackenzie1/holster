@@ -7,7 +7,7 @@
   "scripts": {
     "lint": "prettier --check '**/*.{js,ts,css,json,md}'",
     "format": "prettier --write '**/*.{js,ts,css,json,md}'",
-    "test": "echo 'No tests yet!'"
+    "test": "vitest"
   },
   "devDependencies": {
     "@cloudflare/vitest-pool-workers": "^0.1.6",

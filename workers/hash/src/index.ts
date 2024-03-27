@@ -1,4 +1,4 @@
-import { Router, Request as IttyRequest } from 'itty-router';
+import { Router, IRequest } from 'itty-router';
 export interface Env {}
 
 function buf2hex(buffer: ArrayBuffer): string {
@@ -16,7 +16,7 @@ const algs = {
 };
 
 router.post('/:alg', async (request: Request) => {
-  const { params } = request as IttyRequest;
+  const { params } = request as IRequest;
   const alg: 'sha256' | 'md5' | undefined = params?.alg as any;
   if (!alg || !(alg in algs))
     return new Response(
