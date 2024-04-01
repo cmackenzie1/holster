@@ -16,6 +16,6 @@ export default {
     router.all('/states/:projectName/lock', withIdentity, withParams, lockStateHandler);
 
     router.all('*', () => new Response('Not found.\n', { status: 404 }));
-    return router.handle(request, env);
+    return router.fetch(request, env);
   },
 };

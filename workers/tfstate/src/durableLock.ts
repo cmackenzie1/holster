@@ -28,7 +28,7 @@ export class DurableLock {
     router.unlock('/states/:projectName/lock', this.unlock.bind(this));
     router.all('*', () => new Response(request.url, { status: 404 }));
 
-    return router.handle(request);
+    return router.fetch(request);
   }
 
   private async lock(request: Request): Promise<Response> {

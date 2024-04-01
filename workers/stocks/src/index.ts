@@ -26,8 +26,4 @@ router.get('/:symbol', async (request: IRequest) => {
 
 export interface Env {}
 
-export default {
-  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
-    return router.handle(request, env);
-  },
-};
+export default router;

@@ -18,8 +18,4 @@ router.get('/uuid', (request: IRequest) => {
 
 router.get('*', () => new Response('Not found.\n', { status: 404 }));
 
-export default {
-  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
-    return router.handle(request);
-  },
-};
+export default router;
