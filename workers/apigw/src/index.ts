@@ -56,8 +56,4 @@ router.all('/echo/*', async (request: Request) => {
 
 router.all('*', () => new Response('Go away.', { status: 404 }));
 
-export default {
-  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
-    return router.handle(request, env);
-  },
-};
+export default router;
