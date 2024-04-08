@@ -1,0 +1,18 @@
+{
+  "$schema": "https://biomejs.dev/schemas/1.6.4/schema.json",
+  "organizeImports": {
+    "enabled": true,
+    "ignore": ["node_modules", ".wrangler"]
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": true
+    },
+    "ignore": ["node_modules", ".wrangler"]
+  },
+  "formatter": {
+    "enabled": true,
+    "ignore": ["node_modules", ".wrangler"]
+  }
+}
