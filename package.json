@@ -5,11 +5,12 @@
     "workers/*"
   ],
   "scripts": {
-    "lint": "prettier --check '**/*.{js,ts,css,json,md}'",
-    "format": "prettier --write '**/*.{js,ts,css,json,md}'",
+    "lint": "biome lint .",
+    "format": "biome format .",
     "test": "vitest"
   },
   "devDependencies": {
+    "@biomejs/biome": "1.6.4",
     "@cloudflare/vitest-pool-workers": "^0.1.17",
     "@cloudflare/workers-types": "^4.20240405.0",
     "prettier": "^3.2.5",
