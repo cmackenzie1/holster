@@ -1,12 +1,16 @@
 {
-  "compilerOptions": {
-    "module": "es2022",
-    "target": "es2022",
-    "lib": ["es2021"],
-    "sourceMap": true,
-    "moduleResolution": "node",
-    "esModuleInterop": true,
-    "types": ["@cloudflare/workers-types", "@cloudflare/workers-types/experimental", "@cloudflare/vitest-pool-workers"]
-  },
-  "exclude": ["node_modules"]
+	"compilerOptions": {
+		"module": "es2022",
+		"target": "es2022",
+		"lib": ["es2021"],
+		"sourceMap": true,
+		"moduleResolution": "node",
+		"esModuleInterop": true,
+		"types": [
+			"@cloudflare/workers-types",
+			"@cloudflare/workers-types/experimental",
+			"@cloudflare/vitest-pool-workers"
+		]
+	},
+	"exclude": ["node_modules"]
 }

@@ -1,8 +1,8 @@
-import { Env } from './types/env';
-import { RouteParams } from './middlewares';
-import { RequestWithIdentity } from './types/request';
-import { getObjectKey } from './utils';
-import { LockInfo } from './types/terraform';
+import type { RouteParams } from "./middlewares";
+import type { Env } from "./types/env";
+import type { RequestWithIdentity } from "./types/request";
+import type { LockInfo } from "./types/terraform";
+import { getObjectKey } from "./utils";
 
 /**
  * Returns the current remote state from the durable storage. Doesn't support locking
@@ -11,14 +11,23 @@ import { LockInfo } from './types/terraform';
  * @param request
  * @param env
  */
-export const getStateHandler = async (request: RequestWithIdentity & RouteParams, env: Env) => {
-  const { projectName } = request;
-  const username = request.identity?.userInfo?.username || '';
-  if (!projectName || projectName === '') return new Response('No project name specified.', { status: 400 });
-  if (!username || username === '') return new Response('Unable to determine username', { status: 500 });
-  const state: R2ObjectBody = await env.TFSTATE_BUCKET.get(getObjectKey(username, projectName));
-  if (state === null) return new Response(null, { status: 204 });
-  return new Response(await state?.arrayBuffer(), { headers: { 'content-type': 'application/json' } });
+export const getStateHandler = async (
+	request: RequestWithIdentity & RouteParams,
+	env: Env,
+) => {
+	const { projectName } = request;
+	const username = request.identity?.userInfo?.username || "";
+	if (!projectName || projectName === "")
+		return new Response("No project name specified.", { status: 400 });
+	if (!username || username === "")
+		return new Response("Unable to determine username", { status: 500 });
+	const state: R2ObjectBody = await env.TFSTATE_BUCKET.get(
+		getObjectKey(username, projectName),
+	);
+	if (state === null) return new Response(null, { status: 204 });
+	return new Response(await state?.arrayBuffer(), {
+		headers: { "content-type": "application/json" },
+	});
 };
 
 /**
@@ -28,26 +37,33 @@ export const getStateHandler = async (request: RequestWithIdentity & RouteParams
  * @param request
  * @param env
  */
-export const putStateHandler = async (request: RequestWithIdentity & RouteParams, env: Env) => {
-  const { projectName, url } = request;
-  const username = request.identity?.userInfo?.username || '';
-  if (!projectName || projectName === '') return new Response('No project name specified.', { status: 400 });
-  if (!username || username === '') return new Response('Unable to determine username', { status: 500 });
+export const putStateHandler = async (
+	request: RequestWithIdentity & RouteParams,
+	env: Env,
+) => {
+	const { projectName, url } = request;
+	const username = request.identity?.userInfo?.username || "";
+	if (!projectName || projectName === "")
+		return new Response("No project name specified.", { status: 400 });
+	if (!username || username === "")
+		return new Response("Unable to determine username", { status: 500 });
 
-  const key = getObjectKey(username, projectName);
-  const id = env.TFSTATE_LOCK.idFromName(key);
-  const lock = env.TFSTATE_LOCK.get(id);
-  const lockResp = await lock.fetch(`https://lock.do/states/${projectName}/lock`);
-  const lockInfo = (await lockResp.json()) as LockInfo;
+	const key = getObjectKey(username, projectName);
+	const id = env.TFSTATE_LOCK.idFromName(key);
+	const lock = env.TFSTATE_LOCK.get(id);
+	const lockResp = await lock.fetch(
+		`https://lock.do/states/${projectName}/lock`,
+	);
+	const lockInfo = (await lockResp.json()) as LockInfo;
 
-  // Lock present, ensure the update request has the correct lock ID
-  if (lockInfo.ID) {
-    const lockId = new URL(url).searchParams.get('ID');
-    if (lockInfo.ID !== lockId) return Response.json(lockInfo, { status: 423 });
-  }
+	// Lock present, ensure the update request has the correct lock ID
+	if (lockInfo.ID) {
+		const lockId = new URL(url).searchParams.get("ID");
+		if (lockInfo.ID !== lockId) return Response.json(lockInfo, { status: 423 });
+	}
 
-  await env.TFSTATE_BUCKET.put(key, await request.arrayBuffer());
-  return new Response();
+	await env.TFSTATE_BUCKET.put(key, await request.arrayBuffer());
+	return new Response();
 };
 
 /**
@@ -58,23 +74,30 @@ export const putStateHandler = async (request: RequestWithIdentity & RouteParams
  * @param request
  * @param env
  */
-export const deleteStateHandler = async (request: RequestWithIdentity & RouteParams, env: Env) => {
-  const { projectName, url } = request;
-  const username = request.identity?.userInfo?.username || '';
-  if (!projectName || projectName === '') return new Response('No project name specified.', { status: 400 });
-  if (!username || username === '') return new Response('Unable to determine username', { status: 500 });
+export const deleteStateHandler = async (
+	request: RequestWithIdentity & RouteParams,
+	env: Env,
+) => {
+	const { projectName, url } = request;
+	const username = request.identity?.userInfo?.username || "";
+	if (!projectName || projectName === "")
+		return new Response("No project name specified.", { status: 400 });
+	if (!username || username === "")
+		return new Response("Unable to determine username", { status: 500 });
 
-  const key = getObjectKey(username, projectName);
-  const id = env.TFSTATE_LOCK.idFromName(key);
-  const lock = env.TFSTATE_LOCK.get(id);
-  const lockResp = await lock.fetch(`https://lock.do/states/${projectName}/lock`);
-  const lockInfo = (await lockResp.json()) as LockInfo;
+	const key = getObjectKey(username, projectName);
+	const id = env.TFSTATE_LOCK.idFromName(key);
+	const lock = env.TFSTATE_LOCK.get(id);
+	const lockResp = await lock.fetch(
+		`https://lock.do/states/${projectName}/lock`,
+	);
+	const lockInfo = (await lockResp.json()) as LockInfo;
 
-  // Lock present, prevent delete entirely.
-  if (lockInfo.ID) return Response.json(lockInfo, { status: 423 });
+	// Lock present, prevent delete entirely.
+	if (lockInfo.ID) return Response.json(lockInfo, { status: 423 });
 
-  await env.TFSTATE_BUCKET.delete(getObjectKey(username, projectName));
-  return new Response();
+	await env.TFSTATE_BUCKET.delete(getObjectKey(username, projectName));
+	return new Response();
 };
 
 /**
@@ -82,12 +105,17 @@ export const deleteStateHandler = async (request: RequestWithIdentity & RoutePar
  * PUT/DELETE /states/:projectName/lock
  * @param request
  */
-export const lockStateHandler = async (request: RequestWithIdentity & RouteParams, env: Env) => {
-  const { projectName } = request;
-  const username = request.identity?.userInfo?.username || '';
-  if (!projectName || projectName === '') return new Response('No project name specified.', { status: 400 });
-  if (!username || username === '') return new Response('Unable to determine username', { status: 500 });
-  const id = env.TFSTATE_LOCK.idFromName(getObjectKey(username, projectName));
-  const lock = env.TFSTATE_LOCK.get(id);
-  return lock.fetch(request);
+export const lockStateHandler = async (
+	request: RequestWithIdentity & RouteParams,
+	env: Env,
+) => {
+	const { projectName } = request;
+	const username = request.identity?.userInfo?.username || "";
+	if (!projectName || projectName === "")
+		return new Response("No project name specified.", { status: 400 });
+	if (!username || username === "")
+		return new Response("Unable to determine username", { status: 500 });
+	const id = env.TFSTATE_LOCK.idFromName(getObjectKey(username, projectName));
+	const lock = env.TFSTATE_LOCK.get(id);
+	return lock.fetch(request);
 };
