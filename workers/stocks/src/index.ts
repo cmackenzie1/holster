@@ -1,8 +1,6 @@
 import { type IRequest, Router } from "itty-router";
 import { YahooFinance } from "./yahoofinance";
 
-export type Env = {};
-
 export interface StockQuote {
 	date: string;
 	symbol: string;
@@ -21,9 +19,7 @@ const router = Router();
 router.get("/:symbol", async (request: IRequest) => {
 	const { params } = request;
 	const yahoo = new YahooFinance();
-	return Response.json(await yahoo.quote(params!.symbol));
+	return Response.json(await yahoo.quote(params.symbol));
 });
-
-export type Env = {};
 
 export default router;

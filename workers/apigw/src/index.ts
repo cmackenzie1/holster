@@ -1,7 +1,5 @@
 import { Router } from "itty-router";
 
-export type Env = {};
-
 const router = Router();
 
 router.all("/tfstate/*", async (request: Request) => {

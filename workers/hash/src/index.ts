@@ -1,5 +1,4 @@
 import { type IRequest, Router } from "itty-router";
-export type Env = {};
 
 function buf2hex(buffer: ArrayBuffer): string {
 	return [...new Uint8Array(buffer)]
@@ -19,7 +18,7 @@ const algs = {
 
 router.post("/:alg", async (request: Request) => {
 	const { params } = request as IRequest;
-	const alg: "sha256" | "md5" | undefined = params?.alg as any;
+	const alg: string | undefined = params?.alg;
 	if (!alg || !(alg in algs))
 		return new Response(
 			`Invalid algorithm.\nSupported algorithms are: ${[
@@ -30,9 +29,9 @@ router.post("/:alg", async (request: Request) => {
 			},
 		);
 	return new Response(
-		buf2hex(
+		`${buf2hex(
 			await crypto.subtle.digest(algs[alg], await request.arrayBuffer()),
-		) + "\n",
+		)}\n`,
 	);
 });
 

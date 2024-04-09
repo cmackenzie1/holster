@@ -1,5 +1,3 @@
-export type Env = {};
-
 export default {
 	async fetch(
 		request: Request,
