@@ -3,7 +3,7 @@
 	"private": true,
 	"workspaces": ["workers/*"],
 	"scripts": {
-		"lint": "biome lint --apply ./",
+		"lint": "biome lint --apply ./ && tsc --noEmit",
 		"format": "biome format --write ./",
 		"test": "vitest"
 	},
