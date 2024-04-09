@@ -15,5 +15,8 @@ jobs:
         with:
           node-version: lts/*
       - run: npm install
-      - run: npm run lint
+      - name: Setup Biome
+        uses: biomejs/setup-biome@v2
+      - name: Run Biome
+        run: biome ci .
       - run: npm run test
