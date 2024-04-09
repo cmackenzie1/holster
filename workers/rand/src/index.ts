@@ -1,7 +1,5 @@
 import { type IRequest, Router } from "itty-router";
 
-export type Env = {};
-
 const router = Router();
 
 router.get("/uuid", (request: IRequest) => {

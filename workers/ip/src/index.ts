@@ -1,5 +1,4 @@
 import { type IRequest, Router, error } from "itty-router";
-export type Env = {};
 
 const getIp = (request: Request) =>
 	request.headers.get("cf-connecting-ip") || "";
@@ -73,7 +72,7 @@ router
 
 		const property = propertyMapping[params.property];
 		if (!property) return new Response("Not found.\n", { status: 404 });
-		const prop: any = request.cf?.[property] || "unknown";
+		const prop = request.cf?.[property] || "unknown";
 		if (property === "latlong") {
 			const lat = request.cf?.latitude || "unknown";
 			const long = request.cf?.longitude || "unknown";

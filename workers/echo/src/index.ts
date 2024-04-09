@@ -1,19 +1,13 @@
-export type Env = {};
-
 export interface ResponseBody {
 	headers: Record<string, string>;
-	body: any;
+	body: unknown;
 	url: string;
 	method: string;
 	query: Record<string, string>;
 }
 
 export default {
-	async fetch(
-		request: Request,
-		env: Env,
-		ctx: ExecutionContext,
-	): Promise<Response> {
+	async fetch(request: Request): Promise<Response> {
 		const { url, method, headers } = request;
 		const parsedUrl = new URL(url);
 

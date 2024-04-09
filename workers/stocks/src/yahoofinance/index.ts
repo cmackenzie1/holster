@@ -51,8 +51,15 @@ export class YahooFinance {
 		if (data.chart.error) {
 			return null;
 		}
-		const result = data.chart.result.pop()!;
-		const quote = result.indicators.quote.pop()!;
+		const result = data.chart.result.pop();
+		if (!result) {
+			return null;
+		}
+
+		const quote = result.indicators.quote.pop();
+		if (!quote) {
+			return null;
+		}
 
 		return {
 			// use `en-CA` for `yyyy-mm-dd` format
