@@ -1,4 +1,3 @@
-import type { RouteParams } from "./middlewares";
 import type { Env } from "./types/env";
 import type { RequestWithIdentity } from "./types/request";
 import type { LockInfo } from "./types/terraform";
@@ -12,7 +11,7 @@ import { getObjectKey } from "./utils";
  * @param env
  */
 export const getStateHandler = async (
-	request: RequestWithIdentity & RouteParams,
+	request: RequestWithIdentity,
 	env: Env,
 ) => {
 	const { projectName } = request;
@@ -38,7 +37,7 @@ export const getStateHandler = async (
  * @param env
  */
 export const putStateHandler = async (
-	request: RequestWithIdentity & RouteParams,
+	request: RequestWithIdentity,
 	env: Env,
 ) => {
 	const { projectName, url } = request;
@@ -75,7 +74,7 @@ export const putStateHandler = async (
  * @param env
  */
 export const deleteStateHandler = async (
-	request: RequestWithIdentity & RouteParams,
+	request: RequestWithIdentity,
 	env: Env,
 ) => {
 	const { projectName, url } = request;
@@ -106,7 +105,7 @@ export const deleteStateHandler = async (
  * @param request
  */
 export const lockStateHandler = async (
-	request: RequestWithIdentity & RouteParams,
+	request: RequestWithIdentity,
 	env: Env,
 ) => {
 	const { projectName } = request;

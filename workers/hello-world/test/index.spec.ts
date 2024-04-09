@@ -10,11 +10,7 @@ import worker from "../src";
 describe("Echo worker", () => {
 	it("responds with 200 OK", async () => {
 		const request = new Request("http://example.com/");
-		// Create an empty context to pass to `worker.fetch()`
-		const ctx = createExecutionContext();
-		const response = await worker.fetch(request, env, ctx);
-		// Wait for all `Promise`s passed to `ctx.waitUntil()` to settle before running test assertions
-		await waitOnExecutionContext(ctx);
+		const response = await worker.fetch(request);
 		expect(response.status).toBe(200);
 		expect(await response.text()).toBe("Hello, World!");
 	});

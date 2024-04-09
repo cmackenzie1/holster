@@ -71,7 +71,6 @@ app.get("/pastes", async (c: Context<{ Bindings: Bindings }>) => {
 
 app.post("/pastes", async (c: Context<{ Bindings: Bindings }>) => {
 	const content_type = c.req.header("content-type");
-	console.log(c.req.url, c.req.headers);
 	const created_at = new Date().toISOString();
 	const expires_at = new Date(
 		Date.now() + 1000 * 60 * 60 * 24 * 7,

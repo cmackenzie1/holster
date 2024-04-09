@@ -10,11 +10,7 @@ import worker, { type ResponseBody } from "../src";
 describe("Echo worker", () => {
 	it("get responds with 200 OK", async () => {
 		const request = new Request("http://example.com?pretty=true");
-		// Create an empty context to pass to `worker.fetch()`
-		const ctx = createExecutionContext();
-		const response = await worker.fetch(request, env, ctx);
-		// Wait for all `Promise`s passed to `ctx.waitUntil()` to settle before running test assertions
-		await waitOnExecutionContext(ctx);
+		const response = await worker.fetch(request);
 		expect(response.status).toBe(200);
 		const responseBody = (await response.json()) as ResponseBody;
 		expect(responseBody).toBeDefined();
@@ -31,11 +27,7 @@ describe("Echo worker", () => {
 			method: "POST",
 			body: JSON.stringify({ hello: "world" }),
 		});
-		// Create an empty context to pass to `worker.fetch()`
-		const ctx = createExecutionContext();
-		const response = await worker.fetch(request, env, ctx);
-		// Wait for all `Promise`s passed to `ctx.waitUntil()` to settle before running test assertions
-		await waitOnExecutionContext(ctx);
+		const response = await worker.fetch(request);
 		expect(response.status).toBe(200);
 		const responseBody = (await response.json()) as ResponseBody;
 		expect(responseBody).toBeDefined();
