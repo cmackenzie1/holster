@@ -1,14 +1,14 @@
 {
-  "name": "tfstate",
-  "version": "0.0.0",
-  "private": true,
-  "scripts": {
-    "dev": "wrangler dev",
-    "deploy": "wrangler deploy",
-    "test": "vitest"
-  },
-  "dependencies": {
-    "itty-router": "^5.0.9",
-    "jose": "^5.2.4"
-  }
+	"name": "tfstate",
+	"version": "0.0.0",
+	"private": true,
+	"scripts": {
+		"dev": "wrangler dev",
+		"deploy": "wrangler deploy",
+		"test": "vitest"
+	},
+	"dependencies": {
+		"itty-router": "^5.0.9",
+		"jose": "^5.2.4"
+	}
 }

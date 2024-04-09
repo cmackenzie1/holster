@@ -1,14 +1,14 @@
 {
-  "name": "paste",
-  "version": "0.0.0",
-  "private": true,
-  "scripts": {
-    "dev": "wrangler dev",
-    "deploy": "wrangler deploy",
-    "test": "vitest"
-  },
-  "dependencies": {
-    "hono": "^4.2.2",
-    "short-unique-id": "^5.0.3"
-  }
+	"name": "paste",
+	"version": "0.0.0",
+	"private": true,
+	"scripts": {
+		"dev": "wrangler dev",
+		"deploy": "wrangler deploy",
+		"test": "vitest"
+	},
+	"dependencies": {
+		"hono": "^4.2.2",
+		"short-unique-id": "^5.0.3"
+	}
 }

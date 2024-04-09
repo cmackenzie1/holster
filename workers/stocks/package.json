@@ -1,13 +1,13 @@
 {
-  "name": "stocks",
-  "version": "0.0.0",
-  "private": true,
-  "scripts": {
-    "dev": "wrangler dev",
-    "deploy": "wrangler deploy",
-    "test": "vitest"
-  },
-  "dependencies": {
-    "itty-router": "^5.0.9"
-  }
+	"name": "stocks",
+	"version": "0.0.0",
+	"private": true,
+	"scripts": {
+		"dev": "wrangler dev",
+		"deploy": "wrangler deploy",
+		"test": "vitest"
+	},
+	"dependencies": {
+		"itty-router": "^5.0.9"
+	}
 }

@@ -1,8 +1,0 @@
-node_modules
-dist
-build
-.next
-.templates/
-pages/blog/public/
-pages/blog/themes/paper
-static/
