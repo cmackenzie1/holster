@@ -9,6 +9,6 @@
 	},
 	"dependencies": {
 		"hono": "^4.3.2",
-		"short-unique-id": "^5.0.3"
+		"short-unique-id": "^5.2.0"
 	}
 }
