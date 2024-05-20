@@ -8,6 +8,6 @@
 		"test": "vitest"
 	},
 	"dependencies": {
-		"hono": "^4.3.6"
+		"hono": "^4.3.8"
 	}
 }
