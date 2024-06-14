@@ -5,4 +5,16 @@ compatibility_flags = ["nodejs_compat"]
 
 main = "src/index.ts"
 
+routes = [{ pattern = "hello-world-dev.mirio.dev", custom_domain = true }]
+
+[[analytics_engine_datasets]]
+binding = "HTTP_REQUESTS"
+dataset = "http_requests"
+
+[env.production]
+name = "hello-world"
 routes = [{ pattern = "hello-world.mirio.dev", custom_domain = true }]
+
+[[env.production.analytics_engine_datasets]]
+binding = "HTTP_REQUESTS"
+dataset = "http_requests"
