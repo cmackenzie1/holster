@@ -5,6 +5,10 @@
 	"scripts": {
 		"dev": "wrangler dev",
 		"deploy": "wrangler deploy",
+		"deploy:prod": "wrangler deploy --env production",
 		"test": "vitest"
+	},
+	"dependencies": {
+		"analytics": "file:../../lib/analytics"
 	}
 }
