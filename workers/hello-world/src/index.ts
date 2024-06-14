@@ -11,7 +11,7 @@ export default {
 		_: ExecutionContext,
 	): Promise<Response> {
 		// Log the request
-		if (env.HTTP_REQUESTS) {
+		if (env?.HTTP_REQUESTS) {
 			new HTTPAnalytics(env.HTTP_REQUESTS).observe(request);
 		}
 
