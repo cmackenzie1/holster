@@ -43,10 +43,17 @@ export class YahooFinance {
 	async quote(symbol: string, date?: string): Promise<Quote | null> {
 		const url = new URL(`/v8/finance/chart/${symbol}`, this.url);
 		console.log(url.toString());
-		const resp = await fetch(url.toString());
+		const resp = await fetch(url.toString(), {
+			headers: {
+				"User-Agent":
+					"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36",
+			},
+		});
 		if (!resp.ok) {
+			console.log("Failed to fetch quote", resp.status, resp.statusText);
 			return null;
 		}
+
 		const data: QuoteResponse = await resp.json();
 		if (data.chart.error) {
 			return null;
