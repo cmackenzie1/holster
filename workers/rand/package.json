@@ -8,6 +8,6 @@
 		"test": "vitest"
 	},
 	"dependencies": {
-		"itty-router": "^5.0.17"
+		"itty-router": "^5.0.18"
 	}
 }
