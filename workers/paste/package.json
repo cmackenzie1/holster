@@ -8,7 +8,7 @@
 		"test": "vitest"
 	},
 	"dependencies": {
-		"hono": "^4.5.8",
+		"hono": "^4.5.10",
 		"short-unique-id": "^5.2.0"
 	}
 }
