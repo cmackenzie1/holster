@@ -1,4 +1,4 @@
-import { HTTPAnalytics } from "analytics";
+import { HTTPAnalytics } from "@mirio/analytics";
 
 interface Env {
 	HTTP_REQUESTS: AnalyticsEngineDataset;

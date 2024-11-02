@@ -8,7 +8,13 @@
 		"deploy:prod": "wrangler deploy --env production",
 		"test": "vitest"
 	},
+	"devDependencies": {
+		"wrangler": "catalog:",
+		"@cloudflare/vitest-pool-workers": "catalog:",
+		"@cloudflare/workers-types": "catalog:",
+		"vitest": "catalog:"
+	},
 	"dependencies": {
-		"analytics": "file:../../lib/analytics"
+		"@mirio/analytics": "workspace:"
 	}
 }

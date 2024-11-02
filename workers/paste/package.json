@@ -7,6 +7,12 @@
 		"deploy": "wrangler deploy",
 		"test": "vitest"
 	},
+	"devDependencies": {
+		"wrangler": "catalog:",
+		"@cloudflare/vitest-pool-workers": "catalog:",
+		"@cloudflare/workers-types": "catalog:",
+		"vitest": "catalog:"
+	},
 	"dependencies": {
 		"hono": "^4.6.7",
 		"short-unique-id": "^5.2.0"
