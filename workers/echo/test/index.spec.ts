@@ -1,4 +1,3 @@
-
 import { describe, expect, it } from "vitest";
 // Could import any other source file/function here
 import worker, { type ResponseBody } from "../src";
