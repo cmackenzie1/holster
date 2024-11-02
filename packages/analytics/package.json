@@ -3,5 +3,14 @@
 	"version": "1.0.0",
 	"private": true,
 	"description": "",
-	"main": "./src/index.js"
+	"main": "./src/index.ts",
+	"scripts": {
+		"test": "vitest"
+	},
+	"devDependencies": {
+		"wrangler": "catalog:",
+		"@cloudflare/vitest-pool-workers": "catalog:",
+		"@cloudflare/workers-types": "catalog:",
+		"vitest": "catalog:"
+	}
 }

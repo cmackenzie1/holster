@@ -1,17 +1,15 @@
 {
 	"compilerOptions": {
 		"skipLibCheck": true,
-		"module": "es2022",
-		"target": "es2022",
-		"lib": ["es2021"],
+		"module": "esnext",
+		"target": "esnext",
+		"lib": ["esnext"],
 		"sourceMap": true,
 		"moduleResolution": "node",
 		"esModuleInterop": true,
 		"types": [
 			"@cloudflare/workers-types",
-			"@cloudflare/workers-types/experimental",
-			"@cloudflare/vitest-pool-workers",
-			"./lib/**/*.ts"
+			"@cloudflare/workers-types/experimental"
 		]
 	},
 	"exclude": ["node_modules"]
