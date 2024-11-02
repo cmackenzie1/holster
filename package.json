@@ -1,14 +1,16 @@
 {
-	"name": "root",
-	"private": true,
-	"scripts": {
-		"lint": "biome lint --write ./ && tsc --noEmit",
-		"format": "biome format --write ./",
-		"test": "vitest"
-	},
-	"devDependencies": {
-		"@biomejs/biome": "1.9.4",
-		"typescript": "^5.6.3",
-		"vitest": "catalog:"
-	}
+  "name": "root",
+  "private": true,
+  "scripts": {
+    "lint": "biome lint --write ./ && tsc --noEmit",
+    "format": "biome format --write ./",
+    "test": "vitest"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "catalog:",
+    "@cloudflare/vitest-pool-workers": "catalog:",
+    "@biomejs/biome": "1.9.4",
+    "typescript": "^5.6.3",
+    "vitest": "catalog:"
+  }
 }
