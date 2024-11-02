@@ -1,4 +1,4 @@
-import { type IRequest, Router, } from "itty-router";
+import { type IRequest, Router } from "itty-router";
 
 const getIp = (request: Request) =>
 	request.headers.get("cf-connecting-ip") || "";
