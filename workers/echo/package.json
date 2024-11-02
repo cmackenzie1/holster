@@ -7,5 +7,11 @@
 		"dev": "wrangler dev",
 		"deploy": "wrangler deploy",
 		"test": "vitest"
+	},
+	"devDependencies": {
+		"wrangler": "catalog:",
+		"@cloudflare/vitest-pool-workers": "catalog:",
+		"@cloudflare/workers-types": "catalog:",
+		"vitest": "catalog:"
 	}
 }

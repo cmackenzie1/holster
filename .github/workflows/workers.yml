@@ -2,9 +2,9 @@ name: Workers
 
 on:
   push:
-    branches: ['main']
+    branches: ["main"]
   pull_request:
-    branches: ['main']
+    branches: ["main"]
 
 jobs:
   build:
@@ -14,9 +14,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: lts/*
-      - run: npm install
+      - run: pnpm install
       - name: Setup Biome
         uses: biomejs/setup-biome@v2
       - name: Run Biome
         run: biome ci .
-      - run: npm run test
+      - run: pnpm run test

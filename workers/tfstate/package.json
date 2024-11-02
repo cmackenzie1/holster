@@ -7,6 +7,12 @@
 		"deploy": "wrangler deploy",
 		"test": "vitest"
 	},
+	"devDependencies": {
+		"wrangler": "catalog:",
+		"@cloudflare/vitest-pool-workers": "catalog:",
+		"@cloudflare/workers-types": "catalog:",
+		"vitest": "catalog:"
+	},
 	"dependencies": {
 		"itty-router": "^5.0.18",
 		"jose": "^5.9.6"

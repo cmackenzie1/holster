@@ -1,4 +1,4 @@
 import { defineConfig, defineWorkspace } from "vitest/config";
 
 // defineWorkspace provides a nice type hinting DX
-export default defineWorkspace(["workers/*"]);
+export default defineWorkspace(["workers/*", "packages/*"]);
