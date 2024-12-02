@@ -10,7 +10,7 @@
 		"@cloudflare/workers-types": "catalog:",
 		"@cloudflare/vitest-pool-workers": "catalog:",
 		"@biomejs/biome": "1.9.4",
-		"typescript": "^5.6.3",
+		"typescript": "^5.7.2",
 		"vitest": "catalog:"
 	}
 }
