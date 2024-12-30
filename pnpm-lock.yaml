@@ -148,8 +148,8 @@ importers:
   workers/paste:
     dependencies:
       hono:
-        specifier: ^4.6.14
-        version: 4.6.14
+        specifier: ^4.6.15
+        version: 4.6.15
       short-unique-id:
         specifier: ^5.2.0
         version: 5.2.0
@@ -189,8 +189,8 @@ importers:
   workers/rdap:
     dependencies:
       hono:
-        specifier: ^4.6.14
-        version: 4.6.14
+        specifier: ^4.6.15
+        version: 4.6.15
     devDependencies:
       '@cloudflare/vitest-pool-workers':
         specifier: 'catalog:'
@@ -943,8 +943,8 @@ packages:
     resolution: {integrity: sha512-0hJU9SCPvmMzIBdZFqNPXWa6dqh7WdH0cII9y+CyS8rG3nL48Bclra9HmKhVVUHyPWNH5Y7xDwAB7bfgSjkUMQ==}
     engines: {node: '>= 0.4'}
 
-  hono@4.6.14:
-    resolution: {integrity: sha512-j4VkyUp2xazGJ8eCCLN1Vm/bxdvm/j5ZuU9AIjLu9vapn2M44p9L3Ktr9Vnb2RN2QtcR/wVjZVMlT5k7GJQgPw==}
+  hono@4.6.15:
+    resolution: {integrity: sha512-OiQwvAOAaI2JrABBH69z5rsctHDzFzIKJge0nYXgtzGJ0KftwLWcBXm1upJC23/omNRtnqM0gjRMbtXshPdqhQ==}
     engines: {node: '>=16.9.0'}
 
   human-signals@5.0.0:
@@ -1877,7 +1877,7 @@ snapshots:
     dependencies:
       function-bind: 1.1.2
 
-  hono@4.6.14: {}
+  hono@4.6.15: {}
 
   human-signals@5.0.0: {}
 

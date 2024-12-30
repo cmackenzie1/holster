@@ -14,7 +14,7 @@
 		"vitest": "catalog:"
 	},
 	"dependencies": {
-		"hono": "^4.6.14",
+		"hono": "^4.6.15",
 		"short-unique-id": "^5.2.0"
 	}
 }
