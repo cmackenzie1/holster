@@ -9,7 +9,7 @@
 	"devDependencies": {
 		"@cloudflare/workers-types": "catalog:",
 		"@cloudflare/vitest-pool-workers": "catalog:",
-		"@biomejs/biome": "1.9.4",
+		"@biomejs/biome": "2.0.4",
 		"typescript": "^5.8.3",
 		"vitest": "catalog:"
 	}
