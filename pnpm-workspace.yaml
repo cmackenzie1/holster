@@ -4,6 +4,6 @@ packages:
 
 catalog:
   "wrangler": "^4.0.0"
-  "@cloudflare/vitest-pool-workers": "^0.8.0"
-  "@cloudflare/workers-types": "^4.20250313.0"
-  "vitest": "3.0.8"
+  "@cloudflare/vitest-pool-workers": "^0.8.47"
+  "@cloudflare/workers-types": "^4.20250628.0"
+  "vitest": "3.2.4"
