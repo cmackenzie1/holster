@@ -15,6 +15,6 @@
 	},
 	"dependencies": {
 		"itty-router": "^5.0.18",
-		"jose": "^6.0.10"
+		"jose": "^6.0.11"
 	}
 }
