@@ -1,15 +1,15 @@
 {
-	"name": "@cmackenzie1/condition",
-	"version": "1.0.0",
-	"description": "A generic data notifier that allows clients to wait for some condition to become ready",
-	"main": "./src/index.ts",
-	"scripts": {
-		"test": "vitest"
-	},
-	"devDependencies": {
-		"wrangler": "catalog:",
-		"@cloudflare/vitest-pool-workers": "catalog:",
-		"@cloudflare/workers-types": "catalog:",
-		"vitest": "catalog:"
-	}
+  "name": "@cmackenzie1/condition",
+  "version": "0.1.1",
+  "description": "A generic data notifier that allows clients to wait for some condition to become ready",
+  "main": "./src/index.ts",
+  "scripts": {
+    "test": "vitest"
+  },
+  "devDependencies": {
+    "wrangler": "catalog:",
+    "@cloudflare/vitest-pool-workers": "catalog:",
+    "@cloudflare/workers-types": "catalog:",
+    "vitest": "catalog:"
+  }
 }
