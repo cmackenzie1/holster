@@ -4,6 +4,7 @@
 	"scripts": {
 		"lint": "biome lint --write ./ && tsc --noEmit",
 		"format": "biome format --write ./",
+		"check": "biome check --write ./",
 		"test": "vitest"
 	},
 	"devDependencies": {
