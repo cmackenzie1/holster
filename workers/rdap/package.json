@@ -8,12 +8,12 @@
 		"test": "vitest"
 	},
 	"devDependencies": {
-		"wrangler": "catalog:",
 		"@cloudflare/vitest-pool-workers": "catalog:",
 		"@cloudflare/workers-types": "catalog:",
-		"vitest": "catalog:"
+		"vitest": "catalog:",
+		"wrangler": "catalog:"
 	},
 	"dependencies": {
-		"hono": "^4.8.3"
+		"hono": "^4.8.4"
 	}
 }
