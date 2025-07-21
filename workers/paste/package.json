@@ -14,7 +14,7 @@
 		"wrangler": "catalog:"
 	},
 	"dependencies": {
-		"hono": "^4.8.4",
+		"hono": "^4.8.5",
 		"short-unique-id": "^5.3.2"
 	}
 }
