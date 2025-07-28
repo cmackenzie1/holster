@@ -14,6 +14,6 @@
 		"vitest": "catalog:"
 	},
 	"dependencies": {
-		"itty-router": "^5.0.18"
+		"itty-router": "^5.0.20"
 	}
 }
