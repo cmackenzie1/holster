@@ -3,7 +3,7 @@ packages:
   - packages/*
 
 catalog:
-  "wrangler": "^4.27.0"
-  "@cloudflare/vitest-pool-workers": "^0.8.59"
-  "@cloudflare/workers-types": "^4.20250803.0"
+  "wrangler": "^4.30.0"
+  "@cloudflare/vitest-pool-workers": "^0.8.64"
+  "@cloudflare/workers-types": "^4.20250816.0"
   "vitest": "3.2.4"
