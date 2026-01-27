@@ -1,22 +1,18 @@
-import { type IRequest, Router } from "itty-router";
+import { Hono } from "hono";
 
-const router = Router();
+const app = new Hono();
 
-router.get("/uuid", (request: IRequest) => {
-	const { searchParams } = new URL(request.url);
-	const count: number = Number.parseInt(
-		searchParams.get("n") ||
-			searchParams.get("count") ||
-			searchParams.get("limit") ||
-			"1",
+app.get("/uuid", (c) => {
+	const count = Number.parseInt(
+		c.req.query("n") || c.req.query("count") || c.req.query("limit") || "1",
 		10,
 	);
 	const data = Array(count)
 		.fill(0)
 		.map(() => crypto.randomUUID());
-	return new Response(`${data.join("\n")}\n`);
+	return c.text(`${data.join("\n")}\n`);
 });
 
-router.get("*", () => new Response("Not found.\n", { status: 404 }));
+app.all("*", (c) => c.text("Not found.\n", 404));
 
-export default router;
+export default app;
