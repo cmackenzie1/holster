@@ -3,8 +3,7 @@ import { Router } from "itty-router";
 const router = Router();
 
 router.all("/tfstate/*", async (request: Request) => {
-	const authorization: string | undefined =
-		request.headers.get("authorization");
+	const authorization = request.headers.get("authorization");
 	if (!authorization) return fetch(request);
 
 	const [authScheme, token] = authorization.split(" ");
@@ -28,8 +27,7 @@ router.all("/tfstate/*", async (request: Request) => {
 });
 
 router.all("/clickhouse/*", async (request: Request) => {
-	const authorization: string | undefined =
-		request.headers.get("authorization");
+	const authorization = request.headers.get("authorization");
 	if (!authorization) return fetch(request);
 
 	const [authScheme, token] = authorization.split(" ");

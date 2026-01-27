@@ -44,8 +44,8 @@ app.get(
 			throw new HTTPException(404, { message: "Paste not found" });
 		}
 
-		return c.text(result.content, {
-			headers: { "Content-Type": result.content_type },
+		return c.text(result.content as string, {
+			headers: { "Content-Type": result.content_type as string },
 		});
 	},
 );
@@ -115,7 +115,11 @@ app.post("/pastes", async (c: Context<{ Bindings: Bindings }>) => {
 });
 
 export default {
-	async scheduled(event, env: Bindings, ctx) {
+	async scheduled(
+		event: ScheduledEvent,
+		env: Bindings,
+		ctx: ExecutionContext,
+	) {
 		const result = await env.DB.prepare(
 			"DELETE FROM pastes WHERE expires_at < ?",
 		)

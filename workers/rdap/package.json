@@ -3,6 +3,7 @@
 	"version": "0.0.0",
 	"private": true,
 	"scripts": {
+		"check-types": "tsc --noEmit",
 		"dev": "wrangler dev",
 		"deploy": "wrangler deploy",
 		"test": "vitest"
@@ -10,6 +11,8 @@
 	"devDependencies": {
 		"@cloudflare/vitest-pool-workers": "catalog:",
 		"@cloudflare/workers-types": "catalog:",
+		"@holster/typescript-config": "workspace:*",
+		"typescript": "catalog:",
 		"vitest": "catalog:",
 		"wrangler": "catalog:"
 	},

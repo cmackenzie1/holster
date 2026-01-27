@@ -1,17 +1,22 @@
 {
 	"name": "root",
 	"private": true,
+	"packageManager": "pnpm@10.6.3",
 	"scripts": {
-		"lint": "biome lint --write ./ && tsc --noEmit",
+		"build": "turbo run build",
+		"check-types": "turbo run check-types",
+		"lint": "biome lint --write ./",
 		"format": "biome format --write ./",
 		"check": "biome check --write ./",
-		"test": "vitest"
+		"test": "turbo run test",
+		"dev": "turbo run dev"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.2.0",
 		"@cloudflare/vitest-pool-workers": "catalog:",
 		"@cloudflare/workers-types": "catalog:",
-		"typescript": "^5.9.2",
+		"turbo": "catalog:",
+		"typescript": "catalog:",
 		"vitest": "catalog:"
 	}
 }

@@ -3,16 +3,19 @@
 	"version": "0.0.0",
 	"private": true,
 	"scripts": {
+		"check-types": "tsc --noEmit",
 		"dev": "wrangler dev",
 		"deploy": "wrangler deploy",
 		"deploy:prod": "wrangler deploy --env production",
 		"test": "vitest"
 	},
 	"devDependencies": {
-		"wrangler": "catalog:",
 		"@cloudflare/vitest-pool-workers": "catalog:",
 		"@cloudflare/workers-types": "catalog:",
-		"vitest": "catalog:"
+		"@holster/typescript-config": "workspace:*",
+		"typescript": "catalog:",
+		"vitest": "catalog:",
+		"wrangler": "catalog:"
 	},
 	"dependencies": {
 		"@mirio/analytics": "workspace:"

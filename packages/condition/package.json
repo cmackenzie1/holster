@@ -4,12 +4,15 @@
 	"description": "A generic data notifier that allows clients to wait for some condition to become ready",
 	"main": "./src/index.ts",
 	"scripts": {
+		"check-types": "tsc --noEmit",
 		"test": "vitest"
 	},
 	"devDependencies": {
-		"wrangler": "catalog:",
 		"@cloudflare/vitest-pool-workers": "catalog:",
 		"@cloudflare/workers-types": "catalog:",
-		"vitest": "catalog:"
+		"@holster/typescript-config": "workspace:*",
+		"typescript": "catalog:",
+		"vitest": "catalog:",
+		"wrangler": "catalog:"
 	}
 }

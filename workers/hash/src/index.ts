@@ -8,7 +8,7 @@ function buf2hex(buffer: ArrayBuffer): string {
 
 const router = Router();
 
-const algs = {
+const algs: Record<string, string> = {
 	sha1: "SHA-1",
 	sha256: "SHA-256",
 	sha384: "SHA-384",
