@@ -115,11 +115,7 @@ app.post("/pastes", async (c: Context<{ Bindings: Bindings }>) => {
 });
 
 export default {
-	async scheduled(
-		event: ScheduledEvent,
-		env: Bindings,
-		ctx: ExecutionContext,
-	) {
+	async scheduled(event: ScheduledEvent, env: Bindings, ctx: ExecutionContext) {
 		const result = await env.DB.prepare(
 			"DELETE FROM pastes WHERE expires_at < ?",
 		)

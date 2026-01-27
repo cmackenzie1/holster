@@ -42,7 +42,11 @@ describe("Condition", () => {
 
 		condition.notifyAll(42);
 
-		const [result1, result2, result3] = await Promise.all([wait1, wait2, wait3]);
+		const [result1, result2, result3] = await Promise.all([
+			wait1,
+			wait2,
+			wait3,
+		]);
 
 		expect(result1.status).toBe("ready");
 		expect(result2.status).toBe("ready");
