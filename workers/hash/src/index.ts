@@ -1,4 +1,4 @@
-import { type IRequest, Router } from "itty-router";
+import { Hono } from "hono";
 
 function buf2hex(buffer: ArrayBuffer): string {
 	return [...new Uint8Array(buffer)]
@@ -6,7 +6,7 @@ function buf2hex(buffer: ArrayBuffer): string {
 		.join("");
 }
 
-const router = Router();
+const app = new Hono();
 
 const algs: Record<string, string> = {
 	sha1: "SHA-1",
@@ -16,28 +16,18 @@ const algs: Record<string, string> = {
 	md5: "MD5",
 };
 
-router.post("/:alg", async (request: Request) => {
-	const { params } = request as IRequest;
-	const alg: string | undefined = params?.alg;
-	if (!alg || !(alg in algs))
-		return new Response(
-			`Invalid algorithm.\nSupported algorithms are: ${[
-				...new Set(Object.keys(algs)),
-			].join(", ")}\n`,
-			{
-				status: 400,
-			},
+app.post("/:alg", async (c) => {
+	const alg = c.req.param("alg");
+	if (!alg || !(alg in algs)) {
+		return c.text(
+			`Invalid algorithm.\nSupported algorithms are: ${Object.keys(algs).join(", ")}\n`,
+			400,
 		);
-	return new Response(
-		`${buf2hex(
-			await crypto.subtle.digest(algs[alg], await request.arrayBuffer()),
-		)}\n`,
-	);
+	}
+	const hash = await crypto.subtle.digest(algs[alg], await c.req.arrayBuffer());
+	return c.text(`${buf2hex(hash)}\n`);
 });
 
-router.post(
-	"*",
-	async (request: Request) => new Response("Not found.\n", { status: 404 }),
-);
+app.all("*", (c) => c.text("Not found.\n", 404));
 
-export default router;
+export default app;

@@ -134,9 +134,9 @@ importers:
 
   workers/hash:
     dependencies:
-      itty-router:
-        specifier: ^5.0.22
-        version: 5.0.22
+      hono:
+        specifier: ^4.9.4
+        version: 4.9.4
     devDependencies:
       '@cloudflare/vitest-pool-workers':
         specifier: 'catalog:'
@@ -184,9 +184,9 @@ importers:
 
   workers/ip:
     dependencies:
-      itty-router:
-        specifier: ^5.0.22
-        version: 5.0.22
+      hono:
+        specifier: ^4.9.4
+        version: 4.9.4
     devDependencies:
       '@cloudflare/vitest-pool-workers':
         specifier: 'catalog:'
@@ -237,9 +237,9 @@ importers:
 
   workers/rand:
     dependencies:
-      itty-router:
-        specifier: ^5.0.22
-        version: 5.0.22
+      hono:
+        specifier: ^4.9.4
+        version: 4.9.4
     devDependencies:
       '@cloudflare/vitest-pool-workers':
         specifier: 'catalog:'
@@ -287,9 +287,9 @@ importers:
 
   workers/stocks:
     dependencies:
-      itty-router:
-        specifier: ^5.0.22
-        version: 5.0.22
+      hono:
+        specifier: ^4.9.4
+        version: 4.9.4
     devDependencies:
       '@cloudflare/vitest-pool-workers':
         specifier: 'catalog:'
@@ -1114,9 +1114,6 @@ packages:
   hono@4.9.4:
     resolution: {integrity: sha512-61hl6MF6ojTl/8QSRu5ran6GXt+6zsngIUN95KzF5v5UjiX/xnrLR358BNRawwIRO49JwUqJqQe3Rb2v559R8Q==}
     engines: {node: '>=16.9.0'}
-
-  itty-router@5.0.22:
-    resolution: {integrity: sha512-9hmdGErWdYDOurGYxSbqLhy4EFReIwk71hMZTJ5b+zfa2zjMNV1ftFno2b8VjAQvX615gNB8Qxbl9JMRqHnIVA==}
 
   js-tokens@9.0.1:
     resolution: {integrity: sha512-mxa9E9ITFOt0ban3j6L5MpjwegGz6lBQmM1IJkWeBZGcMxto50+eWdjC/52xDbS2vy0k7vIMK0Fe2wfL9OQSpQ==}
@@ -1961,8 +1958,6 @@ snapshots:
     optional: true
 
   hono@4.9.4: {}
-
-  itty-router@5.0.22: {}
 
   js-tokens@9.0.1: {}
 

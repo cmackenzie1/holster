@@ -1,4 +1,4 @@
-import { type IRequest, Router } from "itty-router";
+import { Hono } from "hono";
 import { YahooFinance } from "./yahoofinance";
 
 export interface StockQuote {
@@ -14,12 +14,12 @@ export interface StockQuote {
 	previousClose: number;
 }
 
-const router = Router();
+const app = new Hono();
 
-router.get("/:symbol", async (request: IRequest) => {
-	const { params } = request;
+app.get("/:symbol", async (c) => {
+	const symbol = c.req.param("symbol");
 	const yahoo = new YahooFinance();
-	return Response.json(await yahoo.quote(params.symbol));
+	return c.json(await yahoo.quote(symbol));
 });
 
-export default router;
+export default app;

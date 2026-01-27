@@ -1,4 +1,4 @@
-import { type IRequest, Router } from "itty-router";
+import { Hono } from "hono";
 
 const getIp = (request: Request) =>
 	request.headers.get("cf-connecting-ip") || "";
@@ -29,65 +29,54 @@ const propertyMapping: { [key: string]: keyof IncomingRequestCfProperties } = {
 	timezone: "timezone",
 };
 
-const router = Router();
+const app = new Hono();
 
-router
-	.all("*")
-	.get("/", (request: Request) => {
-		const ip = getIp(request);
-		return new Response(`${ip}\n`, {
-			headers: {
-				"content-type": "text/plain",
-			},
-		});
-	})
-	.get("/help", () => {
-		const properties = Object.entries(propertyDefinitions)
-			.map(([key, value]) => `\t${key}: ${value}`)
-			.join("\n");
-		return new Response(`Usage: curl https://ip.mirio.dev/:property [-4/-6]
+app.get("/", (c) => {
+	const ip = getIp(c.req.raw);
+	return c.text(`${ip}\n`);
+});
 
-    Properties:\n${properties}\n`);
-	})
-	.get("/json", (request: Request) => {
-		const { url, cf } = request;
-		const ip = getIp(request);
-		const parsedUrl = new URL(url);
-		const result = { ip, info: cf };
-		const responseBody = parsedUrl.searchParams.get("pretty")
-			? JSON.stringify(result, null, 2)
-			: JSON.stringify(result);
+app.get("/help", (c) => {
+	const properties = Object.entries(propertyDefinitions)
+		.map(([key, value]) => `\t${key}: ${value}`)
+		.join("\n");
+	return c.text(`Usage: curl https://ip.mirio.dev/:property [-4/-6]
 
-		return new Response(responseBody, {
-			headers: {
-				"content-type": "application/json; charset=UTF-8",
-			},
-		});
-	})
-	.get("/:property", (request: IRequest) => {
-		const { params } = request;
-		if (!params) return new Response(null, { status: 204 });
-		const { cf } = request;
-		if (!cf) return new Response(null, { status: 204 });
+Properties:\n${properties}\n`);
+});
 
-		const property = propertyMapping[params.property];
-		if (!property) return new Response("Not found.\n", { status: 404 });
-		const prop = request.cf?.[property] || "unknown";
-		if (property === "latlong") {
-			const lat = request.cf?.latitude || "unknown";
-			const long = request.cf?.longitude || "unknown";
-			return new Response(`${lat},${long}\n`, {
-				headers: {
-					"content-type": "text/csv",
-					"content-disposition": "inline",
-				},
-			});
-		}
-		return new Response(`${prop}\n`, {
-			headers: {
-				"content-type": "text/plain",
-			},
-		});
+app.get("/json", (c) => {
+	const request = c.req.raw;
+	const ip = getIp(request);
+	const result = { ip, info: request.cf };
+	const pretty = c.req.query("pretty");
+	return c.json(result, 200, {
+		...(pretty && { "content-type": "application/json; charset=UTF-8" }),
 	});
+});
 
-export default router;
+app.get("/:property", (c) => {
+	const request = c.req.raw;
+	const property = propertyMapping[c.req.param("property")];
+	if (!property) {
+		return c.text("Not found.\n", 404);
+	}
+
+	if (!request.cf) {
+		return c.body(null, 204);
+	}
+
+	if (property === "latlong") {
+		const lat = request.cf.latitude || "unknown";
+		const long = request.cf.longitude || "unknown";
+		return c.text(`${lat},${long}\n`, 200, {
+			"content-type": "text/csv",
+			"content-disposition": "inline",
+		});
+	}
+
+	const prop = request.cf[property] || "unknown";
+	return c.text(`${prop}\n`);
+});
+
+export default app;
