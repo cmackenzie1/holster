@@ -9,6 +9,7 @@
 		"format": "biome format --write ./",
 		"check": "biome check --write ./",
 		"test": "turbo run test",
+		"typegen": "turbo run typegen",
 		"dev": "turbo run dev"
 	},
 	"devDependencies": {

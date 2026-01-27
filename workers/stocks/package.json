@@ -6,7 +6,8 @@
 		"check-types": "tsc --noEmit",
 		"dev": "wrangler dev",
 		"deploy": "wrangler deploy",
-		"test": "vitest"
+		"test": "vitest",
+		"typegen": "wrangler types"
 	},
 	"devDependencies": {
 		"@cloudflare/vitest-pool-workers": "catalog:",

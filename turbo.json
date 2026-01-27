@@ -11,6 +11,9 @@
 		"test": {
 			"dependsOn": ["^build"]
 		},
+		"typegen": {
+			"outputs": ["worker-configuration.d.ts"]
+		},
 		"dev": {
 			"persistent": true,
 			"cache": false
