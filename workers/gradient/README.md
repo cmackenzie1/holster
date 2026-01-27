@@ -10,7 +10,7 @@ Simply perform a GET request with the `from` URL parameter.
 curl https://gradient.mirio.dev/?from=hello
 ```
 
-![Gradient Image](https://gradient.mirio.dev/?from=hello)
+![Gradient Image](https://gradient.mirio.dev/hello)
 
 ## Development
 
