@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 
 const getIp = (request: Request) =>
-	request.headers.get("cf-connecting-ip") || "";
+	request.headers.get("cf-connecting-ip") ?? null;
 
 const propertyDefinitions = {
 	asn: "Autonomous system number (ASN)",
@@ -16,13 +16,13 @@ const propertyDefinitions = {
 	timezone: "Timezone",
 };
 
-const propertyMapping: { [key: string]: keyof IncomingRequestCfProperties } = {
+const propertyMapping: Record<string, keyof IncomingRequestCfProperties> = {
 	asn: "asn",
 	aso: "asOrganization",
 	colo: "colo",
 	city: "city",
 	country: "country",
-	latlong: "latlong",
+	latlong: "latitude",
 	region: "region",
 	tlsCipher: "tlsCipher",
 	tlsVersion: "tlsVersion",
@@ -33,6 +33,9 @@ const app = new Hono();
 
 app.get("/", (c) => {
 	const ip = getIp(c.req.raw);
+	if (!ip) {
+		return c.json({ error: "Could not determine client IP." }, 500);
+	}
 	return c.text(`${ip}\n`);
 });
 
@@ -48,35 +51,50 @@ Properties:\n${properties}\n`);
 app.get("/json", (c) => {
 	const request = c.req.raw;
 	const ip = getIp(request);
-	const result = { ip, info: request.cf };
-	const pretty = c.req.query("pretty");
-	return c.json(result, 200, {
-		...(pretty && { "content-type": "application/json; charset=UTF-8" }),
-	});
+	if (!ip) {
+		return c.json({ error: "Could not determine client IP." }, 500);
+	}
+	const result = { ip, info: request.cf ?? null };
+	return c.json(result);
 });
 
 app.get("/:property", (c) => {
 	const request = c.req.raw;
-	const property = propertyMapping[c.req.param("property")];
+	const propertyKey = c.req.param("property");
+	const property = propertyMapping[propertyKey];
+
 	if (!property) {
-		return c.text("Not found.\n", 404);
+		return c.json(
+			{
+				error: `Unknown property. Available: ${Object.keys(propertyDefinitions).join(", ")}`,
+			},
+			404,
+		);
 	}
 
 	if (!request.cf) {
-		return c.body(null, 204);
+		return c.json({ error: "CF properties not available." }, 503);
 	}
 
-	if (property === "latlong") {
-		const lat = request.cf.latitude || "unknown";
-		const long = request.cf.longitude || "unknown";
+	if (propertyKey === "latlong") {
+		const lat = request.cf.latitude ?? null;
+		const long = request.cf.longitude ?? null;
+		if (lat === null || long === null) {
+			return c.json({ error: "Location data not available." }, 503);
+		}
 		return c.text(`${lat},${long}\n`, 200, {
 			"content-type": "text/csv",
 			"content-disposition": "inline",
 		});
 	}
 
-	const prop = request.cf[property] || "unknown";
+	const prop = request.cf[property];
+	if (prop === undefined || prop === null) {
+		return c.json({ error: `Property '${propertyKey}' not available.` }, 503);
+	}
 	return c.text(`${prop}\n`);
 });
+
+app.all("*", (c) => c.json({ error: "Not found." }, 404));
 
 export default app;

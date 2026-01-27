@@ -8,6 +8,8 @@ function buf2hex(buffer: ArrayBuffer): string {
 
 const app = new Hono();
 
+const MAX_BODY_SIZE = 10 * 1024 * 1024; // 10MB
+
 const algs: Record<string, string> = {
 	sha1: "SHA-1",
 	sha256: "SHA-256",
@@ -17,17 +19,36 @@ const algs: Record<string, string> = {
 };
 
 app.post("/:alg", async (c) => {
-	const alg = c.req.param("alg");
-	if (!alg || !(alg in algs)) {
-		return c.text(
-			`Invalid algorithm.\nSupported algorithms are: ${Object.keys(algs).join(", ")}\n`,
+	const alg = c.req.param("alg").toLowerCase();
+	if (!(alg in algs)) {
+		return c.json(
+			{
+				error: `Invalid algorithm. Supported algorithms are: ${Object.keys(algs).join(", ")}`,
+			},
 			400,
 		);
 	}
-	const hash = await crypto.subtle.digest(algs[alg], await c.req.arrayBuffer());
+
+	const contentLength = c.req.header("content-length");
+	if (contentLength && Number.parseInt(contentLength, 10) > MAX_BODY_SIZE) {
+		return c.json(
+			{ error: `Request body exceeds maximum size of ${MAX_BODY_SIZE} bytes.` },
+			413,
+		);
+	}
+
+	const body = await c.req.arrayBuffer();
+	if (body.byteLength > MAX_BODY_SIZE) {
+		return c.json(
+			{ error: `Request body exceeds maximum size of ${MAX_BODY_SIZE} bytes.` },
+			413,
+		);
+	}
+
+	const hash = await crypto.subtle.digest(algs[alg], body);
 	return c.text(`${buf2hex(hash)}\n`);
 });
 
-app.all("*", (c) => c.text("Not found.\n", 404));
+app.all("*", (c) => c.json({ error: "Not found." }, 404));
 
 export default app;

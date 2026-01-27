@@ -11,6 +11,10 @@ routes = [{ pattern = "hello-world-dev.mirio.dev", custom_domain = true }]
 binding = "HTTP_REQUESTS"
 dataset = "http_requests"
 
+[observability]
+enabled = true
+head_sampling_rate = 1
+
 [env.production]
 name = "hello-world"
 routes = [{ pattern = "hello-world.mirio.dev", custom_domain = true }]
@@ -18,3 +22,7 @@ routes = [{ pattern = "hello-world.mirio.dev", custom_domain = true }]
 [[env.production.analytics_engine_datasets]]
 binding = "HTTP_REQUESTS"
 dataset = "http_requests"
+
+[env.production.observability]
+enabled = true
+head_sampling_rate = 1

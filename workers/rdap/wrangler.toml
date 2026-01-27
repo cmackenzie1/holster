@@ -10,6 +10,14 @@ routes = [{ pattern = "rdap.mirio.dev", custom_domain = true }]
 id = "2fbd241b8f2349e5993d39a2208be142"
 binding = "UPSTREAM"
 
+[observability]
+enabled = true
+head_sampling_rate = 1
+
 [env.production]
 name = "rdap"
 workers_dev = false
+
+[env.production.observability]
+enabled = true
+head_sampling_rate = 1

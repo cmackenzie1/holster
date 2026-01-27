@@ -37,39 +37,76 @@ interface QuoteResponse {
 		  };
 }
 
+const CHROME_USER_AGENT =
+	"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
+
 export class YahooFinance {
 	private readonly url = "https://query1.finance.yahoo.com";
 
-	async quote(symbol: string, date?: string): Promise<Quote | null> {
-		const url = new URL(`/v8/finance/chart/${symbol}`, this.url);
-		console.log(url.toString());
+	async quote(symbol: string): Promise<Quote | null> {
+		const url = new URL(
+			`/v8/finance/chart/${encodeURIComponent(symbol)}`,
+			this.url,
+		);
+
+		console.log({
+			event: "yahoo_finance_request",
+			symbol,
+			url: url.toString(),
+		});
+
 		const resp = await fetch(url.toString(), {
 			headers: {
-				"User-Agent":
-					"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36",
+				"User-Agent": CHROME_USER_AGENT,
 			},
 		});
+
 		if (!resp.ok) {
-			console.log("Failed to fetch quote", resp.status, resp.statusText);
+			console.log({
+				event: "yahoo_finance_error",
+				symbol,
+				status: resp.status,
+				statusText: resp.statusText,
+			});
 			return null;
 		}
 
 		const data: QuoteResponse = await resp.json();
 		if (data.chart.error) {
+			console.log({
+				event: "yahoo_finance_chart_error",
+				symbol,
+				error_code: data.chart.error.code,
+				error_description: data.chart.error.description,
+			});
 			return null;
 		}
+
 		const result = data.chart.result.pop();
 		if (!result) {
+			console.log({ event: "yahoo_finance_no_result", symbol });
 			return null;
 		}
 
 		const quote = result.indicators.quote.pop();
 		if (!quote) {
+			console.log({ event: "yahoo_finance_no_quote", symbol });
 			return null;
 		}
 
+		const highs = quote.high.filter((v): v is number => v !== null);
+		const lows = quote.low.filter((v): v is number => v !== null);
+		const opens = quote.open.filter((v): v is number => v !== null);
+		const closes = quote.close.filter((v): v is number => v !== null);
+
+		console.log({
+			event: "yahoo_finance_success",
+			symbol: result.meta.symbol,
+			price: result.meta.regularMarketPrice,
+			currency: result.meta.currency,
+		});
+
 		return {
-			// use `en-CA` for `yyyy-mm-dd` format
 			date: new Date(result.meta.regularMarketTime * 1000).toLocaleDateString(
 				"en-CA",
 				{
@@ -80,10 +117,10 @@ export class YahooFinance {
 			currencyCode: result.meta.currency,
 			currencySymbol: "$",
 			price: result.meta.regularMarketPrice,
-			open: quote.open.filter(Boolean)[0] || null,
-			high: Math.max(...(quote.high.filter(Boolean) as number[])),
-			low: Math.min(...(quote.low.filter(Boolean) as number[])),
-			close: quote.close.filter(Boolean).pop(),
+			open: opens[0] ?? null,
+			high: highs.length > 0 ? Math.max(...highs) : null,
+			low: lows.length > 0 ? Math.min(...lows) : null,
+			close: closes[closes.length - 1] ?? null,
 			previousClose: result.meta.previousClose,
 		} as Quote;
 	}
