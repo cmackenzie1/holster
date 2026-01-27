@@ -5,7 +5,7 @@
 	"scripts": {
 		"build": "turbo run build",
 		"check-types": "turbo run check-types",
-		"deploy": "turbo run deploy",
+		"deploy": "./scripts/deploy.sh",
 		"lint": "biome lint --write ./",
 		"format": "biome format --write ./",
 		"check": "biome check --write ./",
