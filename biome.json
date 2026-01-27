@@ -1,7 +1,13 @@
 {
 	"$schema": "https://biomejs.dev/schemas/2.2.0/schema.json",
 	"files": {
-		"includes": ["**", "!**/node_modules", "!**/.wrangler", "!**/dist", "!**/worker-configuration.d.ts"]
+		"includes": [
+			"**",
+			"!**/node_modules",
+			"!**/.wrangler",
+			"!**/dist",
+			"!**/worker-configuration.d.ts"
+		]
 	},
 	"assist": { "actions": { "source": { "organizeImports": "on" } } },
 	"linter": {
