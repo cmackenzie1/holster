@@ -1,4 +1,3 @@
 {
-	"extends": "@holster/typescript-config/cloudflare-workers.json",
-	"include": ["src"]
+	"extends": "@holster/typescript-config/cloudflare-workers.json"
 }
