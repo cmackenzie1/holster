@@ -1,123 +1,123 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 
-const app = new Hono<{ Bindings: CloudflareBindings }>();
+const app = new Hono<{ Bindings: Cloudflare.Env }>();
 
 const namedColors: Record<string, string> = {
-	red: "#FF0000",
-	blue: "#0000FF",
-	green: "#008000",
-	yellow: "#FFFF00",
-	purple: "#800080",
-	orange: "#FFA500",
-	pink: "#FFC0CB",
-	cyan: "#00FFFF",
-	magenta: "#FF00FF",
-	brown: "#A52A2A",
-	black: "#000000",
-	white: "#FFFFFF",
-	gray: "#808080",
-	grey: "#808080",
-	navy: "#000080",
-	teal: "#008080",
-	lime: "#00FF00",
-	maroon: "#800000",
-	olive: "#808000",
-	aqua: "#00FFFF",
-	silver: "#C0C0C0",
-	gold: "#FFD700",
-	indigo: "#4B0082",
-	violet: "#EE82EE",
-	coral: "#FF7F50",
+  red: "#FF0000",
+  blue: "#0000FF",
+  green: "#008000",
+  yellow: "#FFFF00",
+  purple: "#800080",
+  orange: "#FFA500",
+  pink: "#FFC0CB",
+  cyan: "#00FFFF",
+  magenta: "#FF00FF",
+  brown: "#A52A2A",
+  black: "#000000",
+  white: "#FFFFFF",
+  gray: "#808080",
+  grey: "#808080",
+  navy: "#000080",
+  teal: "#008080",
+  lime: "#00FF00",
+  maroon: "#800000",
+  olive: "#808000",
+  aqua: "#00FFFF",
+  silver: "#C0C0C0",
+  gold: "#FFD700",
+  indigo: "#4B0082",
+  violet: "#EE82EE",
+  coral: "#FF7F50",
 };
 
 function hashString(str: string): number {
-	let hash = 0;
-	for (let i = 0; i < str.length; i++) {
-		const char = str.charCodeAt(i);
-		hash = (hash << 5) - hash + char;
-		hash = hash & hash;
-	}
-	return Math.abs(hash);
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = (hash << 5) - hash + char;
+    hash = hash & hash;
+  }
+  return Math.abs(hash);
 }
 
 function hexToHsl(hex: string): { h: number; s: number; l: number } {
-	const r = Number.parseInt(hex.slice(1, 3), 16) / 255;
-	const g = Number.parseInt(hex.slice(3, 5), 16) / 255;
-	const b = Number.parseInt(hex.slice(5, 7), 16) / 255;
+  const r = Number.parseInt(hex.slice(1, 3), 16) / 255;
+  const g = Number.parseInt(hex.slice(3, 5), 16) / 255;
+  const b = Number.parseInt(hex.slice(5, 7), 16) / 255;
 
-	const max = Math.max(r, g, b);
-	const min = Math.min(r, g, b);
-	const l = (max + min) / 2;
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const l = (max + min) / 2;
 
-	if (max === min) {
-		return { h: 0, s: 0, l: l * 100 };
-	}
+  if (max === min) {
+    return { h: 0, s: 0, l: l * 100 };
+  }
 
-	const d = max - min;
-	const s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+  const d = max - min;
+  const s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
 
-	let h = 0;
-	switch (max) {
-		case r:
-			h = ((g - b) / d + (g < b ? 6 : 0)) / 6;
-			break;
-		case g:
-			h = ((b - r) / d + 2) / 6;
-			break;
-		case b:
-			h = ((r - g) / d + 4) / 6;
-			break;
-	}
+  let h = 0;
+  switch (max) {
+    case r:
+      h = ((g - b) / d + (g < b ? 6 : 0)) / 6;
+      break;
+    case g:
+      h = ((b - r) / d + 2) / 6;
+      break;
+    case b:
+      h = ((r - g) / d + 4) / 6;
+      break;
+  }
 
-	return { h: h * 360, s: s * 100, l: l * 100 };
+  return { h: h * 360, s: s * 100, l: l * 100 };
 }
 
 function generateColors(
-	seed: string,
-	baseColor?: string,
+  seed: string,
+  baseColor?: string,
 ): {
-	color1: string;
-	color2: string;
-	angle: number;
+  color1: string;
+  color2: string;
+  angle: number;
 } {
-	const hash = hashString(seed);
+  const hash = hashString(seed);
 
-	if (baseColor && namedColors[baseColor.toLowerCase()]) {
-		const baseHex = namedColors[baseColor.toLowerCase()];
-		const { h, s, l } = hexToHsl(baseHex);
+  if (baseColor && namedColors[baseColor.toLowerCase()]) {
+    const baseHex = namedColors[baseColor.toLowerCase()];
+    const { h, s, l } = hexToHsl(baseHex);
 
-		const hueShift = ((hash % 60) - 30 + 360) % 360;
-		const hue2 = (h + hueShift) % 360;
+    const hueShift = ((hash % 60) - 30 + 360) % 360;
+    const hue2 = (h + hueShift) % 360;
 
-		const saturation = Math.max(20, Math.min(100, s + ((hash % 40) - 20)));
-		const lightness1 = Math.max(20, Math.min(80, l));
-		const lightness2 = Math.max(30, Math.min(90, l + ((hash % 40) - 20)));
+    const saturation = Math.max(20, Math.min(100, s + ((hash % 40) - 20)));
+    const lightness1 = Math.max(20, Math.min(80, l));
+    const lightness2 = Math.max(30, Math.min(90, l + ((hash % 40) - 20)));
 
-		const color1 = `hsl(${h}, ${saturation}%, ${lightness1}%)`;
-		const color2 = `hsl(${hue2}, ${saturation}%, ${lightness2}%)`;
-		const angle = (hash * 47) % 360;
+    const color1 = `hsl(${h}, ${saturation}%, ${lightness1}%)`;
+    const color2 = `hsl(${hue2}, ${saturation}%, ${lightness2}%)`;
+    const angle = (hash * 47) % 360;
 
-		return { color1, color2, angle };
-	}
+    return { color1, color2, angle };
+  }
 
-	const hue1 = hash % 360;
-	const hue2 = (hash * 137) % 360;
-	const angle = (hash * 47) % 360;
+  const hue1 = hash % 360;
+  const hue2 = (hash * 137) % 360;
+  const angle = (hash * 47) % 360;
 
-	const saturation = 70 + (hash % 30);
-	const lightness = 40 + (hash % 30);
+  const saturation = 70 + (hash % 30);
+  const lightness = 40 + (hash % 30);
 
-	const color1 = `hsl(${hue1}, ${saturation}%, ${lightness}%)`;
-	const color2 = `hsl(${hue2}, ${saturation}%, ${lightness + 20}%)`;
+  const color1 = `hsl(${hue1}, ${saturation}%, ${lightness}%)`;
+  const color2 = `hsl(${hue2}, ${saturation}%, ${lightness + 20}%)`;
 
-	return { color1, color2, angle };
+  return { color1, color2, angle };
 }
 
 app.use(cors());
 
 app.get("/", (c) => {
-	const html = `<!DOCTYPE html>
+  const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -179,7 +179,7 @@ app.get("/", (c) => {
 </head>
 <body>
   <h1>Gradient Generator Demo</h1>
-  
+
   <div class="usage">
     <h2>Usage</h2>
     <p>Generate unique gradients based on text input:</p>
@@ -227,20 +227,20 @@ app.get("/", (c) => {
 </body>
 </html>`;
 
-	return c.html(html);
+  return c.html(html);
 });
 
 app.get("/:text", (c) => {
-	const text = c.req.param("text");
-	const baseColor = c.req.query("base");
+  const text = c.req.param("text");
+  const baseColor = c.req.query("base");
 
-	if (!text) {
-		return c.text("Missing text parameter", 400);
-	}
+  if (!text) {
+    return c.text("Missing text parameter", 400);
+  }
 
-	const { color1, color2, angle } = generateColors(text, baseColor);
+  const { color1, color2, angle } = generateColors(text, baseColor);
 
-	const svg = `<svg width="64" height="64" xmlns="http://www.w3.org/2000/svg">
+  const svg = `<svg width="64" height="64" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%" gradientTransform="rotate(${angle} 0.5 0.5)">
       <stop offset="0%" style="stop-color:${color1};stop-opacity:1" />
@@ -250,10 +250,10 @@ app.get("/:text", (c) => {
   <rect width="64" height="64" fill="url(#grad)" />
 </svg>`;
 
-	return c.body(svg, 200, {
-		"Content-Type": "image/svg+xml",
-		"Cache-Control": "public, max-age=31536000, immutable",
-	});
+  return c.body(svg, 200, {
+    "Content-Type": "image/svg+xml",
+    "Cache-Control": "public, max-age=31536000, immutable",
+  });
 });
 
 export default app;
