@@ -7,3 +7,5 @@ catalog:
   "@cloudflare/vitest-pool-workers": "^0.8.67"
   "@cloudflare/workers-types": "^4.20250826.0"
   "vitest": "3.2.4"
+  "turbo": "^2.4.4"
+  "typescript": "^5.9.2"

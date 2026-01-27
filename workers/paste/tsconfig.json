@@ -1,3 +1,4 @@
 {
-	"extends": "../../tsconfig.json"
+	"extends": "@holster/typescript-config/cloudflare-workers.json",
+	"include": ["src"]
 }

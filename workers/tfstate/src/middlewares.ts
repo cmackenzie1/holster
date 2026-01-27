@@ -23,9 +23,7 @@ export async function withIdentity(
 			status: 401,
 		});
 
-	const [username, token] = Buffer.from(credentials, "base64")
-		.toString()
-		.split(":");
+	const [username, token] = atob(credentials).split(":");
 	if (!username || username === "")
 		return new Response("Username cannot be empty.", { status: 401 });
 	if (!token || token === "")

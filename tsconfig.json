@@ -1,17 +1,5 @@
 {
-	"compilerOptions": {
-		"skipLibCheck": true,
-		"module": "esnext",
-		"target": "esnext",
-		"lib": ["esnext"],
-		"sourceMap": true,
-		"moduleResolution": "node",
-		"esModuleInterop": true,
-		"types": [
-			"@cloudflare/workers-types",
-			"@cloudflare/workers-types/experimental",
-			"@cloudflare/vitest-pool-workers"
-		]
-	},
-	"exclude": ["node_modules"]
+	"extends": "@holster/typescript-config/cloudflare-workers.json",
+	"include": ["packages/**/*", "workers/**/*"],
+	"exclude": ["node_modules", "**/node_modules", "dist", "**/dist"]
 }

@@ -11,10 +11,25 @@ const app = new Hono<{ Bindings: Bindings }>();
 
 app.all("*", cors());
 
+interface RDAPEvent {
+	eventAction: string;
+	eventDate: string;
+}
+
+interface RDAPNameserver {
+	ldhName: string;
+}
+
+interface RDAPResponse {
+	events?: RDAPEvent[];
+	nameservers?: RDAPNameserver[];
+	status?: string[];
+}
+
 app.get("/:domain", async (c: Context<{ Bindings: Bindings }>) => {
 	const { domain } = c.req.param();
 
-	let dnsJson: RDAPBooststrap = await c.env.UPSTREAM.get("dns.json", "json");
+	let dnsJson = await c.env.UPSTREAM.get<RDAPBooststrap>("dns.json", "json");
 	if (!dnsJson) {
 		console.log("Fetching RDAP bootstrap data");
 		const resp = await fetch("https://data.iana.org/rdap/dns.json");
@@ -23,7 +38,7 @@ app.get("/:domain", async (c: Context<{ Bindings: Bindings }>) => {
 				message: "Failed to fetch RDAP bootstrap data",
 			});
 		}
-		dnsJson = await resp.json();
+		dnsJson = (await resp.json()) as RDAPBooststrap;
 		await c.env.UPSTREAM.put("dns.json", JSON.stringify(dnsJson), {
 			expirationTtl: 86400,
 		});
@@ -40,7 +55,7 @@ app.get("/:domain", async (c: Context<{ Bindings: Bindings }>) => {
 
 	const serviceUrls = service[1];
 
-	let rdapData = null;
+	let rdapData: RDAPResponse | null = null;
 	for (const url of serviceUrls) {
 		const u = new URL(`domain/${domain}`, url);
 		console.log("Trying", u.toString());
@@ -48,7 +63,7 @@ app.get("/:domain", async (c: Context<{ Bindings: Bindings }>) => {
 		if (!resp.ok) {
 			console.log("Failed", resp.status, resp.statusText);
 		} else {
-			rdapData = await resp.json();
+			rdapData = (await resp.json()) as RDAPResponse;
 		}
 	}
 
@@ -70,8 +85,8 @@ app.get("/:domain", async (c: Context<{ Bindings: Bindings }>) => {
 	const lastUpdated = rdapData?.events?.find(
 		(event) => event.eventAction === "last update of RDAP database",
 	)?.eventDate;
-	const nameServers = rdapData?.nameservers?.map((ns) => ns.ldhName);
-	const status = rdapData?.status;
+	const nameServers = rdapData?.nameservers?.map((ns) => ns.ldhName) ?? [];
+	const status = rdapData?.status ?? [];
 
 	return c.text(
 		`domain=${domain}\n` +
