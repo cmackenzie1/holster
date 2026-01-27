@@ -8,6 +8,10 @@
 		"check-types": {
 			"dependsOn": ["^check-types"]
 		},
+		"deploy": {
+			"dependsOn": ["check-types"],
+			"cache": false
+		},
 		"test": {
 			"dependsOn": ["^build"]
 		},
