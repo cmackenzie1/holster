@@ -5,6 +5,7 @@
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "gradient",
+	"account_id": "f5686db3c4f5b3e38b8f15b0561a28a8",
 	"main": "src/index.ts",
 	"compatibility_date": "2025-08-16",
 	"observability": {
