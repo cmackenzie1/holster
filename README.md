@@ -11,7 +11,6 @@ A collection of Cloudflare Workers, managed using PNPM Workspaces and Turborepo.
 | [hash](./workers/hash/) | [`hash.mirio.dev`](https://hash.mirio.dev) | Returns the hex digest of the payload. Supports `md5`, `sha1`, `sha256`, `sha384`, and `sha512` |
 | [hello-world](./workers/hello-world/) | - | Hello World example with analytics |
 | [ip](./workers/ip/) | [`ip.mirio.dev`](https://ip.mirio.dev) | Information about the client's IP address |
-| [paste](./workers/paste/) | [`paste.mirio.dev`](https://paste.mirio.dev) | Share small snippets of code. All pastes expire after 7 days |
 | [rand](./workers/rand/) | [`rand.mirio.dev`](https://rand.mirio.dev) | Get random values like UUIDs |
 | [rdap](./workers/rdap/) | [`rdap.mirio.dev`](https://rdap.mirio.dev) | Query RDAP servers for domain registration information |
 | [stocks](./workers/stocks/) | [`stocks.mirio.dev`](https://stocks.mirio.dev) | Get quick information about stock symbols |

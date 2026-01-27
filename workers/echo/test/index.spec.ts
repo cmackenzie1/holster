@@ -21,6 +21,9 @@ describe("Echo worker", () => {
 		const request = new Request("http://example.com", {
 			method: "POST",
 			body: JSON.stringify({ hello: "world" }),
+			headers: {
+				"Content-Type": "application/json",
+			},
 		});
 		const response = await worker.fetch(request);
 		expect(response.status).toBe(200);

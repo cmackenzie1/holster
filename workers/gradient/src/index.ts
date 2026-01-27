@@ -31,6 +31,11 @@ const namedColors: Record<string, string> = {
 	coral: "#FF7F50",
 };
 
+const MIN_SIZE = 1;
+const MAX_SIZE = 1024;
+const DEFAULT_SIZE = 64;
+const MAX_TEXT_LENGTH = 256;
+
 function hashString(str: string): number {
 	let hash = 0;
 	for (let i = 0; i < str.length; i++) {
@@ -114,6 +119,18 @@ function generateColors(
 	return { color1, color2, angle };
 }
 
+function parseSize(
+	value: string | undefined,
+	defaultValue: number,
+): number | null {
+	if (!value) return defaultValue;
+	const parsed = Number.parseInt(value, 10);
+	if (Number.isNaN(parsed) || parsed < MIN_SIZE || parsed > MAX_SIZE) {
+		return null;
+	}
+	return parsed;
+}
+
 app.use(cors());
 
 app.get("/", (c) => {
@@ -186,6 +203,8 @@ app.get("/", (c) => {
     <pre><code>GET /{text}</code></pre>
     <p>Generate gradients with a base color:</p>
     <pre><code>GET /{text}?base={color}</code></pre>
+    <p>Specify dimensions (1-1024):</p>
+    <pre><code>GET /{text}?w={width}&amp;h={height}</code></pre>
     <p>Available base colors: red, blue, green, yellow, purple, orange, pink, cyan, magenta, brown, gray, navy, teal, lime, maroon, olive, aqua, silver, gold, indigo, violet, coral</p>
   </div>
 
@@ -233,21 +252,58 @@ app.get("/", (c) => {
 app.get("/:text", (c) => {
 	const text = c.req.param("text");
 	const baseColor = c.req.query("base");
+	const widthParam = c.req.query("w") || c.req.query("width");
+	const heightParam = c.req.query("h") || c.req.query("height");
 
 	if (!text) {
-		return c.text("Missing text parameter", 400);
+		return c.json({ error: "Missing text parameter." }, 400);
+	}
+
+	if (text.length > MAX_TEXT_LENGTH) {
+		return c.json(
+			{
+				error: `Text exceeds maximum length of ${MAX_TEXT_LENGTH} characters.`,
+			},
+			400,
+		);
+	}
+
+	if (baseColor && !namedColors[baseColor.toLowerCase()]) {
+		return c.json(
+			{
+				error: `Invalid base color. Available colors: ${Object.keys(namedColors).join(", ")}`,
+			},
+			400,
+		);
+	}
+
+	const width = parseSize(widthParam, DEFAULT_SIZE);
+	const height = parseSize(heightParam, DEFAULT_SIZE);
+
+	if (width === null) {
+		return c.json(
+			{ error: `Invalid width. Must be between ${MIN_SIZE} and ${MAX_SIZE}.` },
+			400,
+		);
+	}
+
+	if (height === null) {
+		return c.json(
+			{ error: `Invalid height. Must be between ${MIN_SIZE} and ${MAX_SIZE}.` },
+			400,
+		);
 	}
 
 	const { color1, color2, angle } = generateColors(text, baseColor);
 
-	const svg = `<svg width="64" height="64" xmlns="http://www.w3.org/2000/svg">
+	const svg = `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%" gradientTransform="rotate(${angle} 0.5 0.5)">
-      <stop offset="0%" style="stop-color:${color1};stop-opacity:1" />
-      <stop offset="100%" style="stop-color:${color2};stop-opacity:1" />
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="0%" gradientTransform="rotate(${angle})">
+      <stop offset="0%" stop-color="${color1}" />
+      <stop offset="100%" stop-color="${color2}" />
     </linearGradient>
   </defs>
-  <rect width="64" height="64" fill="url(#grad)" />
+  <rect width="${width}" height="${height}" fill="url(#grad)" />
 </svg>`;
 
 	return c.body(svg, 200, {
@@ -255,5 +311,7 @@ app.get("/:text", (c) => {
 		"Cache-Control": "public, max-age=31536000, immutable",
 	});
 });
+
+app.all("*", (c) => c.json({ error: "Not found." }, 404));
 
 export default app;
