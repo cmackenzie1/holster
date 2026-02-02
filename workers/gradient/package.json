@@ -10,7 +10,7 @@
 		"typegen": "wrangler types"
 	},
 	"dependencies": {
-		"hono": "^4.9.4"
+		"hono": "^4.11.7"
 	},
 	"devDependencies": {
 		"@cloudflare/workers-types": "catalog:",
