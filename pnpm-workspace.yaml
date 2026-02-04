@@ -3,9 +3,9 @@ packages:
   - packages/*
 
 catalog:
-  "wrangler": "^4.60.0"
-  "@cloudflare/vitest-pool-workers": "^0.12.6"
-  "@cloudflare/workers-types": "^4.20250826.0"
-  "vitest": "~3.2.4"
-  "turbo": "^2.4.4"
-  "typescript": "^5.9.2"
+  "wrangler": "^4.62.0"
+  "@cloudflare/vitest-pool-workers": "^0.12.9"
+  "@cloudflare/workers-types": "^4.20260203.0"
+  "vitest": "~4.0.18"
+  "turbo": "^2.8.3"
+  "typescript": "^5.9.3"
