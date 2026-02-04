@@ -8,566 +8,566 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from './routes/__root'
-import { Route as TrashRouteImport } from './routes/trash'
-import { Route as TagsRouteImport } from './routes/tags'
-import { Route as CorrespondentsRouteImport } from './routes/correspondents'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as DocumentsIdRouteImport } from './routes/documents.$id'
-import { Route as ApiUploadRouteImport } from './routes/api.upload'
-import { Route as ApiTrashRouteImport } from './routes/api.trash'
-import { Route as ApiTagsRouteImport } from './routes/api.tags'
-import { Route as ApiCorrespondentsRouteImport } from './routes/api.correspondents'
-import { Route as DemoStartServerFuncsRouteImport } from './routes/demo/start.server-funcs'
-import { Route as DemoStartApiRequestRouteImport } from './routes/demo/start.api-request'
-import { Route as DemoApiNamesRouteImport } from './routes/demo/api.names'
-import { Route as ApiTrashIdRouteImport } from './routes/api.trash.$id'
-import { Route as ApiTagsIdRouteImport } from './routes/api.tags.$id'
-import { Route as ApiFilesKeyRouteImport } from './routes/api.files.$key'
-import { Route as ApiDocumentsIdRouteImport } from './routes/api.documents.$id'
-import { Route as ApiCorrespondentsIdRouteImport } from './routes/api.correspondents.$id'
-import { Route as DemoStartSsrIndexRouteImport } from './routes/demo/start.ssr.index'
-import { Route as DemoStartSsrSpaModeRouteImport } from './routes/demo/start.ssr.spa-mode'
-import { Route as DemoStartSsrFullSsrRouteImport } from './routes/demo/start.ssr.full-ssr'
-import { Route as DemoStartSsrDataOnlyRouteImport } from './routes/demo/start.ssr.data-only'
-import { Route as ApiDocumentsIdTagsRouteImport } from './routes/api.documents.$id.tags'
-import { Route as ApiDocumentsIdCorrespondentRouteImport } from './routes/api.documents.$id.correspondent'
+import { Route as rootRouteImport } from "./routes/__root";
+import { Route as TrashRouteImport } from "./routes/trash";
+import { Route as TagsRouteImport } from "./routes/tags";
+import { Route as CorrespondentsRouteImport } from "./routes/correspondents";
+import { Route as IndexRouteImport } from "./routes/index";
+import { Route as DocumentsIdRouteImport } from "./routes/documents.$id";
+import { Route as ApiUploadRouteImport } from "./routes/api.upload";
+import { Route as ApiTrashRouteImport } from "./routes/api.trash";
+import { Route as ApiTagsRouteImport } from "./routes/api.tags";
+import { Route as ApiCorrespondentsRouteImport } from "./routes/api.correspondents";
+import { Route as DemoStartServerFuncsRouteImport } from "./routes/demo/start.server-funcs";
+import { Route as DemoStartApiRequestRouteImport } from "./routes/demo/start.api-request";
+import { Route as DemoApiNamesRouteImport } from "./routes/demo/api.names";
+import { Route as ApiTrashIdRouteImport } from "./routes/api.trash.$id";
+import { Route as ApiTagsIdRouteImport } from "./routes/api.tags.$id";
+import { Route as ApiFilesKeyRouteImport } from "./routes/api.files.$key";
+import { Route as ApiDocumentsIdRouteImport } from "./routes/api.documents.$id";
+import { Route as ApiCorrespondentsIdRouteImport } from "./routes/api.correspondents.$id";
+import { Route as DemoStartSsrIndexRouteImport } from "./routes/demo/start.ssr.index";
+import { Route as DemoStartSsrSpaModeRouteImport } from "./routes/demo/start.ssr.spa-mode";
+import { Route as DemoStartSsrFullSsrRouteImport } from "./routes/demo/start.ssr.full-ssr";
+import { Route as DemoStartSsrDataOnlyRouteImport } from "./routes/demo/start.ssr.data-only";
+import { Route as ApiDocumentsIdTagsRouteImport } from "./routes/api.documents.$id.tags";
+import { Route as ApiDocumentsIdCorrespondentRouteImport } from "./routes/api.documents.$id.correspondent";
 
 const TrashRoute = TrashRouteImport.update({
-  id: '/trash',
-  path: '/trash',
-  getParentRoute: () => rootRouteImport,
-} as any)
+	id: "/trash",
+	path: "/trash",
+	getParentRoute: () => rootRouteImport,
+} as any);
 const TagsRoute = TagsRouteImport.update({
-  id: '/tags',
-  path: '/tags',
-  getParentRoute: () => rootRouteImport,
-} as any)
+	id: "/tags",
+	path: "/tags",
+	getParentRoute: () => rootRouteImport,
+} as any);
 const CorrespondentsRoute = CorrespondentsRouteImport.update({
-  id: '/correspondents',
-  path: '/correspondents',
-  getParentRoute: () => rootRouteImport,
-} as any)
+	id: "/correspondents",
+	path: "/correspondents",
+	getParentRoute: () => rootRouteImport,
+} as any);
 const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
+	id: "/",
+	path: "/",
+	getParentRoute: () => rootRouteImport,
+} as any);
 const DocumentsIdRoute = DocumentsIdRouteImport.update({
-  id: '/documents/$id',
-  path: '/documents/$id',
-  getParentRoute: () => rootRouteImport,
-} as any)
+	id: "/documents/$id",
+	path: "/documents/$id",
+	getParentRoute: () => rootRouteImport,
+} as any);
 const ApiUploadRoute = ApiUploadRouteImport.update({
-  id: '/api/upload',
-  path: '/api/upload',
-  getParentRoute: () => rootRouteImport,
-} as any)
+	id: "/api/upload",
+	path: "/api/upload",
+	getParentRoute: () => rootRouteImport,
+} as any);
 const ApiTrashRoute = ApiTrashRouteImport.update({
-  id: '/api/trash',
-  path: '/api/trash',
-  getParentRoute: () => rootRouteImport,
-} as any)
+	id: "/api/trash",
+	path: "/api/trash",
+	getParentRoute: () => rootRouteImport,
+} as any);
 const ApiTagsRoute = ApiTagsRouteImport.update({
-  id: '/api/tags',
-  path: '/api/tags',
-  getParentRoute: () => rootRouteImport,
-} as any)
+	id: "/api/tags",
+	path: "/api/tags",
+	getParentRoute: () => rootRouteImport,
+} as any);
 const ApiCorrespondentsRoute = ApiCorrespondentsRouteImport.update({
-  id: '/api/correspondents',
-  path: '/api/correspondents',
-  getParentRoute: () => rootRouteImport,
-} as any)
+	id: "/api/correspondents",
+	path: "/api/correspondents",
+	getParentRoute: () => rootRouteImport,
+} as any);
 const DemoStartServerFuncsRoute = DemoStartServerFuncsRouteImport.update({
-  id: '/demo/start/server-funcs',
-  path: '/demo/start/server-funcs',
-  getParentRoute: () => rootRouteImport,
-} as any)
+	id: "/demo/start/server-funcs",
+	path: "/demo/start/server-funcs",
+	getParentRoute: () => rootRouteImport,
+} as any);
 const DemoStartApiRequestRoute = DemoStartApiRequestRouteImport.update({
-  id: '/demo/start/api-request',
-  path: '/demo/start/api-request',
-  getParentRoute: () => rootRouteImport,
-} as any)
+	id: "/demo/start/api-request",
+	path: "/demo/start/api-request",
+	getParentRoute: () => rootRouteImport,
+} as any);
 const DemoApiNamesRoute = DemoApiNamesRouteImport.update({
-  id: '/demo/api/names',
-  path: '/demo/api/names',
-  getParentRoute: () => rootRouteImport,
-} as any)
+	id: "/demo/api/names",
+	path: "/demo/api/names",
+	getParentRoute: () => rootRouteImport,
+} as any);
 const ApiTrashIdRoute = ApiTrashIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => ApiTrashRoute,
-} as any)
+	id: "/$id",
+	path: "/$id",
+	getParentRoute: () => ApiTrashRoute,
+} as any);
 const ApiTagsIdRoute = ApiTagsIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => ApiTagsRoute,
-} as any)
+	id: "/$id",
+	path: "/$id",
+	getParentRoute: () => ApiTagsRoute,
+} as any);
 const ApiFilesKeyRoute = ApiFilesKeyRouteImport.update({
-  id: '/api/files/$key',
-  path: '/api/files/$key',
-  getParentRoute: () => rootRouteImport,
-} as any)
+	id: "/api/files/$key",
+	path: "/api/files/$key",
+	getParentRoute: () => rootRouteImport,
+} as any);
 const ApiDocumentsIdRoute = ApiDocumentsIdRouteImport.update({
-  id: '/api/documents/$id',
-  path: '/api/documents/$id',
-  getParentRoute: () => rootRouteImport,
-} as any)
+	id: "/api/documents/$id",
+	path: "/api/documents/$id",
+	getParentRoute: () => rootRouteImport,
+} as any);
 const ApiCorrespondentsIdRoute = ApiCorrespondentsIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => ApiCorrespondentsRoute,
-} as any)
+	id: "/$id",
+	path: "/$id",
+	getParentRoute: () => ApiCorrespondentsRoute,
+} as any);
 const DemoStartSsrIndexRoute = DemoStartSsrIndexRouteImport.update({
-  id: '/demo/start/ssr/',
-  path: '/demo/start/ssr/',
-  getParentRoute: () => rootRouteImport,
-} as any)
+	id: "/demo/start/ssr/",
+	path: "/demo/start/ssr/",
+	getParentRoute: () => rootRouteImport,
+} as any);
 const DemoStartSsrSpaModeRoute = DemoStartSsrSpaModeRouteImport.update({
-  id: '/demo/start/ssr/spa-mode',
-  path: '/demo/start/ssr/spa-mode',
-  getParentRoute: () => rootRouteImport,
-} as any)
+	id: "/demo/start/ssr/spa-mode",
+	path: "/demo/start/ssr/spa-mode",
+	getParentRoute: () => rootRouteImport,
+} as any);
 const DemoStartSsrFullSsrRoute = DemoStartSsrFullSsrRouteImport.update({
-  id: '/demo/start/ssr/full-ssr',
-  path: '/demo/start/ssr/full-ssr',
-  getParentRoute: () => rootRouteImport,
-} as any)
+	id: "/demo/start/ssr/full-ssr",
+	path: "/demo/start/ssr/full-ssr",
+	getParentRoute: () => rootRouteImport,
+} as any);
 const DemoStartSsrDataOnlyRoute = DemoStartSsrDataOnlyRouteImport.update({
-  id: '/demo/start/ssr/data-only',
-  path: '/demo/start/ssr/data-only',
-  getParentRoute: () => rootRouteImport,
-} as any)
+	id: "/demo/start/ssr/data-only",
+	path: "/demo/start/ssr/data-only",
+	getParentRoute: () => rootRouteImport,
+} as any);
 const ApiDocumentsIdTagsRoute = ApiDocumentsIdTagsRouteImport.update({
-  id: '/tags',
-  path: '/tags',
-  getParentRoute: () => ApiDocumentsIdRoute,
-} as any)
+	id: "/tags",
+	path: "/tags",
+	getParentRoute: () => ApiDocumentsIdRoute,
+} as any);
 const ApiDocumentsIdCorrespondentRoute =
-  ApiDocumentsIdCorrespondentRouteImport.update({
-    id: '/correspondent',
-    path: '/correspondent',
-    getParentRoute: () => ApiDocumentsIdRoute,
-  } as any)
+	ApiDocumentsIdCorrespondentRouteImport.update({
+		id: "/correspondent",
+		path: "/correspondent",
+		getParentRoute: () => ApiDocumentsIdRoute,
+	} as any);
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/correspondents': typeof CorrespondentsRoute
-  '/tags': typeof TagsRoute
-  '/trash': typeof TrashRoute
-  '/api/correspondents': typeof ApiCorrespondentsRouteWithChildren
-  '/api/tags': typeof ApiTagsRouteWithChildren
-  '/api/trash': typeof ApiTrashRouteWithChildren
-  '/api/upload': typeof ApiUploadRoute
-  '/documents/$id': typeof DocumentsIdRoute
-  '/api/correspondents/$id': typeof ApiCorrespondentsIdRoute
-  '/api/documents/$id': typeof ApiDocumentsIdRouteWithChildren
-  '/api/files/$key': typeof ApiFilesKeyRoute
-  '/api/tags/$id': typeof ApiTagsIdRoute
-  '/api/trash/$id': typeof ApiTrashIdRoute
-  '/demo/api/names': typeof DemoApiNamesRoute
-  '/demo/start/api-request': typeof DemoStartApiRequestRoute
-  '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
-  '/api/documents/$id/correspondent': typeof ApiDocumentsIdCorrespondentRoute
-  '/api/documents/$id/tags': typeof ApiDocumentsIdTagsRoute
-  '/demo/start/ssr/data-only': typeof DemoStartSsrDataOnlyRoute
-  '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
-  '/demo/start/ssr/spa-mode': typeof DemoStartSsrSpaModeRoute
-  '/demo/start/ssr/': typeof DemoStartSsrIndexRoute
+	"/": typeof IndexRoute;
+	"/correspondents": typeof CorrespondentsRoute;
+	"/tags": typeof TagsRoute;
+	"/trash": typeof TrashRoute;
+	"/api/correspondents": typeof ApiCorrespondentsRouteWithChildren;
+	"/api/tags": typeof ApiTagsRouteWithChildren;
+	"/api/trash": typeof ApiTrashRouteWithChildren;
+	"/api/upload": typeof ApiUploadRoute;
+	"/documents/$id": typeof DocumentsIdRoute;
+	"/api/correspondents/$id": typeof ApiCorrespondentsIdRoute;
+	"/api/documents/$id": typeof ApiDocumentsIdRouteWithChildren;
+	"/api/files/$key": typeof ApiFilesKeyRoute;
+	"/api/tags/$id": typeof ApiTagsIdRoute;
+	"/api/trash/$id": typeof ApiTrashIdRoute;
+	"/demo/api/names": typeof DemoApiNamesRoute;
+	"/demo/start/api-request": typeof DemoStartApiRequestRoute;
+	"/demo/start/server-funcs": typeof DemoStartServerFuncsRoute;
+	"/api/documents/$id/correspondent": typeof ApiDocumentsIdCorrespondentRoute;
+	"/api/documents/$id/tags": typeof ApiDocumentsIdTagsRoute;
+	"/demo/start/ssr/data-only": typeof DemoStartSsrDataOnlyRoute;
+	"/demo/start/ssr/full-ssr": typeof DemoStartSsrFullSsrRoute;
+	"/demo/start/ssr/spa-mode": typeof DemoStartSsrSpaModeRoute;
+	"/demo/start/ssr/": typeof DemoStartSsrIndexRoute;
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/correspondents': typeof CorrespondentsRoute
-  '/tags': typeof TagsRoute
-  '/trash': typeof TrashRoute
-  '/api/correspondents': typeof ApiCorrespondentsRouteWithChildren
-  '/api/tags': typeof ApiTagsRouteWithChildren
-  '/api/trash': typeof ApiTrashRouteWithChildren
-  '/api/upload': typeof ApiUploadRoute
-  '/documents/$id': typeof DocumentsIdRoute
-  '/api/correspondents/$id': typeof ApiCorrespondentsIdRoute
-  '/api/documents/$id': typeof ApiDocumentsIdRouteWithChildren
-  '/api/files/$key': typeof ApiFilesKeyRoute
-  '/api/tags/$id': typeof ApiTagsIdRoute
-  '/api/trash/$id': typeof ApiTrashIdRoute
-  '/demo/api/names': typeof DemoApiNamesRoute
-  '/demo/start/api-request': typeof DemoStartApiRequestRoute
-  '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
-  '/api/documents/$id/correspondent': typeof ApiDocumentsIdCorrespondentRoute
-  '/api/documents/$id/tags': typeof ApiDocumentsIdTagsRoute
-  '/demo/start/ssr/data-only': typeof DemoStartSsrDataOnlyRoute
-  '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
-  '/demo/start/ssr/spa-mode': typeof DemoStartSsrSpaModeRoute
-  '/demo/start/ssr': typeof DemoStartSsrIndexRoute
+	"/": typeof IndexRoute;
+	"/correspondents": typeof CorrespondentsRoute;
+	"/tags": typeof TagsRoute;
+	"/trash": typeof TrashRoute;
+	"/api/correspondents": typeof ApiCorrespondentsRouteWithChildren;
+	"/api/tags": typeof ApiTagsRouteWithChildren;
+	"/api/trash": typeof ApiTrashRouteWithChildren;
+	"/api/upload": typeof ApiUploadRoute;
+	"/documents/$id": typeof DocumentsIdRoute;
+	"/api/correspondents/$id": typeof ApiCorrespondentsIdRoute;
+	"/api/documents/$id": typeof ApiDocumentsIdRouteWithChildren;
+	"/api/files/$key": typeof ApiFilesKeyRoute;
+	"/api/tags/$id": typeof ApiTagsIdRoute;
+	"/api/trash/$id": typeof ApiTrashIdRoute;
+	"/demo/api/names": typeof DemoApiNamesRoute;
+	"/demo/start/api-request": typeof DemoStartApiRequestRoute;
+	"/demo/start/server-funcs": typeof DemoStartServerFuncsRoute;
+	"/api/documents/$id/correspondent": typeof ApiDocumentsIdCorrespondentRoute;
+	"/api/documents/$id/tags": typeof ApiDocumentsIdTagsRoute;
+	"/demo/start/ssr/data-only": typeof DemoStartSsrDataOnlyRoute;
+	"/demo/start/ssr/full-ssr": typeof DemoStartSsrFullSsrRoute;
+	"/demo/start/ssr/spa-mode": typeof DemoStartSsrSpaModeRoute;
+	"/demo/start/ssr": typeof DemoStartSsrIndexRoute;
 }
 export interface FileRoutesById {
-  __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/correspondents': typeof CorrespondentsRoute
-  '/tags': typeof TagsRoute
-  '/trash': typeof TrashRoute
-  '/api/correspondents': typeof ApiCorrespondentsRouteWithChildren
-  '/api/tags': typeof ApiTagsRouteWithChildren
-  '/api/trash': typeof ApiTrashRouteWithChildren
-  '/api/upload': typeof ApiUploadRoute
-  '/documents/$id': typeof DocumentsIdRoute
-  '/api/correspondents/$id': typeof ApiCorrespondentsIdRoute
-  '/api/documents/$id': typeof ApiDocumentsIdRouteWithChildren
-  '/api/files/$key': typeof ApiFilesKeyRoute
-  '/api/tags/$id': typeof ApiTagsIdRoute
-  '/api/trash/$id': typeof ApiTrashIdRoute
-  '/demo/api/names': typeof DemoApiNamesRoute
-  '/demo/start/api-request': typeof DemoStartApiRequestRoute
-  '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
-  '/api/documents/$id/correspondent': typeof ApiDocumentsIdCorrespondentRoute
-  '/api/documents/$id/tags': typeof ApiDocumentsIdTagsRoute
-  '/demo/start/ssr/data-only': typeof DemoStartSsrDataOnlyRoute
-  '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
-  '/demo/start/ssr/spa-mode': typeof DemoStartSsrSpaModeRoute
-  '/demo/start/ssr/': typeof DemoStartSsrIndexRoute
+	__root__: typeof rootRouteImport;
+	"/": typeof IndexRoute;
+	"/correspondents": typeof CorrespondentsRoute;
+	"/tags": typeof TagsRoute;
+	"/trash": typeof TrashRoute;
+	"/api/correspondents": typeof ApiCorrespondentsRouteWithChildren;
+	"/api/tags": typeof ApiTagsRouteWithChildren;
+	"/api/trash": typeof ApiTrashRouteWithChildren;
+	"/api/upload": typeof ApiUploadRoute;
+	"/documents/$id": typeof DocumentsIdRoute;
+	"/api/correspondents/$id": typeof ApiCorrespondentsIdRoute;
+	"/api/documents/$id": typeof ApiDocumentsIdRouteWithChildren;
+	"/api/files/$key": typeof ApiFilesKeyRoute;
+	"/api/tags/$id": typeof ApiTagsIdRoute;
+	"/api/trash/$id": typeof ApiTrashIdRoute;
+	"/demo/api/names": typeof DemoApiNamesRoute;
+	"/demo/start/api-request": typeof DemoStartApiRequestRoute;
+	"/demo/start/server-funcs": typeof DemoStartServerFuncsRoute;
+	"/api/documents/$id/correspondent": typeof ApiDocumentsIdCorrespondentRoute;
+	"/api/documents/$id/tags": typeof ApiDocumentsIdTagsRoute;
+	"/demo/start/ssr/data-only": typeof DemoStartSsrDataOnlyRoute;
+	"/demo/start/ssr/full-ssr": typeof DemoStartSsrFullSsrRoute;
+	"/demo/start/ssr/spa-mode": typeof DemoStartSsrSpaModeRoute;
+	"/demo/start/ssr/": typeof DemoStartSsrIndexRoute;
 }
 export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/correspondents'
-    | '/tags'
-    | '/trash'
-    | '/api/correspondents'
-    | '/api/tags'
-    | '/api/trash'
-    | '/api/upload'
-    | '/documents/$id'
-    | '/api/correspondents/$id'
-    | '/api/documents/$id'
-    | '/api/files/$key'
-    | '/api/tags/$id'
-    | '/api/trash/$id'
-    | '/demo/api/names'
-    | '/demo/start/api-request'
-    | '/demo/start/server-funcs'
-    | '/api/documents/$id/correspondent'
-    | '/api/documents/$id/tags'
-    | '/demo/start/ssr/data-only'
-    | '/demo/start/ssr/full-ssr'
-    | '/demo/start/ssr/spa-mode'
-    | '/demo/start/ssr/'
-  fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/correspondents'
-    | '/tags'
-    | '/trash'
-    | '/api/correspondents'
-    | '/api/tags'
-    | '/api/trash'
-    | '/api/upload'
-    | '/documents/$id'
-    | '/api/correspondents/$id'
-    | '/api/documents/$id'
-    | '/api/files/$key'
-    | '/api/tags/$id'
-    | '/api/trash/$id'
-    | '/demo/api/names'
-    | '/demo/start/api-request'
-    | '/demo/start/server-funcs'
-    | '/api/documents/$id/correspondent'
-    | '/api/documents/$id/tags'
-    | '/demo/start/ssr/data-only'
-    | '/demo/start/ssr/full-ssr'
-    | '/demo/start/ssr/spa-mode'
-    | '/demo/start/ssr'
-  id:
-    | '__root__'
-    | '/'
-    | '/correspondents'
-    | '/tags'
-    | '/trash'
-    | '/api/correspondents'
-    | '/api/tags'
-    | '/api/trash'
-    | '/api/upload'
-    | '/documents/$id'
-    | '/api/correspondents/$id'
-    | '/api/documents/$id'
-    | '/api/files/$key'
-    | '/api/tags/$id'
-    | '/api/trash/$id'
-    | '/demo/api/names'
-    | '/demo/start/api-request'
-    | '/demo/start/server-funcs'
-    | '/api/documents/$id/correspondent'
-    | '/api/documents/$id/tags'
-    | '/demo/start/ssr/data-only'
-    | '/demo/start/ssr/full-ssr'
-    | '/demo/start/ssr/spa-mode'
-    | '/demo/start/ssr/'
-  fileRoutesById: FileRoutesById
+	fileRoutesByFullPath: FileRoutesByFullPath;
+	fullPaths:
+		| "/"
+		| "/correspondents"
+		| "/tags"
+		| "/trash"
+		| "/api/correspondents"
+		| "/api/tags"
+		| "/api/trash"
+		| "/api/upload"
+		| "/documents/$id"
+		| "/api/correspondents/$id"
+		| "/api/documents/$id"
+		| "/api/files/$key"
+		| "/api/tags/$id"
+		| "/api/trash/$id"
+		| "/demo/api/names"
+		| "/demo/start/api-request"
+		| "/demo/start/server-funcs"
+		| "/api/documents/$id/correspondent"
+		| "/api/documents/$id/tags"
+		| "/demo/start/ssr/data-only"
+		| "/demo/start/ssr/full-ssr"
+		| "/demo/start/ssr/spa-mode"
+		| "/demo/start/ssr/";
+	fileRoutesByTo: FileRoutesByTo;
+	to:
+		| "/"
+		| "/correspondents"
+		| "/tags"
+		| "/trash"
+		| "/api/correspondents"
+		| "/api/tags"
+		| "/api/trash"
+		| "/api/upload"
+		| "/documents/$id"
+		| "/api/correspondents/$id"
+		| "/api/documents/$id"
+		| "/api/files/$key"
+		| "/api/tags/$id"
+		| "/api/trash/$id"
+		| "/demo/api/names"
+		| "/demo/start/api-request"
+		| "/demo/start/server-funcs"
+		| "/api/documents/$id/correspondent"
+		| "/api/documents/$id/tags"
+		| "/demo/start/ssr/data-only"
+		| "/demo/start/ssr/full-ssr"
+		| "/demo/start/ssr/spa-mode"
+		| "/demo/start/ssr";
+	id:
+		| "__root__"
+		| "/"
+		| "/correspondents"
+		| "/tags"
+		| "/trash"
+		| "/api/correspondents"
+		| "/api/tags"
+		| "/api/trash"
+		| "/api/upload"
+		| "/documents/$id"
+		| "/api/correspondents/$id"
+		| "/api/documents/$id"
+		| "/api/files/$key"
+		| "/api/tags/$id"
+		| "/api/trash/$id"
+		| "/demo/api/names"
+		| "/demo/start/api-request"
+		| "/demo/start/server-funcs"
+		| "/api/documents/$id/correspondent"
+		| "/api/documents/$id/tags"
+		| "/demo/start/ssr/data-only"
+		| "/demo/start/ssr/full-ssr"
+		| "/demo/start/ssr/spa-mode"
+		| "/demo/start/ssr/";
+	fileRoutesById: FileRoutesById;
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  CorrespondentsRoute: typeof CorrespondentsRoute
-  TagsRoute: typeof TagsRoute
-  TrashRoute: typeof TrashRoute
-  ApiCorrespondentsRoute: typeof ApiCorrespondentsRouteWithChildren
-  ApiTagsRoute: typeof ApiTagsRouteWithChildren
-  ApiTrashRoute: typeof ApiTrashRouteWithChildren
-  ApiUploadRoute: typeof ApiUploadRoute
-  DocumentsIdRoute: typeof DocumentsIdRoute
-  ApiDocumentsIdRoute: typeof ApiDocumentsIdRouteWithChildren
-  ApiFilesKeyRoute: typeof ApiFilesKeyRoute
-  DemoApiNamesRoute: typeof DemoApiNamesRoute
-  DemoStartApiRequestRoute: typeof DemoStartApiRequestRoute
-  DemoStartServerFuncsRoute: typeof DemoStartServerFuncsRoute
-  DemoStartSsrDataOnlyRoute: typeof DemoStartSsrDataOnlyRoute
-  DemoStartSsrFullSsrRoute: typeof DemoStartSsrFullSsrRoute
-  DemoStartSsrSpaModeRoute: typeof DemoStartSsrSpaModeRoute
-  DemoStartSsrIndexRoute: typeof DemoStartSsrIndexRoute
+	IndexRoute: typeof IndexRoute;
+	CorrespondentsRoute: typeof CorrespondentsRoute;
+	TagsRoute: typeof TagsRoute;
+	TrashRoute: typeof TrashRoute;
+	ApiCorrespondentsRoute: typeof ApiCorrespondentsRouteWithChildren;
+	ApiTagsRoute: typeof ApiTagsRouteWithChildren;
+	ApiTrashRoute: typeof ApiTrashRouteWithChildren;
+	ApiUploadRoute: typeof ApiUploadRoute;
+	DocumentsIdRoute: typeof DocumentsIdRoute;
+	ApiDocumentsIdRoute: typeof ApiDocumentsIdRouteWithChildren;
+	ApiFilesKeyRoute: typeof ApiFilesKeyRoute;
+	DemoApiNamesRoute: typeof DemoApiNamesRoute;
+	DemoStartApiRequestRoute: typeof DemoStartApiRequestRoute;
+	DemoStartServerFuncsRoute: typeof DemoStartServerFuncsRoute;
+	DemoStartSsrDataOnlyRoute: typeof DemoStartSsrDataOnlyRoute;
+	DemoStartSsrFullSsrRoute: typeof DemoStartSsrFullSsrRoute;
+	DemoStartSsrSpaModeRoute: typeof DemoStartSsrSpaModeRoute;
+	DemoStartSsrIndexRoute: typeof DemoStartSsrIndexRoute;
 }
 
-declare module '@tanstack/react-router' {
-  interface FileRoutesByPath {
-    '/trash': {
-      id: '/trash'
-      path: '/trash'
-      fullPath: '/trash'
-      preLoaderRoute: typeof TrashRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/tags': {
-      id: '/tags'
-      path: '/tags'
-      fullPath: '/tags'
-      preLoaderRoute: typeof TagsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/correspondents': {
-      id: '/correspondents'
-      path: '/correspondents'
-      fullPath: '/correspondents'
-      preLoaderRoute: typeof CorrespondentsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/documents/$id': {
-      id: '/documents/$id'
-      path: '/documents/$id'
-      fullPath: '/documents/$id'
-      preLoaderRoute: typeof DocumentsIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/upload': {
-      id: '/api/upload'
-      path: '/api/upload'
-      fullPath: '/api/upload'
-      preLoaderRoute: typeof ApiUploadRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/trash': {
-      id: '/api/trash'
-      path: '/api/trash'
-      fullPath: '/api/trash'
-      preLoaderRoute: typeof ApiTrashRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/tags': {
-      id: '/api/tags'
-      path: '/api/tags'
-      fullPath: '/api/tags'
-      preLoaderRoute: typeof ApiTagsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/correspondents': {
-      id: '/api/correspondents'
-      path: '/api/correspondents'
-      fullPath: '/api/correspondents'
-      preLoaderRoute: typeof ApiCorrespondentsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo/start/server-funcs': {
-      id: '/demo/start/server-funcs'
-      path: '/demo/start/server-funcs'
-      fullPath: '/demo/start/server-funcs'
-      preLoaderRoute: typeof DemoStartServerFuncsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo/start/api-request': {
-      id: '/demo/start/api-request'
-      path: '/demo/start/api-request'
-      fullPath: '/demo/start/api-request'
-      preLoaderRoute: typeof DemoStartApiRequestRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo/api/names': {
-      id: '/demo/api/names'
-      path: '/demo/api/names'
-      fullPath: '/demo/api/names'
-      preLoaderRoute: typeof DemoApiNamesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/trash/$id': {
-      id: '/api/trash/$id'
-      path: '/$id'
-      fullPath: '/api/trash/$id'
-      preLoaderRoute: typeof ApiTrashIdRouteImport
-      parentRoute: typeof ApiTrashRoute
-    }
-    '/api/tags/$id': {
-      id: '/api/tags/$id'
-      path: '/$id'
-      fullPath: '/api/tags/$id'
-      preLoaderRoute: typeof ApiTagsIdRouteImport
-      parentRoute: typeof ApiTagsRoute
-    }
-    '/api/files/$key': {
-      id: '/api/files/$key'
-      path: '/api/files/$key'
-      fullPath: '/api/files/$key'
-      preLoaderRoute: typeof ApiFilesKeyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/documents/$id': {
-      id: '/api/documents/$id'
-      path: '/api/documents/$id'
-      fullPath: '/api/documents/$id'
-      preLoaderRoute: typeof ApiDocumentsIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/correspondents/$id': {
-      id: '/api/correspondents/$id'
-      path: '/$id'
-      fullPath: '/api/correspondents/$id'
-      preLoaderRoute: typeof ApiCorrespondentsIdRouteImport
-      parentRoute: typeof ApiCorrespondentsRoute
-    }
-    '/demo/start/ssr/': {
-      id: '/demo/start/ssr/'
-      path: '/demo/start/ssr'
-      fullPath: '/demo/start/ssr/'
-      preLoaderRoute: typeof DemoStartSsrIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo/start/ssr/spa-mode': {
-      id: '/demo/start/ssr/spa-mode'
-      path: '/demo/start/ssr/spa-mode'
-      fullPath: '/demo/start/ssr/spa-mode'
-      preLoaderRoute: typeof DemoStartSsrSpaModeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo/start/ssr/full-ssr': {
-      id: '/demo/start/ssr/full-ssr'
-      path: '/demo/start/ssr/full-ssr'
-      fullPath: '/demo/start/ssr/full-ssr'
-      preLoaderRoute: typeof DemoStartSsrFullSsrRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo/start/ssr/data-only': {
-      id: '/demo/start/ssr/data-only'
-      path: '/demo/start/ssr/data-only'
-      fullPath: '/demo/start/ssr/data-only'
-      preLoaderRoute: typeof DemoStartSsrDataOnlyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/documents/$id/tags': {
-      id: '/api/documents/$id/tags'
-      path: '/tags'
-      fullPath: '/api/documents/$id/tags'
-      preLoaderRoute: typeof ApiDocumentsIdTagsRouteImport
-      parentRoute: typeof ApiDocumentsIdRoute
-    }
-    '/api/documents/$id/correspondent': {
-      id: '/api/documents/$id/correspondent'
-      path: '/correspondent'
-      fullPath: '/api/documents/$id/correspondent'
-      preLoaderRoute: typeof ApiDocumentsIdCorrespondentRouteImport
-      parentRoute: typeof ApiDocumentsIdRoute
-    }
-  }
+declare module "@tanstack/react-router" {
+	interface FileRoutesByPath {
+		"/trash": {
+			id: "/trash";
+			path: "/trash";
+			fullPath: "/trash";
+			preLoaderRoute: typeof TrashRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		"/tags": {
+			id: "/tags";
+			path: "/tags";
+			fullPath: "/tags";
+			preLoaderRoute: typeof TagsRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		"/correspondents": {
+			id: "/correspondents";
+			path: "/correspondents";
+			fullPath: "/correspondents";
+			preLoaderRoute: typeof CorrespondentsRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		"/": {
+			id: "/";
+			path: "/";
+			fullPath: "/";
+			preLoaderRoute: typeof IndexRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		"/documents/$id": {
+			id: "/documents/$id";
+			path: "/documents/$id";
+			fullPath: "/documents/$id";
+			preLoaderRoute: typeof DocumentsIdRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		"/api/upload": {
+			id: "/api/upload";
+			path: "/api/upload";
+			fullPath: "/api/upload";
+			preLoaderRoute: typeof ApiUploadRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		"/api/trash": {
+			id: "/api/trash";
+			path: "/api/trash";
+			fullPath: "/api/trash";
+			preLoaderRoute: typeof ApiTrashRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		"/api/tags": {
+			id: "/api/tags";
+			path: "/api/tags";
+			fullPath: "/api/tags";
+			preLoaderRoute: typeof ApiTagsRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		"/api/correspondents": {
+			id: "/api/correspondents";
+			path: "/api/correspondents";
+			fullPath: "/api/correspondents";
+			preLoaderRoute: typeof ApiCorrespondentsRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		"/demo/start/server-funcs": {
+			id: "/demo/start/server-funcs";
+			path: "/demo/start/server-funcs";
+			fullPath: "/demo/start/server-funcs";
+			preLoaderRoute: typeof DemoStartServerFuncsRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		"/demo/start/api-request": {
+			id: "/demo/start/api-request";
+			path: "/demo/start/api-request";
+			fullPath: "/demo/start/api-request";
+			preLoaderRoute: typeof DemoStartApiRequestRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		"/demo/api/names": {
+			id: "/demo/api/names";
+			path: "/demo/api/names";
+			fullPath: "/demo/api/names";
+			preLoaderRoute: typeof DemoApiNamesRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		"/api/trash/$id": {
+			id: "/api/trash/$id";
+			path: "/$id";
+			fullPath: "/api/trash/$id";
+			preLoaderRoute: typeof ApiTrashIdRouteImport;
+			parentRoute: typeof ApiTrashRoute;
+		};
+		"/api/tags/$id": {
+			id: "/api/tags/$id";
+			path: "/$id";
+			fullPath: "/api/tags/$id";
+			preLoaderRoute: typeof ApiTagsIdRouteImport;
+			parentRoute: typeof ApiTagsRoute;
+		};
+		"/api/files/$key": {
+			id: "/api/files/$key";
+			path: "/api/files/$key";
+			fullPath: "/api/files/$key";
+			preLoaderRoute: typeof ApiFilesKeyRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		"/api/documents/$id": {
+			id: "/api/documents/$id";
+			path: "/api/documents/$id";
+			fullPath: "/api/documents/$id";
+			preLoaderRoute: typeof ApiDocumentsIdRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		"/api/correspondents/$id": {
+			id: "/api/correspondents/$id";
+			path: "/$id";
+			fullPath: "/api/correspondents/$id";
+			preLoaderRoute: typeof ApiCorrespondentsIdRouteImport;
+			parentRoute: typeof ApiCorrespondentsRoute;
+		};
+		"/demo/start/ssr/": {
+			id: "/demo/start/ssr/";
+			path: "/demo/start/ssr";
+			fullPath: "/demo/start/ssr/";
+			preLoaderRoute: typeof DemoStartSsrIndexRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		"/demo/start/ssr/spa-mode": {
+			id: "/demo/start/ssr/spa-mode";
+			path: "/demo/start/ssr/spa-mode";
+			fullPath: "/demo/start/ssr/spa-mode";
+			preLoaderRoute: typeof DemoStartSsrSpaModeRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		"/demo/start/ssr/full-ssr": {
+			id: "/demo/start/ssr/full-ssr";
+			path: "/demo/start/ssr/full-ssr";
+			fullPath: "/demo/start/ssr/full-ssr";
+			preLoaderRoute: typeof DemoStartSsrFullSsrRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		"/demo/start/ssr/data-only": {
+			id: "/demo/start/ssr/data-only";
+			path: "/demo/start/ssr/data-only";
+			fullPath: "/demo/start/ssr/data-only";
+			preLoaderRoute: typeof DemoStartSsrDataOnlyRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		"/api/documents/$id/tags": {
+			id: "/api/documents/$id/tags";
+			path: "/tags";
+			fullPath: "/api/documents/$id/tags";
+			preLoaderRoute: typeof ApiDocumentsIdTagsRouteImport;
+			parentRoute: typeof ApiDocumentsIdRoute;
+		};
+		"/api/documents/$id/correspondent": {
+			id: "/api/documents/$id/correspondent";
+			path: "/correspondent";
+			fullPath: "/api/documents/$id/correspondent";
+			preLoaderRoute: typeof ApiDocumentsIdCorrespondentRouteImport;
+			parentRoute: typeof ApiDocumentsIdRoute;
+		};
+	}
 }
 
 interface ApiCorrespondentsRouteChildren {
-  ApiCorrespondentsIdRoute: typeof ApiCorrespondentsIdRoute
+	ApiCorrespondentsIdRoute: typeof ApiCorrespondentsIdRoute;
 }
 
 const ApiCorrespondentsRouteChildren: ApiCorrespondentsRouteChildren = {
-  ApiCorrespondentsIdRoute: ApiCorrespondentsIdRoute,
-}
+	ApiCorrespondentsIdRoute: ApiCorrespondentsIdRoute,
+};
 
 const ApiCorrespondentsRouteWithChildren =
-  ApiCorrespondentsRoute._addFileChildren(ApiCorrespondentsRouteChildren)
+	ApiCorrespondentsRoute._addFileChildren(ApiCorrespondentsRouteChildren);
 
 interface ApiTagsRouteChildren {
-  ApiTagsIdRoute: typeof ApiTagsIdRoute
+	ApiTagsIdRoute: typeof ApiTagsIdRoute;
 }
 
 const ApiTagsRouteChildren: ApiTagsRouteChildren = {
-  ApiTagsIdRoute: ApiTagsIdRoute,
-}
+	ApiTagsIdRoute: ApiTagsIdRoute,
+};
 
 const ApiTagsRouteWithChildren =
-  ApiTagsRoute._addFileChildren(ApiTagsRouteChildren)
+	ApiTagsRoute._addFileChildren(ApiTagsRouteChildren);
 
 interface ApiTrashRouteChildren {
-  ApiTrashIdRoute: typeof ApiTrashIdRoute
+	ApiTrashIdRoute: typeof ApiTrashIdRoute;
 }
 
 const ApiTrashRouteChildren: ApiTrashRouteChildren = {
-  ApiTrashIdRoute: ApiTrashIdRoute,
-}
+	ApiTrashIdRoute: ApiTrashIdRoute,
+};
 
 const ApiTrashRouteWithChildren = ApiTrashRoute._addFileChildren(
-  ApiTrashRouteChildren,
-)
+	ApiTrashRouteChildren,
+);
 
 interface ApiDocumentsIdRouteChildren {
-  ApiDocumentsIdCorrespondentRoute: typeof ApiDocumentsIdCorrespondentRoute
-  ApiDocumentsIdTagsRoute: typeof ApiDocumentsIdTagsRoute
+	ApiDocumentsIdCorrespondentRoute: typeof ApiDocumentsIdCorrespondentRoute;
+	ApiDocumentsIdTagsRoute: typeof ApiDocumentsIdTagsRoute;
 }
 
 const ApiDocumentsIdRouteChildren: ApiDocumentsIdRouteChildren = {
-  ApiDocumentsIdCorrespondentRoute: ApiDocumentsIdCorrespondentRoute,
-  ApiDocumentsIdTagsRoute: ApiDocumentsIdTagsRoute,
-}
+	ApiDocumentsIdCorrespondentRoute: ApiDocumentsIdCorrespondentRoute,
+	ApiDocumentsIdTagsRoute: ApiDocumentsIdTagsRoute,
+};
 
 const ApiDocumentsIdRouteWithChildren = ApiDocumentsIdRoute._addFileChildren(
-  ApiDocumentsIdRouteChildren,
-)
+	ApiDocumentsIdRouteChildren,
+);
 
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  CorrespondentsRoute: CorrespondentsRoute,
-  TagsRoute: TagsRoute,
-  TrashRoute: TrashRoute,
-  ApiCorrespondentsRoute: ApiCorrespondentsRouteWithChildren,
-  ApiTagsRoute: ApiTagsRouteWithChildren,
-  ApiTrashRoute: ApiTrashRouteWithChildren,
-  ApiUploadRoute: ApiUploadRoute,
-  DocumentsIdRoute: DocumentsIdRoute,
-  ApiDocumentsIdRoute: ApiDocumentsIdRouteWithChildren,
-  ApiFilesKeyRoute: ApiFilesKeyRoute,
-  DemoApiNamesRoute: DemoApiNamesRoute,
-  DemoStartApiRequestRoute: DemoStartApiRequestRoute,
-  DemoStartServerFuncsRoute: DemoStartServerFuncsRoute,
-  DemoStartSsrDataOnlyRoute: DemoStartSsrDataOnlyRoute,
-  DemoStartSsrFullSsrRoute: DemoStartSsrFullSsrRoute,
-  DemoStartSsrSpaModeRoute: DemoStartSsrSpaModeRoute,
-  DemoStartSsrIndexRoute: DemoStartSsrIndexRoute,
-}
+	IndexRoute: IndexRoute,
+	CorrespondentsRoute: CorrespondentsRoute,
+	TagsRoute: TagsRoute,
+	TrashRoute: TrashRoute,
+	ApiCorrespondentsRoute: ApiCorrespondentsRouteWithChildren,
+	ApiTagsRoute: ApiTagsRouteWithChildren,
+	ApiTrashRoute: ApiTrashRouteWithChildren,
+	ApiUploadRoute: ApiUploadRoute,
+	DocumentsIdRoute: DocumentsIdRoute,
+	ApiDocumentsIdRoute: ApiDocumentsIdRouteWithChildren,
+	ApiFilesKeyRoute: ApiFilesKeyRoute,
+	DemoApiNamesRoute: DemoApiNamesRoute,
+	DemoStartApiRequestRoute: DemoStartApiRequestRoute,
+	DemoStartServerFuncsRoute: DemoStartServerFuncsRoute,
+	DemoStartSsrDataOnlyRoute: DemoStartSsrDataOnlyRoute,
+	DemoStartSsrFullSsrRoute: DemoStartSsrFullSsrRoute,
+	DemoStartSsrSpaModeRoute: DemoStartSsrSpaModeRoute,
+	DemoStartSsrIndexRoute: DemoStartSsrIndexRoute,
+};
 export const routeTree = rootRouteImport
-  ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>()
+	._addFileChildren(rootRouteChildren)
+	._addFileTypes<FileRouteTypes>();
 
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
+import type { getRouter } from "./router.tsx";
+import type { createStart } from "@tanstack/react-start";
+declare module "@tanstack/react-start" {
+	interface Register {
+		ssr: true;
+		router: Awaited<ReturnType<typeof getRouter>>;
+	}
 }
