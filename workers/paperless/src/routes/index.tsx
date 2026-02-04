@@ -28,6 +28,7 @@ import {
   Filter,
   Users,
   HardDrive,
+  Search,
 } from "lucide-react";
 import { createDbFromHyperdrive, listDocuments, listTags, listCorrespondents, getStorageStats } from "@/db";
 import { formatBytes } from "@/utils/format";
@@ -304,6 +305,8 @@ function Dashboard() {
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showBulkTagModal, setShowBulkTagModal] = useState(false);
+  const [showBulkCorrespondentModal, setShowBulkCorrespondentModal] = useState(false);
 
   // Table columns
   const columns = useMemo(
@@ -572,8 +575,58 @@ function Dashboard() {
           </div>
         </div>
 
-        {/* Top Section: Upload + Statistics */}
+        {/* Top Section: Statistics + Upload */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+          {/* Statistics Card */}
+          <div className="lg:col-span-2 bg-slate-800 rounded-xl border border-slate-700 p-6">
+            <h2 className="text-lg font-semibold text-white mb-4">Statistics</h2>
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
+              <div className="bg-slate-700/50 rounded-lg p-4">
+                <div className="flex items-center gap-2 text-slate-400 text-sm mb-1">
+                  <FileText className="w-4 h-4" />
+                  Loaded
+                </div>
+                <p className="text-2xl font-bold text-white">
+                  {documents.length}{hasMore && "+"}
+                </p>
+              </div>
+              <div className="bg-slate-700/50 rounded-lg p-4">
+                <div className="flex items-center gap-2 text-slate-400 text-sm mb-1">
+                  <HardDrive className="w-4 h-4" />
+                  Storage
+                </div>
+                <p className="text-2xl font-bold text-white">
+                  {formatBytes(storageStats.totalBytes)}
+                </p>
+              </div>
+              <div className="bg-slate-700/50 rounded-lg p-4">
+                <div className="flex items-center gap-2 text-slate-400 text-sm mb-1">
+                  <Tag className="w-4 h-4" />
+                  Tags
+                </div>
+                <p className="text-2xl font-bold text-white">{allTags.length}</p>
+              </div>
+              <div className="bg-slate-700/50 rounded-lg p-4">
+                <div className="flex items-center gap-2 text-slate-400 text-sm mb-1">
+                  <Users className="w-4 h-4" />
+                  Correspondents
+                </div>
+                <p className="text-2xl font-bold text-white">{allCorrespondents.length}</p>
+              </div>
+              <div className="bg-slate-700/50 rounded-lg p-4">
+                <div className="flex items-center gap-2 text-slate-400 text-sm mb-1">
+                  <Hash className="w-4 h-4" />
+                  Current ASN
+                </div>
+                <p className="text-2xl font-bold text-white">
+                  {documents.length > 0
+                    ? Math.max(...documents.map(d => d.archiveSerialNumber || 0))
+                    : 0}
+                </p>
+              </div>
+            </div>
+          </div>
+
           {/* Upload Card */}
           <div
             onDragOver={(e) => {
@@ -640,56 +693,6 @@ function Dashboard() {
               </div>
             )}
           </div>
-
-          {/* Statistics Card */}
-          <div className="lg:col-span-2 bg-slate-800 rounded-xl border border-slate-700 p-6">
-            <h2 className="text-lg font-semibold text-white mb-4">Statistics</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
-              <div className="bg-slate-700/50 rounded-lg p-4">
-                <div className="flex items-center gap-2 text-slate-400 text-sm mb-1">
-                  <FileText className="w-4 h-4" />
-                  Loaded
-                </div>
-                <p className="text-2xl font-bold text-white">
-                  {documents.length}{hasMore && "+"}
-                </p>
-              </div>
-              <div className="bg-slate-700/50 rounded-lg p-4">
-                <div className="flex items-center gap-2 text-slate-400 text-sm mb-1">
-                  <HardDrive className="w-4 h-4" />
-                  Storage
-                </div>
-                <p className="text-2xl font-bold text-white">
-                  {formatBytes(storageStats.totalBytes)}
-                </p>
-              </div>
-              <div className="bg-slate-700/50 rounded-lg p-4">
-                <div className="flex items-center gap-2 text-slate-400 text-sm mb-1">
-                  <Tag className="w-4 h-4" />
-                  Tags
-                </div>
-                <p className="text-2xl font-bold text-white">{allTags.length}</p>
-              </div>
-              <div className="bg-slate-700/50 rounded-lg p-4">
-                <div className="flex items-center gap-2 text-slate-400 text-sm mb-1">
-                  <Users className="w-4 h-4" />
-                  Correspondents
-                </div>
-                <p className="text-2xl font-bold text-white">{allCorrespondents.length}</p>
-              </div>
-              <div className="bg-slate-700/50 rounded-lg p-4">
-                <div className="flex items-center gap-2 text-slate-400 text-sm mb-1">
-                  <Hash className="w-4 h-4" />
-                  Current ASN
-                </div>
-                <p className="text-2xl font-bold text-white">
-                  {documents.length > 0
-                    ? Math.max(...documents.map(d => d.archiveSerialNumber || 0))
-                    : 0}
-                </p>
-              </div>
-            </div>
-          </div>
         </div>
 
         {/* Documents Section Header */}
@@ -723,11 +726,18 @@ function Dashboard() {
             {selectedCount > 0 ? (
               <>
                 <button
-                  onClick={() => setRowSelection({})}
+                  onClick={() => setShowBulkTagModal(true)}
                   className="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white font-medium rounded-lg transition-colors"
                 >
-                  <X className="w-4 h-4" />
-                  Clear
+                  <Tag className="w-4 h-4" />
+                  Add Tags
+                </button>
+                <button
+                  onClick={() => setShowBulkCorrespondentModal(true)}
+                  className="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white font-medium rounded-lg transition-colors"
+                >
+                  <Users className="w-4 h-4" />
+                  Set Correspondent
                 </button>
                 <button
                   onClick={() => setShowDeleteConfirm(true)}
@@ -735,6 +745,12 @@ function Dashboard() {
                 >
                   <Trash2 className="w-4 h-4" />
                   Delete
+                </button>
+                <button
+                  onClick={() => setRowSelection({})}
+                  className="flex items-center gap-2 px-3 py-2 text-slate-400 hover:text-white transition-colors"
+                >
+                  <X className="w-4 h-4" />
                 </button>
               </>
             ) : (
@@ -954,6 +970,34 @@ function Dashboard() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Bulk Tag Assignment Modal */}
+      {showBulkTagModal && (
+        <BulkTagModal
+          documentIds={selectedIds}
+          allTags={allTags}
+          onClose={() => setShowBulkTagModal(false)}
+          onSuccess={() => {
+            setShowBulkTagModal(false);
+            setRowSelection({});
+            router.invalidate();
+          }}
+        />
+      )}
+
+      {/* Bulk Correspondent Assignment Modal */}
+      {showBulkCorrespondentModal && (
+        <BulkCorrespondentModal
+          documentIds={selectedIds}
+          allCorrespondents={allCorrespondents}
+          onClose={() => setShowBulkCorrespondentModal(false)}
+          onSuccess={() => {
+            setShowBulkCorrespondentModal(false);
+            setRowSelection({});
+            router.invalidate();
+          }}
+        />
       )}
     </div>
   );
@@ -1689,4 +1733,443 @@ function formatFileSize(bytes: number): string {
   const sizes = ["B", "KB", "MB", "GB"];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(1))} ${sizes[i]}`;
+}
+
+function BulkTagModal({
+  documentIds,
+  allTags,
+  onClose,
+  onSuccess,
+}: {
+  documentIds: string[];
+  allTags: TagData[];
+  onClose: () => void;
+  onSuccess: () => void;
+}) {
+  const [selectedTagIds, setSelectedTagIds] = useState<Set<string>>(new Set());
+  const [isSaving, setIsSaving] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [localTags, setLocalTags] = useState<TagData[]>(allTags);
+  const [isCreating, setIsCreating] = useState(false);
+
+  const normalizedSearch = searchQuery.trim().toLowerCase();
+
+  const filteredTags = localTags.filter((tag) =>
+    tag.name.toLowerCase().includes(normalizedSearch)
+  );
+
+  const exactMatch = localTags.some(
+    (tag) => tag.name.toLowerCase() === normalizedSearch
+  );
+
+  const showCreateOption = normalizedSearch.length > 0 && !exactMatch;
+
+  const toggleTag = (tagId: string) => {
+    setSelectedTagIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(tagId)) {
+        next.delete(tagId);
+      } else {
+        next.add(tagId);
+      }
+      return next;
+    });
+  };
+
+  const handleCreateTag = async () => {
+    if (!normalizedSearch || isCreating) return;
+
+    setIsCreating(true);
+    try {
+      const color = generateColorFromString(normalizedSearch);
+      const response = await fetch("/api/tags", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: normalizedSearch, color }),
+      });
+
+      if (response.ok) {
+        const newTag = await response.json();
+        setLocalTags((prev) => [...prev, newTag]);
+        setSelectedTagIds((prev) => new Set([...prev, newTag.id]));
+        setSearchQuery("");
+      }
+    } catch (error) {
+      console.error("Failed to create tag:", error);
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
+  const handleSave = async () => {
+    if (selectedTagIds.size === 0) return;
+
+    setIsSaving(true);
+    try {
+      // Add selected tags to each document
+      for (const docId of documentIds) {
+        // Get current tags for this document
+        const docResponse = await fetch(`/api/documents/${docId}`);
+        if (!docResponse.ok) continue;
+
+        const doc = await docResponse.json();
+        const currentTagIds = new Set(
+          (doc.tags || []).map((t: { id: string }) => t.id)
+        );
+
+        // Merge with selected tags
+        const mergedTagIds = Array.from(
+          new Set([...currentTagIds, ...selectedTagIds])
+        );
+
+        await fetch(`/api/documents/${docId}/tags`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ tagIds: mergedTagIds }),
+        });
+      }
+
+      onSuccess();
+    } catch (error) {
+      console.error("Failed to update tags:", error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      <div
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        onClick={onClose}
+      />
+      <div className="relative bg-slate-800 rounded-xl border border-slate-700 shadow-2xl w-full max-w-md mx-4">
+        <div className="flex items-center justify-between p-4 border-b border-slate-700">
+          <h2 className="text-lg font-semibold text-white flex items-center gap-2">
+            <Tag className="w-5 h-5" />
+            Add Tags to {documentIds.length} Document{documentIds.length !== 1 ? "s" : ""}
+          </h2>
+          <button
+            onClick={onClose}
+            className="p-1 hover:bg-slate-700 rounded-lg transition-colors text-slate-400 hover:text-white"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="p-4 border-b border-slate-700">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search or create tags..."
+              className="w-full pl-10 pr-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 text-sm"
+              autoFocus
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && showCreateOption) {
+                  e.preventDefault();
+                  handleCreateTag();
+                }
+              }}
+            />
+          </div>
+        </div>
+
+        <div className="p-4 max-h-[50vh] overflow-y-auto">
+          <div className="space-y-2">
+            {showCreateOption && (
+              <button
+                onClick={handleCreateTag}
+                disabled={isCreating}
+                className="w-full flex items-center gap-3 p-3 rounded-lg transition-colors bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/30 border-dashed"
+              >
+                {isCreating ? (
+                  <Loader2 className="w-5 h-5 text-cyan-400 animate-spin" />
+                ) : (
+                  <Plus className="w-5 h-5 text-cyan-400" />
+                )}
+                <span className="text-cyan-400 flex-1 text-left">
+                  Create "<span className="font-medium">{normalizedSearch}</span>"
+                </span>
+              </button>
+            )}
+
+            {filteredTags.length === 0 && !showCreateOption ? (
+              <p className="text-slate-400 text-center py-4">
+                {localTags.length === 0
+                  ? "No tags yet. Type to create one!"
+                  : "No matching tags found."}
+              </p>
+            ) : (
+              filteredTags.map((tag) => (
+                <button
+                  key={tag.id}
+                  onClick={() => toggleTag(tag.id)}
+                  className={`w-full flex items-center gap-3 p-3 rounded-lg transition-colors ${
+                    selectedTagIds.has(tag.id)
+                      ? "bg-slate-600"
+                      : "bg-slate-700/50 hover:bg-slate-700"
+                  }`}
+                >
+                  <div
+                    className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
+                      selectedTagIds.has(tag.id)
+                        ? "bg-cyan-500 border-cyan-500"
+                        : "border-slate-500"
+                    }`}
+                  >
+                    {selectedTagIds.has(tag.id) && (
+                      <Check className="w-3 h-3 text-white" />
+                    )}
+                  </div>
+                  <div
+                    className="w-4 h-4 rounded-full"
+                    style={{ backgroundColor: tag.color ?? "#4B5563" }}
+                  />
+                  <span className="text-white flex-1 text-left">{tag.name}</span>
+                </button>
+              ))
+            )}
+          </div>
+        </div>
+
+        <div className="flex justify-end gap-3 p-4 border-t border-slate-700">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 text-slate-300 hover:text-white transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={selectedTagIds.size === 0 || isSaving}
+            className="flex items-center gap-2 px-4 py-2 bg-cyan-500 hover:bg-cyan-600 disabled:bg-slate-600 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors"
+          >
+            {isSaving ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Check className="w-4 h-4" />
+            )}
+            Add Tags
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function BulkCorrespondentModal({
+  documentIds,
+  allCorrespondents,
+  onClose,
+  onSuccess,
+}: {
+  documentIds: string[];
+  allCorrespondents: CorrespondentData[];
+  onClose: () => void;
+  onSuccess: () => void;
+}) {
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [localCorrespondents, setLocalCorrespondents] = useState<CorrespondentData[]>(allCorrespondents);
+  const [isCreating, setIsCreating] = useState(false);
+
+  const normalizedSearch = searchQuery.trim().toLowerCase();
+
+  const filteredCorrespondents = localCorrespondents.filter((c) =>
+    c.name.toLowerCase().includes(normalizedSearch)
+  );
+
+  const exactMatch = localCorrespondents.some(
+    (c) => c.name.toLowerCase() === normalizedSearch
+  );
+
+  const showCreateOption = normalizedSearch.length > 0 && !exactMatch;
+
+  const handleCreateCorrespondent = async () => {
+    if (!normalizedSearch || isCreating) return;
+
+    setIsCreating(true);
+    try {
+      const response = await fetch("/api/correspondents", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: searchQuery.trim() }),
+      });
+
+      if (response.ok) {
+        const newCorrespondent = await response.json();
+        setLocalCorrespondents((prev) => [...prev, newCorrespondent]);
+        setSelectedId(newCorrespondent.id);
+        setSearchQuery("");
+      }
+    } catch (error) {
+      console.error("Failed to create correspondent:", error);
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      for (const docId of documentIds) {
+        await fetch(`/api/documents/${docId}/correspondent`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ correspondentId: selectedId }),
+        });
+      }
+
+      onSuccess();
+    } catch (error) {
+      console.error("Failed to update correspondent:", error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      <div
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        onClick={onClose}
+      />
+      <div className="relative bg-slate-800 rounded-xl border border-slate-700 shadow-2xl w-full max-w-md mx-4">
+        <div className="flex items-center justify-between p-4 border-b border-slate-700">
+          <h2 className="text-lg font-semibold text-white flex items-center gap-2">
+            <Users className="w-5 h-5" />
+            Set Correspondent for {documentIds.length} Document{documentIds.length !== 1 ? "s" : ""}
+          </h2>
+          <button
+            onClick={onClose}
+            className="p-1 hover:bg-slate-700 rounded-lg transition-colors text-slate-400 hover:text-white"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="p-4 border-b border-slate-700">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search or create correspondent..."
+              className="w-full pl-10 pr-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 text-sm"
+              autoFocus
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && showCreateOption) {
+                  e.preventDefault();
+                  handleCreateCorrespondent();
+                }
+              }}
+            />
+          </div>
+        </div>
+
+        <div className="p-4 max-h-[50vh] overflow-y-auto">
+          <div className="space-y-2">
+            {showCreateOption && (
+              <button
+                onClick={handleCreateCorrespondent}
+                disabled={isCreating}
+                className="w-full flex items-center gap-3 p-3 rounded-lg transition-colors bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/30 border-dashed"
+              >
+                {isCreating ? (
+                  <Loader2 className="w-5 h-5 text-cyan-400 animate-spin" />
+                ) : (
+                  <Plus className="w-5 h-5 text-cyan-400" />
+                )}
+                <span className="text-cyan-400 flex-1 text-left">
+                  Create "<span className="font-medium">{searchQuery.trim()}</span>"
+                </span>
+              </button>
+            )}
+
+            {/* None option */}
+            <button
+              onClick={() => setSelectedId(null)}
+              className={`w-full flex items-center gap-3 p-3 rounded-lg transition-colors ${
+                selectedId === null
+                  ? "bg-slate-600"
+                  : "bg-slate-700/50 hover:bg-slate-700"
+              }`}
+            >
+              <div
+                className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                  selectedId === null
+                    ? "bg-cyan-500 border-cyan-500"
+                    : "border-slate-500"
+                }`}
+              >
+                {selectedId === null && (
+                  <div className="w-2 h-2 bg-white rounded-full" />
+                )}
+              </div>
+              <span className="text-slate-400 italic">None (clear correspondent)</span>
+            </button>
+
+            {filteredCorrespondents.length === 0 && !showCreateOption ? (
+              <p className="text-slate-400 text-center py-4">
+                {localCorrespondents.length === 0
+                  ? "No correspondents yet. Type to create one!"
+                  : "No matching correspondents found."}
+              </p>
+            ) : (
+              filteredCorrespondents.map((correspondent) => (
+                <button
+                  key={correspondent.id}
+                  onClick={() => setSelectedId(correspondent.id)}
+                  className={`w-full flex items-center gap-3 p-3 rounded-lg transition-colors ${
+                    selectedId === correspondent.id
+                      ? "bg-slate-600"
+                      : "bg-slate-700/50 hover:bg-slate-700"
+                  }`}
+                >
+                  <div
+                    className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                      selectedId === correspondent.id
+                        ? "bg-cyan-500 border-cyan-500"
+                        : "border-slate-500"
+                    }`}
+                  >
+                    {selectedId === correspondent.id && (
+                      <div className="w-2 h-2 bg-white rounded-full" />
+                    )}
+                  </div>
+                  <span className="text-white flex-1 text-left">{correspondent.name}</span>
+                </button>
+              ))
+            )}
+          </div>
+        </div>
+
+        <div className="flex justify-end gap-3 p-4 border-t border-slate-700">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 text-slate-300 hover:text-white transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={isSaving}
+            className="flex items-center gap-2 px-4 py-2 bg-cyan-500 hover:bg-cyan-600 disabled:bg-slate-600 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors"
+          >
+            {isSaving ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Check className="w-4 h-4" />
+            )}
+            Set Correspondent
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 }
