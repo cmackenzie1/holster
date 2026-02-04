@@ -222,7 +222,7 @@ function DocumentErrorPage({ error, reset }: ErrorComponentProps) {
 }
 
 function DocumentView() {
-  const { document: doc, allTags, allCorrespondents, nextASN } = Route.useLoaderData();
+  const { document: doc, allTags = [], allCorrespondents = [], nextASN = 1 } = Route.useLoaderData();
   const router = useRouter();
   const navigate = useNavigate();
   const [isTagSelectorOpen, setIsTagSelectorOpen] = useState(false);
@@ -361,7 +361,7 @@ function DocumentView() {
   };
 
   const isPdf = primaryFile?.mimeType === "application/pdf";
-  const isImage = primaryFile?.mimeType.startsWith("image/");
+  const isImage = primaryFile?.mimeType?.startsWith("image/") ?? false;
 
   const fileUrl = primaryFile
     ? `/api/files/${encodeURIComponent(primaryFile.objectKey)}`

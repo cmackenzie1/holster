@@ -29,9 +29,14 @@ import {
   Users,
   HardDrive,
   Search,
+  LayoutGrid,
+  List,
+  Image,
+  FileType,
 } from "lucide-react";
 import { createDbFromHyperdrive, listDocuments, listTags, listCorrespondents, getStorageStats } from "@/db";
 import { formatBytes } from "@/utils/format";
+import { generatePdfThumbnail, isPdfFile } from "@/utils/pdf-thumbnail";
 
 interface TagData {
   id: string;
@@ -237,6 +242,19 @@ async function uploadDocument(file: File): Promise<UploadResponse> {
   const formData = new FormData();
   formData.append("file", file);
 
+  // Generate thumbnail for PDFs
+  if (isPdfFile(file)) {
+    try {
+      const thumbnail = await generatePdfThumbnail(file);
+      if (thumbnail) {
+        formData.append("thumbnail", thumbnail, `${file.name}.thumb.jpg`);
+      }
+    } catch (error) {
+      console.error("Failed to generate PDF thumbnail:", error);
+      // Continue with upload even if thumbnail generation fails
+    }
+  }
+
   const response = await fetch("/api/upload", {
     method: "POST",
     body: formData,
@@ -307,6 +325,9 @@ function Dashboard() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showBulkTagModal, setShowBulkTagModal] = useState(false);
   const [showBulkCorrespondentModal, setShowBulkCorrespondentModal] = useState(false);
+
+  // View mode state
+  const [viewMode, setViewMode] = useState<"table" | "grid">("table");
 
   // Table columns
   const columns = useMemo(
@@ -697,9 +718,10 @@ function Dashboard() {
 
         {/* Documents Section Header */}
         <div className="flex items-center justify-between mb-4">
-          <div>
-            <h2 className="text-xl font-semibold text-white">Documents</h2>
-            <p className="text-slate-400 text-sm">
+          <div className="flex items-center gap-4">
+            <div>
+              <h2 className="text-xl font-semibold text-white">Documents</h2>
+              <p className="text-slate-400 text-sm">
               {selectedCount > 0 ? (
                 <span className="text-cyan-400">
                   {selectedCount} selected
@@ -721,6 +743,33 @@ function Dashboard() {
                 </>
               )}
             </p>
+            </div>
+
+            {/* View Toggle */}
+            <div className="flex bg-slate-700 rounded-lg p-1">
+              <button
+                onClick={() => setViewMode("table")}
+                className={`p-2 rounded-md transition-colors ${
+                  viewMode === "table"
+                    ? "bg-slate-600 text-white"
+                    : "text-slate-400 hover:text-white"
+                }`}
+                title="Table view"
+              >
+                <List className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setViewMode("grid")}
+                className={`p-2 rounded-md transition-colors ${
+                  viewMode === "grid"
+                    ? "bg-slate-600 text-white"
+                    : "text-slate-400 hover:text-white"
+                }`}
+                title="Grid view"
+              >
+                <LayoutGrid className="w-4 h-4" />
+              </button>
+            </div>
           </div>
           <div className="flex gap-3">
             {selectedCount > 0 ? (
@@ -817,7 +866,7 @@ function Dashboard() {
           </div>
         )}
 
-        {/* Documents Table */}
+        {/* Documents Table/Grid */}
         {documents.length === 0 ? (
           <div className="text-center py-16 bg-slate-800 rounded-xl border border-slate-700">
             <FileText className="w-16 h-16 text-slate-600 mx-auto mb-4" />
@@ -835,7 +884,7 @@ function Dashboard() {
               Upload Document
             </button>
           </div>
-        ) : (
+        ) : viewMode === "table" ? (
           <div className="rounded-xl border border-slate-700 overflow-clip">
             <table className="w-full border-collapse">
               <thead className="sticky top-0 z-10">
@@ -881,6 +930,143 @@ function Dashboard() {
             {/* Load More Button */}
             {hasMore && (
               <div className="p-4 border-t border-slate-700 flex justify-center bg-slate-800">
+                <button
+                  onClick={loadMore}
+                  disabled={isLoadingMore}
+                  className="flex items-center gap-2 px-6 py-2 bg-slate-700 hover:bg-slate-600 disabled:bg-slate-700/50 text-white font-medium rounded-lg transition-colors"
+                >
+                  {isLoadingMore ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Loading...
+                    </>
+                  ) : (
+                    "Load More"
+                  )}
+                </button>
+              </div>
+            )}
+          </div>
+        ) : (
+          /* Grid View */
+          <div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+              {documents.map((doc) => {
+                const isSelected = rowSelection[doc.id] === true;
+                const isImage = doc.primaryFile?.mimeType?.startsWith("image/") ?? false;
+                const isPdf = doc.primaryFile?.mimeType === "application/pdf";
+
+                return (
+                  <div
+                    key={doc.id}
+                    onClick={() =>
+                      navigate({ to: "/documents/$id", params: { id: doc.id } })
+                    }
+                    className={`group bg-slate-800 rounded-xl border overflow-hidden cursor-pointer transition-all hover:border-cyan-500/50 hover:shadow-lg ${
+                      isSelected ? "border-cyan-500 ring-2 ring-cyan-500/30" : "border-slate-700"
+                    }`}
+                  >
+                    {/* Thumbnail */}
+                    <div className="aspect-[3/4] bg-slate-900 relative overflow-hidden">
+                      {doc.primaryFile?.thumbnailKey ? (
+                        // Use generated thumbnail (for PDFs)
+                        <img
+                          src={`/api/files/${encodeURIComponent(doc.primaryFile.thumbnailKey)}`}
+                          alt={doc.title}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : isImage && doc.primaryFile ? (
+                        // Use original image as thumbnail
+                        <img
+                          src={`/api/files/${encodeURIComponent(doc.primaryFile.objectKey)}`}
+                          alt={doc.title}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        // Fallback to file type icon
+                        <div className="w-full h-full flex items-center justify-center">
+                          {isPdf ? (
+                            <FileText className="w-16 h-16 text-red-400/50" />
+                          ) : doc.primaryFile ? (
+                            <FileType className="w-16 h-16 text-slate-500" />
+                          ) : (
+                            <FileText className="w-16 h-16 text-slate-600" />
+                          )}
+                        </div>
+                      )}
+
+                      {/* Selection checkbox overlay */}
+                      <div
+                        className={`absolute top-2 left-2 transition-opacity ${
+                          isSelected ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+                        }`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setRowSelection((prev) => ({
+                            ...prev,
+                            [doc.id]: !prev[doc.id],
+                          }));
+                        }}
+                      >
+                        <div
+                          className={`w-6 h-6 rounded border-2 flex items-center justify-center transition-colors ${
+                            isSelected
+                              ? "bg-cyan-500 border-cyan-500"
+                              : "bg-slate-800/80 border-slate-400 hover:border-white"
+                          }`}
+                        >
+                          {isSelected && <Check className="w-4 h-4 text-white" />}
+                        </div>
+                      </div>
+
+                      {/* ASN badge */}
+                      {doc.archiveSerialNumber && (
+                        <div className="absolute top-2 right-2 px-2 py-0.5 bg-slate-800/80 rounded text-xs font-mono text-slate-300">
+                          #{doc.archiveSerialNumber}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Info */}
+                    <div className="p-3">
+                      <h3 className="text-white font-medium text-sm truncate mb-1" title={doc.title}>
+                        {doc.title}
+                      </h3>
+                      {doc.correspondent && (
+                        <p className="text-slate-400 text-xs truncate mb-2">
+                          {doc.correspondent}
+                        </p>
+                      )}
+                      {doc.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-1">
+                          {doc.tags.slice(0, 2).map((tag) => (
+                            <span
+                              key={String(tag.id)}
+                              className="px-1.5 py-0.5 rounded text-xs"
+                              style={{
+                                backgroundColor: tag.color ? `${tag.color}30` : "#374151",
+                                color: tag.color ?? "#9CA3AF",
+                              }}
+                            >
+                              {tag.name}
+                            </span>
+                          ))}
+                          {doc.tags.length > 2 && (
+                            <span className="px-1.5 py-0.5 text-xs text-slate-500">
+                              +{doc.tags.length - 2}
+                            </span>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Load More Button */}
+            {hasMore && (
+              <div className="mt-6 flex justify-center">
                 <button
                   onClick={loadMore}
                   disabled={isLoadingMore}
