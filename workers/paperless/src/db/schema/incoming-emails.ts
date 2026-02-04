@@ -37,7 +37,7 @@ export const incomingEmails = pgTable("incoming_emails", {
 		.$onUpdate(() => new Date()),
 });
 
-export const incomingEmailsRelations = relations(incomingEmails, ({}) => ({}));
+export const incomingEmailsRelations = relations(incomingEmails, () => ({}));
 
 export type IncomingEmail = typeof incomingEmails.$inferSelect;
 export type NewIncomingEmail = typeof incomingEmails.$inferInsert;

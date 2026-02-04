@@ -140,7 +140,7 @@ export default {
 			const createdDocuments: { id: string; title: string }[] = [];
 
 			for (const attachment of validAttachments) {
-				const filename = attachment.filename!;
+				const filename = attachment.filename ?? "unnamed";
 				// Handle both ArrayBuffer and string content from postal-mime
 				const content =
 					typeof attachment.content === "string"

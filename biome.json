@@ -6,7 +6,8 @@
 			"!**/node_modules",
 			"!**/.wrangler",
 			"!**/dist",
-			"!**/worker-configuration.d.ts"
+			"!**/worker-configuration.d.ts",
+			"!**/routeTree.gen.ts"
 		]
 	},
 	"assist": { "actions": { "source": { "organizeImports": "on" } } },
@@ -18,6 +19,17 @@
 				"noUnusedImports": {
 					"level": "warn"
 				}
+			},
+			"suspicious": {
+				"noUnknownAtRules": "off",
+				"noArrayIndexKey": "off"
+			},
+			"a11y": {
+				"useButtonType": "warn",
+				"noAutofocus": "warn",
+				"noStaticElementInteractions": "warn",
+				"useKeyWithClickEvents": "warn",
+				"useSemanticElements": "warn"
 			},
 			"style": {
 				"noParameterAssign": "error",

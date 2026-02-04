@@ -15,9 +15,8 @@ export const Route = createFileRoute("/api/trash")({
 				const startTime = Date.now();
 				const url = new URL(request.url);
 				const cursor = url.searchParams.get("cursor") ?? undefined;
-				const limit = url.searchParams.get("limit")
-					? Number.parseInt(url.searchParams.get("limit")!, 10)
-					: 50;
+				const limitParam = url.searchParams.get("limit");
+				const limit = limitParam ? Number.parseInt(limitParam, 10) : 50;
 
 				const wideEvent: Record<string, unknown> = {
 					method: "GET",
