@@ -19,6 +19,7 @@ export const Route = createFileRoute("/api/upload")({
         try {
           const formData = await request.formData();
           const file = formData.get("file") as File | null;
+          const thumbnail = formData.get("thumbnail") as File | null;
 
           if (!file) {
             wideEvent.status_code = 400;
@@ -63,6 +64,19 @@ export const Route = createFileRoute("/api/upload")({
           });
           wideEvent.r2_upload = true;
 
+          // Upload thumbnail if provided
+          let thumbnailKey: string | null = null;
+          if (thumbnail) {
+            thumbnailKey = `thumbnails/${timestamp}/${file.name}.jpg`;
+            const thumbArrayBuffer = await thumbnail.arrayBuffer();
+            await r2.put(thumbnailKey, new Uint8Array(thumbArrayBuffer), {
+              httpMetadata: {
+                contentType: "image/jpeg",
+              },
+            });
+            wideEvent.thumbnail_key = thumbnailKey;
+          }
+
           // Extract title from filename (remove extension)
           const title = file.name.replace(/\.[^/.]+$/, "");
 
@@ -86,6 +100,7 @@ export const Route = createFileRoute("/api/upload")({
             mimeType: file.type || "application/octet-stream",
             sizeBytes: BigInt(file.size),
             md5Hash,
+            thumbnailKey,
           });
           wideEvent.file_record_created = true;
 
