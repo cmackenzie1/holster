@@ -36,6 +36,11 @@ export interface DocumentListItem {
   createdAt: string;
   correspondent: string | null;
   tags: Array<{ id: bigint; name: string; color: string | null }>;
+  primaryFile: {
+    objectKey: string;
+    mimeType: string;
+    thumbnailKey: string | null;
+  } | null;
 }
 
 export interface PaginatedDocuments {
@@ -265,6 +270,41 @@ export async function listDocuments(
     });
   }
 
+  // Fetch primary file for each document (first file by creation date)
+  const documentFilesResult =
+    documentIds.length > 0
+      ? await db
+          .select({
+            documentId: files.documentId,
+            objectKey: files.objectKey,
+            mimeType: files.mimeType,
+            thumbnailKey: files.thumbnailKey,
+          })
+          .from(files)
+          .where(
+            and(
+              inArray(files.documentId, documentIds),
+              isNull(files.deletedAt)
+            )
+          )
+      : [];
+
+  // Group files by document (keep only the first one)
+  const primaryFileByDocument = new Map<
+    string,
+    { objectKey: string; mimeType: string; thumbnailKey: string | null }
+  >();
+  for (const file of documentFilesResult) {
+    const key = file.documentId.toString();
+    if (!primaryFileByDocument.has(key)) {
+      primaryFileByDocument.set(key, {
+        objectKey: file.objectKey,
+        mimeType: file.mimeType,
+        thumbnailKey: file.thumbnailKey,
+      });
+    }
+  }
+
   const items = pageResults.map((doc) => ({
     id: doc.id.toString(),
     title: doc.title,
@@ -273,6 +313,7 @@ export async function listDocuments(
     createdAt: doc.createdAt.toISOString(),
     correspondent: doc.correspondent?.name ?? null,
     tags: tagsByDocument.get(doc.id.toString()) ?? [],
+    primaryFile: primaryFileByDocument.get(doc.id.toString()) ?? null,
   }));
 
   // The next cursor is the id of the last item in the current page
@@ -567,13 +608,15 @@ export async function permanentlyDeleteDocument(
     return { success: false, objectKeys: [] };
   }
 
-  // Get file object keys before deletion
+  // Get file object keys and thumbnail keys before deletion
   const docFiles = await db
-    .select({ objectKey: files.objectKey })
+    .select({ objectKey: files.objectKey, thumbnailKey: files.thumbnailKey })
     .from(files)
     .where(eq(files.documentId, id));
 
-  const objectKeys = docFiles.map((f) => f.objectKey);
+  const objectKeys = docFiles.flatMap((f) =>
+    f.thumbnailKey ? [f.objectKey, f.thumbnailKey] : [f.objectKey]
+  );
 
   // Delete in order: document_tags -> files -> document
   await db.delete(documentTags).where(eq(documentTags.documentId, id));
@@ -607,13 +650,15 @@ export async function permanentlyDeleteOldDocuments(
 
   const docIds = oldDocs.map((d) => d.id);
 
-  // Get all file object keys
+  // Get all file object keys and thumbnail keys
   const docFiles = await db
-    .select({ objectKey: files.objectKey })
+    .select({ objectKey: files.objectKey, thumbnailKey: files.thumbnailKey })
     .from(files)
     .where(inArray(files.documentId, docIds));
 
-  const objectKeys = docFiles.map((f) => f.objectKey);
+  const objectKeys = docFiles.flatMap((f) =>
+    f.thumbnailKey ? [f.objectKey, f.thumbnailKey] : [f.objectKey]
+  );
 
   // Delete in order: document_tags -> files -> documents
   await db.delete(documentTags).where(inArray(documentTags.documentId, docIds));
