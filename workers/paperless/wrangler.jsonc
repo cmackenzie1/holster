@@ -1,0 +1,27 @@
+/**
+ * For more details on how to configure Wrangler, refer to:
+ * https://developers.cloudflare.com/workers/wrangler/configuration/
+ */
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "paperless",
+  "compatibility_date": "2025-09-02",
+  "compatibility_flags": ["nodejs_compat"],
+  "main": "@tanstack/react-start/server-entry",
+  "observability": {
+    "enabled": true,
+  },
+  "hyperdrive": [
+    {
+      "id": "d466a001443648528613acb29631bfc8",
+      "binding": "HYPERDRIVE",
+      "localConnectionString": "postgres://postgres:postgres@localhost:5432/paperless-dev",
+    },
+  ],
+  "r2_buckets": [
+    {
+      "binding": "R2",
+      "bucket_name": "paperless-documents",
+    },
+  ],
+}
