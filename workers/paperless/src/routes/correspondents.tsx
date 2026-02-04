@@ -60,7 +60,7 @@ export const Route = createFileRoute("/correspondents")({
 });
 
 function CorrespondentsPage() {
-  const { correspondents: initialCorrespondents } = Route.useLoaderData();
+  const { correspondents: initialCorrespondents = [] } = Route.useLoaderData() ?? {};
   const [correspondents, setCorrespondents] =
     useState<CorrespondentData[]>(initialCorrespondents);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -72,7 +72,7 @@ function CorrespondentsPage() {
 
   // Sync correspondents when loader data changes
   useEffect(() => {
-    setCorrespondents(initialCorrespondents);
+    setCorrespondents(initialCorrespondents ?? []);
   }, [initialCorrespondents]);
 
   const fetchCorrespondents = async () => {

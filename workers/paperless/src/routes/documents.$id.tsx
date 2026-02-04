@@ -222,7 +222,7 @@ function DocumentErrorPage({ error, reset }: ErrorComponentProps) {
 }
 
 function DocumentView() {
-  const { document: doc, allTags = [], allCorrespondents = [], nextASN = 1 } = Route.useLoaderData();
+  const { document: doc, allTags = [], allCorrespondents = [], nextASN = 1 } = Route.useLoaderData() ?? {};
   const router = useRouter();
   const navigate = useNavigate();
   const [isTagSelectorOpen, setIsTagSelectorOpen] = useState(false);

@@ -95,7 +95,7 @@ export const Route = createFileRoute("/tags")({
 });
 
 function TagsPage() {
-  const { tags: initialTags } = Route.useLoaderData();
+  const { tags: initialTags = [] } = Route.useLoaderData() ?? {};
   const [tags, setTags] = useState<TagData[]>(initialTags);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState("");
@@ -108,7 +108,7 @@ function TagsPage() {
 
   // Sync tags when loader data changes
   useEffect(() => {
-    setTags(initialTags);
+    setTags(initialTags ?? []);
   }, [initialTags]);
 
   // Auto-generate color when name changes
