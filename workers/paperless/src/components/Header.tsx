@@ -104,6 +104,7 @@ function Sidebar({
 					<h2 className="text-lg font-bold">Paperless</h2>
 				</Link>
 				<button
+					type="button"
 					onClick={onClose}
 					className="p-2 hover:bg-slate-800 rounded-lg transition-colors lg:hidden"
 					aria-label="Close menu"
@@ -169,6 +170,7 @@ function Sidebar({
 
 				<div className="mt-6 pt-6 border-t border-slate-700 space-y-1">
 					<button
+						type="button"
 						onClick={() => {
 							onUploadClick();
 							onClose?.();
@@ -211,14 +213,10 @@ export default function Header({ children }: { children?: React.ReactNode }) {
 	const [isOpen, setIsOpen] = useState(false);
 	const navigate = useNavigate();
 
-	// Try to get current search query from URL (works on "/" route)
-	let currentSearch = "";
-	try {
-		const search = useSearch({ from: "/" });
-		currentSearch = (search as { q?: string })?.q ?? "";
-	} catch {
-		// Not on "/" route, ignore
-	}
+	// Get current search query from URL - useSearch must be called unconditionally
+	// We use strict: false to avoid throwing when not on the "/" route
+	const search = useSearch({ from: "/", strict: false });
+	const currentSearch = (search as { q?: string } | undefined)?.q ?? "";
 
 	const handleUploadClick = () => {
 		navigate({ to: "/", search: { upload: true, q: currentSearch } });
@@ -236,8 +234,16 @@ export default function Header({ children }: { children?: React.ReactNode }) {
 			{/* Mobile backdrop */}
 			{isOpen && (
 				<div
+					role="button"
+					tabIndex={0}
 					className="fixed inset-0 bg-black/50 z-40 lg:hidden"
 					onClick={() => setIsOpen(false)}
+					onKeyDown={(e) => {
+						if (e.key === "Enter" || e.key === " ") {
+							setIsOpen(false);
+						}
+					}}
+					aria-label="Close menu"
 				/>
 			)}
 
@@ -255,6 +261,7 @@ export default function Header({ children }: { children?: React.ReactNode }) {
 				{/* Mobile header */}
 				<header className="px-4 py-3 flex items-center gap-3 bg-slate-800 text-white shadow-lg border-b border-slate-700 lg:hidden">
 					<button
+						type="button"
 						onClick={() => setIsOpen(true)}
 						className="p-2 hover:bg-slate-700 rounded-lg transition-colors flex-shrink-0"
 						aria-label="Open menu"

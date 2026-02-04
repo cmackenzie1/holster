@@ -278,9 +278,9 @@ export async function listDocuments(
 		if (!tagsByDocument.has(key)) {
 			tagsByDocument.set(key, []);
 		}
-		tagsByDocument.get(key)!.push({
-			id: dt.tagId!,
-			name: dt.tagName!,
+		tagsByDocument.get(key)?.push({
+			id: dt.tagId ?? 0n,
+			name: dt.tagName ?? "",
 			color: dt.tagColor,
 		});
 	}
@@ -559,7 +559,7 @@ export async function listDeletedDocuments(
 
 	const now = new Date();
 	const items = pageResults.map((doc) => {
-		const deletedAt = doc.deletedAt!;
+		const deletedAt = doc.deletedAt ?? new Date();
 		const daysSinceDeletion = Math.floor(
 			(now.getTime() - deletedAt.getTime()) / (1000 * 60 * 60 * 24),
 		);

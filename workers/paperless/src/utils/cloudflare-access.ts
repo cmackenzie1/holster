@@ -63,7 +63,7 @@ async function getJWKS(): Promise<JWKS> {
 
 	jwksCache = await response.json();
 	jwksCacheTime = now;
-	return jwksCache!;
+	return jwksCache;
 }
 
 /**
