@@ -86,7 +86,7 @@ export const Route = createFileRoute("/trash")({
 });
 
 function TrashPage() {
-  const { trashResult: initialResult, stats } = Route.useLoaderData();
+  const { trashResult: initialResult, stats = { trashCount: 0 } } = Route.useLoaderData() ?? {};
   const router = useRouter();
   const [documents, setDocuments] = useState(initialResult?.items ?? []);
   const [nextCursor, setNextCursor] = useState<string | null>(

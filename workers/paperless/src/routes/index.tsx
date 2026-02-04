@@ -288,7 +288,13 @@ export const Route = createFileRoute("/")({
 });
 
 function Dashboard() {
-  const { documentsResult: initialResult, allTags, allCorrespondents, storageStats, initialSearch } = Route.useLoaderData();
+  const {
+    documentsResult: initialResult = { items: [], nextCursor: null, hasMore: false },
+    allTags = [],
+    allCorrespondents = [],
+    storageStats = { totalBytes: 0, fileCount: 0 },
+    initialSearch = "",
+  } = Route.useLoaderData() ?? {};
   const searchParams = Route.useSearch();
   const uploadFromUrl = searchParams.upload;
   const searchFromUrl = searchParams.q ?? "";
