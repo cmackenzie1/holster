@@ -17,6 +17,7 @@ export const files = pgTable("files", {
   sizeBytes: bigint("size_bytes", { mode: "bigint" }).notNull(),
   md5Hash: varchar("md5_hash", { length: 32 }),
   crc32c: varchar("crc32c", { length: 8 }),
+  thumbnailKey: varchar("thumbnail_key", { length: 1024 }),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
