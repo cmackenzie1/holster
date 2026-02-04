@@ -22,7 +22,8 @@ src/
 │       ├── documents.ts
 │       ├── files.ts
 │       ├── tags.ts
-│       └── correspondents.ts
+│       ├── correspondents.ts
+│       └── incoming-emails.ts
 ├── routes/           # File-based routes (TanStack Router)
 │   ├── __root.tsx    # Root layout
 │   ├── index.tsx     # Dashboard
@@ -120,11 +121,18 @@ Configured in `wrangler.jsonc`:
 |---------|------|-------------|
 | `HYPERDRIVE` | Hyperdrive | PostgreSQL connection proxy |
 | `R2` | R2 Bucket | Document file storage (`paperless-documents`) |
+| `EMAIL` | SendEmail | Email sending capability (for future use) |
+
+**Environment Variables**:
+
+| Variable | Description |
+|----------|-------------|
+| `ALLOWED_EMAIL_SENDERS` | Comma-separated list of allowed sender email addresses for email import. Empty = allow all. |
 
 Access via:
 ```typescript
 import { env } from "cloudflare:workers";
-// Use env.HYPERDRIVE, env.R2, etc. directly
+// Use env.HYPERDRIVE, env.R2, env.ALLOWED_EMAIL_SENDERS, etc. directly
 ```
 
 ## Database
@@ -137,6 +145,7 @@ import { env } from "cloudflare:workers";
 - `tags` - Categorization tags with colors
 - `document_tags` - Many-to-many join table
 - `correspondents` - Sender/source entities
+- `incoming_emails` - Email import audit log (sender, status, documents created)
 
 **Commands**:
 ```bash
@@ -158,6 +167,33 @@ await env.R2.put(objectKey, file, {
 // Retrieve
 const object = await env.R2.get(objectKey);
 ```
+
+## Email Import
+
+The worker supports importing documents via email. Emails are processed by the `email()` handler in `server.ts`.
+
+**How it works:**
+1. Email arrives at configured address (set up via Cloudflare Email Routing)
+2. Sender is checked against `ALLOWED_EMAIL_SENDERS` (rejected if not allowed)
+3. Raw email is stored in R2 at `emails/{timestamp}/{sender}.eml`
+4. Attachments are extracted using `postal-mime`
+5. Each attachment becomes a document with its filename as the title
+6. Import is logged to `incoming_emails` table with status (processed/ignored/failed)
+
+**Configuration:**
+```jsonc
+// wrangler.jsonc
+"vars": {
+  "ALLOWED_EMAIL_SENDERS": "scanner@example.com,noreply@geniusscan.com"
+}
+```
+
+**Database table**: `incoming_emails` tracks all incoming emails with:
+- `from`, `to`, `subject` - Email metadata
+- `rawEmailKey` - R2 key for the original `.eml` file
+- `status` - `processed`, `ignored`, or `failed`
+- `documentsCreated` - Count of documents created from attachments
+- `errorMessage` - Error details if failed
 
 ## Development
 

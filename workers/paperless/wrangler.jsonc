@@ -27,4 +27,12 @@
       "bucket_name": "paperless-documents",
     },
   ],
+  "vars": {
+    "ALLOWED_EMAIL_SENDERS": ""
+  },
+  "send_email": [
+    {
+      "name": "EMAIL"
+    }
+  ]
 }
