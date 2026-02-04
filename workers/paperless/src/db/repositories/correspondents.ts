@@ -3,28 +3,28 @@ import type { Database } from "../index";
 import { correspondents } from "../schema";
 
 export interface CorrespondentData {
-  id: string;
-  name: string;
+	id: string;
+	name: string;
 }
 
 /**
  * Get all correspondents that are not soft-deleted.
  */
 export async function listCorrespondents(
-  db: Database
+	db: Database,
 ): Promise<CorrespondentData[]> {
-  const results = await db
-    .select({
-      id: correspondents.id,
-      name: correspondents.name,
-    })
-    .from(correspondents)
-    .where(isNull(correspondents.deletedAt));
+	const results = await db
+		.select({
+			id: correspondents.id,
+			name: correspondents.name,
+		})
+		.from(correspondents)
+		.where(isNull(correspondents.deletedAt));
 
-  return results.map((c) => ({
-    id: c.id.toString(),
-    name: c.name,
-  }));
+	return results.map((c) => ({
+		id: c.id.toString(),
+		name: c.name,
+	}));
 }
 
 /**
@@ -32,47 +32,47 @@ export async function listCorrespondents(
  * Returns null if not found or deleted.
  */
 export async function getCorrespondentById(
-  db: Database,
-  id: bigint
+	db: Database,
+	id: bigint,
 ): Promise<CorrespondentData | null> {
-  const [correspondent] = await db
-    .select({
-      id: correspondents.id,
-      name: correspondents.name,
-    })
-    .from(correspondents)
-    .where(and(eq(correspondents.id, id), isNull(correspondents.deletedAt)))
-    .limit(1);
+	const [correspondent] = await db
+		.select({
+			id: correspondents.id,
+			name: correspondents.name,
+		})
+		.from(correspondents)
+		.where(and(eq(correspondents.id, id), isNull(correspondents.deletedAt)))
+		.limit(1);
 
-  if (!correspondent) {
-    return null;
-  }
+	if (!correspondent) {
+		return null;
+	}
 
-  return {
-    id: correspondent.id.toString(),
-    name: correspondent.name,
-  };
+	return {
+		id: correspondent.id.toString(),
+		name: correspondent.name,
+	};
 }
 
 /**
  * Create a new correspondent.
  */
 export async function createCorrespondent(
-  db: Database,
-  name: string
+	db: Database,
+	name: string,
 ): Promise<CorrespondentData> {
-  const [newCorrespondent] = await db
-    .insert(correspondents)
-    .values({ name: name.trim() })
-    .returning({
-      id: correspondents.id,
-      name: correspondents.name,
-    });
+	const [newCorrespondent] = await db
+		.insert(correspondents)
+		.values({ name: name.trim() })
+		.returning({
+			id: correspondents.id,
+			name: correspondents.name,
+		});
 
-  return {
-    id: newCorrespondent.id.toString(),
-    name: newCorrespondent.name,
-  };
+	return {
+		id: newCorrespondent.id.toString(),
+		name: newCorrespondent.name,
+	};
 }
 
 /**
@@ -80,27 +80,27 @@ export async function createCorrespondent(
  * Returns true if updated, false if not found.
  */
 export async function updateCorrespondent(
-  db: Database,
-  id: bigint,
-  name: string
+	db: Database,
+	id: bigint,
+	name: string,
 ): Promise<boolean> {
-  // Check if correspondent exists and is not deleted
-  const [existing] = await db
-    .select({ id: correspondents.id })
-    .from(correspondents)
-    .where(and(eq(correspondents.id, id), isNull(correspondents.deletedAt)))
-    .limit(1);
+	// Check if correspondent exists and is not deleted
+	const [existing] = await db
+		.select({ id: correspondents.id })
+		.from(correspondents)
+		.where(and(eq(correspondents.id, id), isNull(correspondents.deletedAt)))
+		.limit(1);
 
-  if (!existing) {
-    return false;
-  }
+	if (!existing) {
+		return false;
+	}
 
-  await db
-    .update(correspondents)
-    .set({ name: name.trim() })
-    .where(eq(correspondents.id, id));
+	await db
+		.update(correspondents)
+		.set({ name: name.trim() })
+		.where(eq(correspondents.id, id));
 
-  return true;
+	return true;
 }
 
 /**
@@ -108,24 +108,24 @@ export async function updateCorrespondent(
  * Returns true if deleted, false if not found.
  */
 export async function softDeleteCorrespondent(
-  db: Database,
-  id: bigint
+	db: Database,
+	id: bigint,
 ): Promise<boolean> {
-  // Check if correspondent exists and is not already deleted
-  const [existing] = await db
-    .select({ id: correspondents.id })
-    .from(correspondents)
-    .where(and(eq(correspondents.id, id), isNull(correspondents.deletedAt)))
-    .limit(1);
+	// Check if correspondent exists and is not already deleted
+	const [existing] = await db
+		.select({ id: correspondents.id })
+		.from(correspondents)
+		.where(and(eq(correspondents.id, id), isNull(correspondents.deletedAt)))
+		.limit(1);
 
-  if (!existing) {
-    return false;
-  }
+	if (!existing) {
+		return false;
+	}
 
-  await db
-    .update(correspondents)
-    .set({ deletedAt: new Date() })
-    .where(eq(correspondents.id, id));
+	await db
+		.update(correspondents)
+		.set({ deletedAt: new Date() })
+		.where(eq(correspondents.id, id));
 
-  return true;
+	return true;
 }

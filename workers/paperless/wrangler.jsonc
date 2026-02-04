@@ -3,36 +3,36 @@
  * https://developers.cloudflare.com/workers/wrangler/configuration/
  */
 {
-  "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "paperless",
-  "account_id": "f5686db3c4f5b3e38b8f15b0561a28a8",
-  "compatibility_date": "2025-09-02",
-  "compatibility_flags": ["nodejs_compat"],
-  "main": "./src/server.ts",
-  "observability": {
-    "enabled": true,
-  },
-  "workers_dev": false,
-  "routes": [{ "pattern": "paperless.mirio.dev", "custom_domain": true }],
-  "hyperdrive": [
-    {
-      "id": "d466a001443648528613acb29631bfc8",
-      "binding": "HYPERDRIVE",
-      "localConnectionString": "postgres://postgres:postgres@localhost:5432/paperless-dev",
-    },
-  ],
-  "r2_buckets": [
-    {
-      "binding": "R2",
-      "bucket_name": "paperless-documents",
-    },
-  ],
-  "vars": {
-    "ALLOWED_EMAIL_SENDERS": ""
-  },
-  "send_email": [
-    {
-      "name": "EMAIL"
-    }
-  ]
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "paperless",
+	"account_id": "f5686db3c4f5b3e38b8f15b0561a28a8",
+	"compatibility_date": "2025-09-02",
+	"compatibility_flags": ["nodejs_compat"],
+	"main": "./src/server.ts",
+	"observability": {
+		"enabled": true
+	},
+	"workers_dev": false,
+	"routes": [{ "pattern": "paperless.mirio.dev", "custom_domain": true }],
+	"hyperdrive": [
+		{
+			"id": "d466a001443648528613acb29631bfc8",
+			"binding": "HYPERDRIVE",
+			"localConnectionString": "postgres://postgres:postgres@localhost:5432/paperless-dev"
+		}
+	],
+	"r2_buckets": [
+		{
+			"binding": "R2",
+			"bucket_name": "paperless-documents"
+		}
+	],
+	"vars": {
+		"ALLOWED_EMAIL_SENDERS": ""
+	},
+	"send_email": [
+		{
+			"name": "EMAIL"
+		}
+	]
 }
