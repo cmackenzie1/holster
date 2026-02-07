@@ -50,7 +50,7 @@
 		"jsdom": "^27.0.0",
 		"typescript": "^5.9.3",
 		"vite": "^7.1.7",
-		"vitest": "^4.0.18",
+		"vitest": "~3.2.4",
 		"web-vitals": "^5.1.0",
 		"wrangler": "^4.63.0"
 	}
