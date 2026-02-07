@@ -209,7 +209,18 @@ function Sidebar({
 	);
 }
 
-export default function Header({ children }: { children?: React.ReactNode }) {
+export interface VersionInfo {
+	id: string;
+	tag: string;
+}
+
+export default function Header({
+	children,
+	version,
+}: {
+	children?: React.ReactNode;
+	version?: VersionInfo | null;
+}) {
 	const [isOpen, setIsOpen] = useState(false);
 	const navigate = useNavigate();
 
@@ -280,8 +291,13 @@ export default function Header({ children }: { children?: React.ReactNode }) {
 				<main className="flex-1">{children}</main>
 
 				{/* Footer */}
-				<footer className="py-4 px-6 text-center text-sm text-slate-500 border-t border-slate-800">
-					Made with ☕ & 🌧️ in Seattle
+				<footer className="py-4 px-6 text-sm text-slate-500 border-t border-slate-800 flex items-center justify-between">
+					<span>Made with ☕ & 🌧️ in Seattle</span>
+					{version?.tag && (
+						<span className="font-mono text-xs text-slate-600">
+							{version.tag}
+						</span>
+					)}
 				</footer>
 			</div>
 		</div>
