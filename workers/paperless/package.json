@@ -16,6 +16,7 @@
 		"db:studio": "drizzle-kit studio"
 	},
 	"dependencies": {
+		"@cloudflare/containers": "^0.1.0",
 		"@cloudflare/vite-plugin": "^1.13.8",
 		"@tailwindcss/vite": "^4.0.6",
 		"@tanstack/react-devtools": "^0.7.0",
