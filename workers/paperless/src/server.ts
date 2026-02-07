@@ -11,6 +11,7 @@ import {
 	documentTags,
 	listCorrespondents,
 	listTags,
+	permanentlyDeleteOldDocuments,
 	recordIncomingEmail,
 	updateDocumentContent,
 } from "./db";
@@ -246,6 +247,39 @@ export default {
 			} catch {
 				// Ignore secondary failure
 			}
+		} finally {
+			wideEvent.duration_ms = Date.now() - startTime;
+			console.log(JSON.stringify(wideEvent));
+		}
+	},
+
+	async scheduled(_controller: ScheduledController): Promise<void> {
+		const startTime = Date.now();
+		const wideEvent: Record<string, unknown> = {
+			event: "scheduled_trash_cleanup",
+			timestamp: new Date().toISOString(),
+		};
+
+		try {
+			const db = createDbFromHyperdrive(env.HYPERDRIVE);
+			const { deletedCount, objectKeys } =
+				await permanentlyDeleteOldDocuments(db);
+
+			// Delete R2 objects for permanently deleted documents
+			if (objectKeys.length > 0) {
+				await Promise.all(objectKeys.map((key) => env.R2.delete(key)));
+			}
+
+			wideEvent.outcome = "success";
+			wideEvent.deletedCount = deletedCount;
+			wideEvent.r2ObjectsDeleted = objectKeys.length;
+		} catch (error) {
+			wideEvent.outcome = "error";
+			wideEvent.error = {
+				message:
+					error instanceof Error ? error.message : "Trash cleanup failed",
+				type: error instanceof Error ? error.name : "UnknownError",
+			};
 		} finally {
 			wideEvent.duration_ms = Date.now() - startTime;
 			console.log(JSON.stringify(wideEvent));
