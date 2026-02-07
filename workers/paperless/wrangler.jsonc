@@ -29,6 +29,9 @@
 			"bucket_name": "paperless-documents"
 		}
 	],
+	"triggers": {
+		"crons": ["0 3 * * *"]
+	},
 	"vars": {
 		"ALLOWED_EMAIL_SENDERS": ""
 	},
