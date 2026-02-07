@@ -29,6 +29,13 @@
 			"when": 1770442371173,
 			"tag": "0003_loving_dexter_bennett",
 			"breakpoints": true
+		},
+		{
+			"idx": 4,
+			"version": "7",
+			"when": 1770498281439,
+			"tag": "0004_magenta_patch",
+			"breakpoints": true
 		}
 	]
 }

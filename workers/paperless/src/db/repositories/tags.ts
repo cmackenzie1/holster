@@ -1,4 +1,5 @@
-import { eq, and, isNull } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
+import { generateColorFromString } from "../../utils/format";
 import type { Database } from "../index";
 import { tags } from "../schema";
 
@@ -66,6 +67,7 @@ export function normalizeTagName(name: string): string {
 
 /**
  * Create a new tag. Tag names are normalized (trimmed and lowercased).
+ * If no color is provided, one is auto-generated from the tag name.
  */
 export async function createTag(
 	db: Database,
@@ -73,12 +75,14 @@ export async function createTag(
 	color?: string | null,
 ): Promise<TagData> {
 	const normalizedName = normalizeTagName(name);
+	const resolvedColor =
+		color?.trim() || generateColorFromString(normalizedName);
 
 	const [newTag] = await db
 		.insert(tags)
 		.values({
 			name: normalizedName,
-			color: color?.trim() || null,
+			color: resolvedColor,
 		})
 		.returning({
 			id: tags.id,

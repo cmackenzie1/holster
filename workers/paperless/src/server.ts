@@ -1,13 +1,22 @@
 import { env } from "cloudflare:workers";
 import handler from "@tanstack/react-start/server-entry";
+import { eq } from "drizzle-orm";
 import PostalMime from "postal-mime";
 import {
 	createDbFromHyperdrive,
 	createDocumentWithFile,
+	createSuggestions,
+	deletePendingSuggestionsForDocument,
+	documents,
+	documentTags,
+	listCorrespondents,
+	listTags,
 	recordIncomingEmail,
 	updateDocumentContent,
 } from "./db";
+import type { NewDocumentSuggestion } from "./db/schema/document-suggestions";
 import type { DocumentProcessMessage } from "./queue/types";
+import { generateSuggestions } from "./utils/ai-suggestions";
 import { verifyCloudflareAccess } from "./utils/cloudflare-access";
 import { postProcessContent } from "./utils/post-process";
 import { extractWithTika } from "./utils/tika";
@@ -292,6 +301,88 @@ export default {
 				// Update document content in DB
 				const db = createDbFromHyperdrive(env.HYPERDRIVE);
 				await updateDocumentContent(db, BigInt(documentId), processed.content);
+
+				// Generate AI suggestions (non-blocking — failures are logged but don't fail the message)
+				try {
+					// Clear stale pending suggestions before generating new ones (handles reprocessing)
+					await deletePendingSuggestionsForDocument(db, BigInt(documentId));
+
+					const [existingTags, existingCorrespondents] = await Promise.all([
+						listTags(db),
+						listCorrespondents(db),
+					]);
+
+					const docId = BigInt(documentId);
+					const [[doc], currentDocTags] = await Promise.all([
+						db
+							.select({
+								title: documents.title,
+								correspondentId: documents.correspondentId,
+							})
+							.from(documents)
+							.where(eq(documents.id, docId))
+							.limit(1),
+						db
+							.select({ tagId: documentTags.tagId })
+							.from(documentTags)
+							.where(eq(documentTags.documentId, docId)),
+					]);
+
+					const aiSuggestions = await generateSuggestions(env.AI, {
+						documentTitle: doc?.title ?? "",
+						documentContent: processed.content,
+						existingTags,
+						existingCorrespondents,
+					});
+
+					// Filter out suggestions for tags/correspondents already on the document
+					const currentTagIds = new Set(
+						currentDocTags.map((t) => t.tagId.toString()),
+					);
+					const currentCorrespondentId =
+						doc?.correspondentId?.toString() ?? null;
+
+					const filtered = aiSuggestions.filter((s) => {
+						if (!s.matchedId) return true;
+						if (s.type === "tag") return !currentTagIds.has(s.matchedId);
+						return s.matchedId !== currentCorrespondentId;
+					});
+
+					if (filtered.length > 0) {
+						const suggestionRows: NewDocumentSuggestion[] = filtered.map(
+							(s) => ({
+								documentId: BigInt(documentId),
+								type: s.type,
+								name: s.name,
+								confidence: s.confidence.toFixed(3),
+								tagId:
+									s.type === "tag" && s.matchedId ? BigInt(s.matchedId) : null,
+								correspondentId:
+									s.type === "correspondent" && s.matchedId
+										? BigInt(s.matchedId)
+										: null,
+							}),
+						);
+						await createSuggestions(db, suggestionRows);
+					}
+
+					wideEvent.ai_suggestions = {
+						generated: aiSuggestions.length,
+						filtered_out: aiSuggestions.length - filtered.length,
+						stored: filtered.length,
+						tags: filtered.filter((s) => s.type === "tag").length,
+						correspondents: filtered.filter((s) => s.type === "correspondent")
+							.length,
+					};
+				} catch (aiError) {
+					wideEvent.ai_suggestions = {
+						outcome: "error",
+						error:
+							aiError instanceof Error
+								? aiError.message
+								: "AI suggestion failed",
+					};
+				}
 
 				wideEvent.outcome = "success";
 				msg.ack();
