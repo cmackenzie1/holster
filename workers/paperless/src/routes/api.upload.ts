@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { json } from "@tanstack/react-start";
 import { env } from "cloudflare:workers";
-import { createDbFromHyperdrive, documents, files } from "@/db";
+import { createDbFromHyperdrive, createDocumentWithFile } from "@/db";
 
 export const Route = createFileRoute("/api/upload")({
 	server: {
@@ -83,35 +83,28 @@ export const Route = createFileRoute("/api/upload")({
 					// Extract title from filename (remove extension)
 					const title = file.name.replace(/\.[^/.]+$/, "");
 
-					// Create document record
-					const [newDocument] = await db
-						.insert(documents)
-						.values({
-							title,
-						})
-						.returning({ id: documents.id });
-
-					wideEvent.document = {
-						id: newDocument.id.toString(),
+					// Create document and file records
+					const mimeType = file.type || "application/octet-stream";
+					const newDocument = await createDocumentWithFile(db, {
 						title,
-					};
-
-					// Create file record
-					await db.insert(files).values({
-						documentId: newDocument.id,
 						objectKey,
-						mimeType: file.type || "application/octet-stream",
+						mimeType,
 						sizeBytes: BigInt(file.size),
 						md5Hash,
 						thumbnailKey,
 					});
+
+					wideEvent.document = {
+						id: newDocument.id,
+						title,
+					};
 					wideEvent.file_record_created = true;
 
 					// Enqueue async document processing
 					await env.DOCUMENT_PROCESS_QUEUE.send({
-						documentId: newDocument.id.toString(),
+						documentId: newDocument.id,
 						objectKey,
-						mimeType: file.type || "application/octet-stream",
+						mimeType,
 					});
 					wideEvent.queued = true;
 
@@ -120,7 +113,7 @@ export const Route = createFileRoute("/api/upload")({
 
 					response = json({
 						success: true,
-						documentId: newDocument.id.toString(),
+						documentId: newDocument.id,
 						title,
 					});
 					return response;

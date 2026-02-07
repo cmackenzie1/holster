@@ -1,8 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { json } from "@tanstack/react-start";
 import { env } from "cloudflare:workers";
-import { eq, and, isNull } from "drizzle-orm";
-import { createDbFromHyperdrive, documents, files } from "@/db";
+import { createDbFromHyperdrive, getDocumentForProcessing } from "@/db";
 
 export const Route = createFileRoute("/api/documents/$id/process")({
 	server: {
@@ -19,56 +18,33 @@ export const Route = createFileRoute("/api/documents/$id/process")({
 				try {
 					const db = createDbFromHyperdrive(env.HYPERDRIVE);
 
-					// Look up document
-					const [doc] = await db
-						.select({ id: documents.id })
-						.from(documents)
-						.where(
-							and(
-								eq(documents.id, BigInt(params.id)),
-								isNull(documents.deletedAt),
-							),
-						)
-						.limit(1);
+					// Look up document and its primary file
+					const docInfo = await getDocumentForProcessing(
+						db,
+						BigInt(params.id),
+					);
 
-					if (!doc) {
+					if (!docInfo) {
 						wideEvent.document = { id: params.id, found: false };
 						wideEvent.status_code = 404;
 						wideEvent.outcome = "not_found";
-						return json({ error: "Document not found" }, { status: 404 });
-					}
-
-					// Get the primary file
-					const [file] = await db
-						.select({
-							objectKey: files.objectKey,
-							mimeType: files.mimeType,
-						})
-						.from(files)
-						.where(and(eq(files.documentId, doc.id), isNull(files.deletedAt)))
-						.limit(1);
-
-					if (!file) {
-						wideEvent.document = { id: params.id, found: true };
-						wideEvent.status_code = 404;
-						wideEvent.outcome = "no_file";
 						return json(
-							{ error: "No file found for document" },
+							{ error: "Document or file not found" },
 							{ status: 404 },
 						);
 					}
 
 					wideEvent.document = { id: params.id, found: true };
 					wideEvent.file = {
-						objectKey: file.objectKey,
-						mimeType: file.mimeType,
+						objectKey: docInfo.objectKey,
+						mimeType: docInfo.mimeType,
 					};
 
 					// Enqueue async document processing
 					await env.DOCUMENT_PROCESS_QUEUE.send({
-						documentId: doc.id.toString(),
-						objectKey: file.objectKey,
-						mimeType: file.mimeType,
+						documentId: docInfo.id,
+						objectKey: docInfo.objectKey,
+						mimeType: docInfo.mimeType,
 					});
 					wideEvent.queued = true;
 

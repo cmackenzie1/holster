@@ -2,8 +2,12 @@ import handler from "@tanstack/react-start/server-entry";
 import { env } from "cloudflare:workers";
 import PostalMime from "postal-mime";
 import { verifyCloudflareAccess } from "./utils/cloudflare-access";
-import { eq } from "drizzle-orm";
-import { createDbFromHyperdrive, documents, files, incomingEmails } from "./db";
+import {
+	createDbFromHyperdrive,
+	createDocumentWithFile,
+	updateDocumentContent,
+	recordIncomingEmail,
+} from "./db";
 import { extractWithTika } from "./utils/tika";
 import type { DocumentProcessMessage } from "./queue/types";
 
@@ -125,7 +129,7 @@ export default {
 
 			if (validAttachments.length === 0) {
 				// No valid attachments - record as ignored
-				await db.insert(incomingEmails).values({
+				await recordIncomingEmail(db, {
 					from: message.from,
 					to: message.to,
 					subject: parsed.subject ?? null,
@@ -172,36 +176,32 @@ export default {
 				// Extract title from filename (remove extension)
 				const title = filename.replace(/\.[^/.]+$/, "");
 
-				// Create document record
-				const [newDocument] = await db
-					.insert(documents)
-					.values({ title })
-					.returning({ id: documents.id });
-
-				// Create file record
-				await db.insert(files).values({
-					documentId: newDocument.id,
+				// Create document and file records
+				const mimeType =
+					attachment.mimeType || "application/octet-stream";
+				const newDocument = await createDocumentWithFile(db, {
+					title,
 					objectKey,
-					mimeType: attachment.mimeType || "application/octet-stream",
+					mimeType,
 					sizeBytes: BigInt(content.byteLength),
 					md5Hash,
 				});
 
 				// Enqueue async document processing
 				await env.DOCUMENT_PROCESS_QUEUE.send({
-					documentId: newDocument.id.toString(),
+					documentId: newDocument.id,
 					objectKey,
-					mimeType: attachment.mimeType || "application/octet-stream",
+					mimeType,
 				});
 
 				createdDocuments.push({
-					id: newDocument.id.toString(),
+					id: newDocument.id,
 					title,
 				});
 			}
 
 			// Record successful import
-			await db.insert(incomingEmails).values({
+			await recordIncomingEmail(db, {
 				from: message.from,
 				to: message.to,
 				subject: parsed.subject ?? null,
@@ -223,7 +223,7 @@ export default {
 			// Try to record the failure
 			try {
 				const db = createDbFromHyperdrive(env.HYPERDRIVE);
-				await db.insert(incomingEmails).values({
+				await recordIncomingEmail(db, {
 					from: message.from,
 					to: message.to,
 					subject: null,
@@ -282,10 +282,11 @@ export default {
 
 				// Update document content in DB
 				const db = createDbFromHyperdrive(env.HYPERDRIVE);
-				await db
-					.update(documents)
-					.set({ content: tikaResult.content })
-					.where(eq(documents.id, BigInt(documentId)));
+				await updateDocumentContent(
+					db,
+					BigInt(documentId),
+					tikaResult.content,
+				);
 
 				wideEvent.outcome = "success";
 				msg.ack();

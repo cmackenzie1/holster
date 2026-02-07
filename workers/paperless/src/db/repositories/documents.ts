@@ -487,18 +487,21 @@ export async function updateDocumentTags(
 		}
 	}
 
-	// Delete all existing tags for this document
-	await db.delete(documentTags).where(eq(documentTags.documentId, documentId));
+	// Delete all existing tags and insert new ones in a transaction
+	await db.transaction(async (tx) => {
+		await tx
+			.delete(documentTags)
+			.where(eq(documentTags.documentId, documentId));
 
-	// Insert new tags
-	if (tagIds.length > 0) {
-		await db.insert(documentTags).values(
-			tagIds.map((tagId) => ({
-				documentId,
-				tagId,
-			})),
-		);
-	}
+		if (tagIds.length > 0) {
+			await tx.insert(documentTags).values(
+				tagIds.map((tagId) => ({
+					documentId,
+					tagId,
+				})),
+			);
+		}
+	});
 
 	return { success: true };
 }
@@ -638,10 +641,12 @@ export async function permanentlyDeleteDocument(
 		f.thumbnailKey ? [f.objectKey, f.thumbnailKey] : [f.objectKey],
 	);
 
-	// Delete in order: document_tags -> files -> document
-	await db.delete(documentTags).where(eq(documentTags.documentId, id));
-	await db.delete(files).where(eq(files.documentId, id));
-	await db.delete(documents).where(eq(documents.id, id));
+	// Delete in order: document_tags -> files -> document (in a transaction)
+	await db.transaction(async (tx) => {
+		await tx.delete(documentTags).where(eq(documentTags.documentId, id));
+		await tx.delete(files).where(eq(files.documentId, id));
+		await tx.delete(documents).where(eq(documents.id, id));
+	});
 
 	return { success: true, objectKeys };
 }
@@ -680,10 +685,14 @@ export async function permanentlyDeleteOldDocuments(
 		f.thumbnailKey ? [f.objectKey, f.thumbnailKey] : [f.objectKey],
 	);
 
-	// Delete in order: document_tags -> files -> documents
-	await db.delete(documentTags).where(inArray(documentTags.documentId, docIds));
-	await db.delete(files).where(inArray(files.documentId, docIds));
-	await db.delete(documents).where(inArray(documents.id, docIds));
+	// Delete in order: document_tags -> files -> documents (in a transaction)
+	await db.transaction(async (tx) => {
+		await tx
+			.delete(documentTags)
+			.where(inArray(documentTags.documentId, docIds));
+		await tx.delete(files).where(inArray(files.documentId, docIds));
+		await tx.delete(documents).where(inArray(documents.id, docIds));
+	});
 
 	return { deletedCount: docIds.length, objectKeys };
 }
@@ -714,4 +723,92 @@ export async function getNextASN(db: Database): Promise<number> {
 
 	const maxASN = result[0]?.maxASN ?? 0;
 	return maxASN + 1;
+}
+
+/**
+ * Create a document and its associated file record in a single transaction.
+ * Returns the new document ID.
+ */
+export async function createDocumentWithFile(
+	db: Database,
+	params: {
+		title: string;
+		objectKey: string;
+		mimeType: string;
+		sizeBytes: bigint;
+		md5Hash: string;
+		thumbnailKey?: string | null;
+	},
+): Promise<{ id: string }> {
+	const result = await db.transaction(async (tx) => {
+		const [newDocument] = await tx
+			.insert(documents)
+			.values({ title: params.title })
+			.returning({ id: documents.id });
+
+		await tx.insert(files).values({
+			documentId: newDocument.id,
+			objectKey: params.objectKey,
+			mimeType: params.mimeType,
+			sizeBytes: params.sizeBytes,
+			md5Hash: params.md5Hash,
+			thumbnailKey: params.thumbnailKey ?? null,
+		});
+
+		return newDocument;
+	});
+
+	return { id: result.id.toString() };
+}
+
+/**
+ * Update a document's extracted content by ID.
+ */
+export async function updateDocumentContent(
+	db: Database,
+	documentId: bigint,
+	content: string,
+): Promise<void> {
+	await db
+		.update(documents)
+		.set({ content })
+		.where(eq(documents.id, documentId));
+}
+
+/**
+ * Get a document's primary file info for processing (text extraction).
+ * Returns null if the document or file is not found.
+ */
+export async function getDocumentForProcessing(
+	db: Database,
+	documentId: bigint,
+): Promise<{ id: string; objectKey: string; mimeType: string } | null> {
+	const [doc] = await db
+		.select({ id: documents.id })
+		.from(documents)
+		.where(and(eq(documents.id, documentId), isNull(documents.deletedAt)))
+		.limit(1);
+
+	if (!doc) {
+		return null;
+	}
+
+	const [file] = await db
+		.select({
+			objectKey: files.objectKey,
+			mimeType: files.mimeType,
+		})
+		.from(files)
+		.where(and(eq(files.documentId, doc.id), isNull(files.deletedAt)))
+		.limit(1);
+
+	if (!file) {
+		return null;
+	}
+
+	return {
+		id: doc.id.toString(),
+		objectKey: file.objectKey,
+		mimeType: file.mimeType,
+	};
 }
