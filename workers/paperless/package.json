@@ -7,7 +7,7 @@
 		"build": "vite build",
 		"serve": "vite preview",
 		"test": "vitest run",
-		"deploy": "pnpm run build && wrangler deploy",
+		"deploy": "pnpm run build && VERSION_ID=$(wrangler versions upload --tag $(git rev-parse --short HEAD) --message \"$(git log -1 --pretty=%s)\" 2>&1 | grep 'Worker Version ID:' | awk '{print $4}') && wrangler versions deploy $VERSION_ID@100 --yes",
 		"preview": "pnpm run build && vite preview",
 		"cf-typegen": "wrangler types",
 		"db:generate": "drizzle-kit generate",

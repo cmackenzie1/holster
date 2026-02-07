@@ -122,6 +122,7 @@ Configured in `wrangler.jsonc`:
 | `HYPERDRIVE` | Hyperdrive | PostgreSQL connection proxy |
 | `R2` | R2 Bucket | Document file storage (`paperless-documents`) |
 | `EMAIL` | SendEmail | Email sending capability (for future use) |
+| `CF_VERSION_METADATA` | WorkerVersionMetadata | Worker version ID and tag (git SHA) |
 
 **Environment Variables**:
 
@@ -200,7 +201,7 @@ The worker supports importing documents via email. Emails are processed by the `
 ```bash
 pnpm dev          # Start dev server on port 3000
 pnpm build        # Build for production
-pnpm deploy       # Build and deploy to Cloudflare
+pnpm deploy       # Build, upload version tagged with git SHA, and deploy
 ```
 
 ## Key Patterns

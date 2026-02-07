@@ -1,3 +1,4 @@
+import { env } from "cloudflare:workers";
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import {
 	createRootRoute,
@@ -9,11 +10,22 @@ import {
 	useRouter,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
+import { createServerFn } from "@tanstack/react-start";
 import { AlertTriangle, FileQuestion, Home, RefreshCw } from "lucide-react";
 
 import Header from "../components/Header";
 
 import appCss from "../styles.css?url";
+
+const getVersionMetadata = createServerFn({ method: "GET" }).handler(
+	async () => {
+		const meta = env.CF_VERSION_METADATA;
+		return {
+			id: meta.id,
+			tag: meta.tag,
+		};
+	},
+);
 
 export const Route = createRootRoute({
 	head: () => ({
@@ -37,6 +49,14 @@ export const Route = createRootRoute({
 		],
 	}),
 
+	loader: async () => {
+		try {
+			const version = await getVersionMetadata();
+			return { version };
+		} catch {
+			return { version: null };
+		}
+	},
 	shellComponent: RootDocument,
 	component: RootLayout,
 	notFoundComponent: NotFoundPage,
@@ -69,8 +89,9 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 }
 
 function RootLayout() {
+	const { version } = Route.useLoaderData();
 	return (
-		<Header>
+		<Header version={version}>
 			<Outlet />
 		</Header>
 	);
