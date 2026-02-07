@@ -1061,7 +1061,9 @@ function Dashboard() {
 											)}
 
 											{/* Selection checkbox overlay */}
+											{/* biome-ignore lint/a11y/noStaticElementInteractions: checkbox overlay */}
 											<div
+												role="presentation"
 												className={`absolute top-2 left-2 transition-opacity ${
 													isSelected
 														? "opacity-100"
@@ -1377,7 +1379,9 @@ function UploadModal({
 				{/* Content */}
 				<div className="p-4">
 					{/* Drop Zone */}
+					{/* biome-ignore lint/a11y/noStaticElementInteractions: drop zone */}
 					<div
+						role="presentation"
 						onDragOver={handleDragOver}
 						onDragLeave={handleDragLeave}
 						onDrop={handleDrop}

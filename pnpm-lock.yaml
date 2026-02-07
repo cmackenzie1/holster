@@ -209,6 +209,9 @@ importers:
 
   workers/paperless:
     dependencies:
+      '@cloudflare/containers':
+        specifier: ^0.1.0
+        version: 0.1.0
       '@cloudflare/vite-plugin':
         specifier: ^1.13.8
         version: 1.22.1(vite@7.3.1(@types/node@22.19.7)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.21.0))(workerd@1.20260128.0)(wrangler@4.61.1(@cloudflare/workers-types@4.20250826.0))
@@ -557,6 +560,9 @@ packages:
     engines: {node: '>=14.21.3'}
     cpu: [x64]
     os: [win32]
+
+  '@cloudflare/containers@0.1.0':
+    resolution: {integrity: sha512-nuXnmkpJZzbjYdguRI2hB0sw1QCBMWdNuGDNQwEiJSLebtKRFpBt/d6AStGjp+8wGD2plPbd2U/mQerYF9kzJg==}
 
   '@cloudflare/kv-asset-handler@0.4.2':
     resolution: {integrity: sha512-SIOD2DxrRRwQ+jgzlXCqoEFiKOFqaPjhnNTGKXSRLvp1HiOvapLaFG2kEr9dYQTYe8rKrd9uvDUzmAITeNyaHQ==}
@@ -3315,6 +3321,8 @@ snapshots:
 
   '@biomejs/cli-win32-x64@2.2.0':
     optional: true
+
+  '@cloudflare/containers@0.1.0': {}
 
   '@cloudflare/kv-asset-handler@0.4.2': {}
 
