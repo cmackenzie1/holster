@@ -567,8 +567,8 @@ function DocumentView() {
 					<div className="mb-6 flex items-center gap-3 p-3 bg-green-500/10 border border-green-500/30 rounded-lg text-green-400">
 						<Check className="w-5 h-5 flex-shrink-0" />
 						<p className="text-sm flex-1">
-							Document processing has been queued. Content will be
-							extracted shortly.
+							Document processing has been queued. Content will be extracted
+							shortly.
 						</p>
 						<button
 							onClick={() => setProcessQueued(false)}
@@ -647,7 +647,9 @@ function DocumentView() {
 						{/* Extracted Content */}
 						<div className="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
 							<button
-								onClick={() => doc.content && setContentExpanded(!contentExpanded)}
+								onClick={() =>
+									doc.content && setContentExpanded(!contentExpanded)
+								}
 								className="w-full p-4 border-b border-slate-700 flex items-center justify-between"
 							>
 								<h2 className="text-lg font-semibold text-white flex items-center gap-2">
@@ -967,7 +969,6 @@ function DocumentView() {
 								)}
 							</div>
 						</div>
-
 					</div>
 				</div>
 			</div>

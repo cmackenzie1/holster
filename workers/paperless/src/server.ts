@@ -243,9 +243,7 @@ export default {
 		}
 	},
 
-	async queue(
-		batch: MessageBatch<DocumentProcessMessage>,
-	): Promise<void> {
+	async queue(batch: MessageBatch<DocumentProcessMessage>): Promise<void> {
 		for (const msg of batch.messages) {
 			const startTime = Date.now();
 			const wideEvent: Record<string, unknown> = {
@@ -294,14 +292,8 @@ export default {
 			} catch (error) {
 				wideEvent.outcome = "error";
 				wideEvent.error = {
-					message:
-						error instanceof Error
-							? error.message
-							: "Processing failed",
-					type:
-						error instanceof Error
-							? error.name
-							: "UnknownError",
+					message: error instanceof Error ? error.message : "Processing failed",
+					type: error instanceof Error ? error.name : "UnknownError",
 				};
 				msg.retry();
 			} finally {

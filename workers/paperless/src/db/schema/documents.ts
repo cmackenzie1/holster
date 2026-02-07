@@ -44,9 +44,7 @@ export const documents = pgTable(
 			sql`to_tsvector('english', coalesce(title, '') || ' ' || coalesce(content, ''))`,
 		),
 	},
-	(table) => [
-		index("documents_search_idx").using("gin", table.searchVector),
-	],
+	(table) => [index("documents_search_idx").using("gin", table.searchVector)],
 );
 
 export const documentsRelations = relations(documents, ({ one, many }) => ({

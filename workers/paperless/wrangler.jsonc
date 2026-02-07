@@ -1,71 +1,71 @@
 {
-  "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "paperless",
-  "account_id": "f5686db3c4f5b3e38b8f15b0561a28a8",
-  "compatibility_date": "2025-09-02",
-  "compatibility_flags": ["nodejs_compat"],
-  "main": "./src/server.ts",
-  "observability": {
-    "enabled": true,
-  },
-  "workers_dev": false,
-  "routes": [{ "pattern": "paperless.mirio.dev", "custom_domain": true }],
-  "hyperdrive": [
-    {
-      "id": "d466a001443648528613acb29631bfc8",
-      "binding": "HYPERDRIVE",
-      "localConnectionString": "postgres://postgres:postgres@localhost:5432/paperless-dev",
-    },
-  ],
-  "r2_buckets": [
-    {
-      "binding": "R2",
-      "bucket_name": "paperless-documents",
-    },
-  ],
-  "vars": {
-    "ALLOWED_EMAIL_SENDERS": "",
-  },
-  "send_email": [
-    {
-      "name": "EMAIL",
-    },
-  ],
-  "containers": [
-    {
-      "class_name": "TikaContainer",
-      "image": "./Dockerfile",
-      "max_instances": 10,
-    },
-  ],
-  "durable_objects": {
-    "bindings": [
-      {
-        "class_name": "TikaContainer",
-        "name": "TIKA_CONTAINER",
-      },
-    ],
-  },
-  "queues": {
-    "producers": [
-      {
-        "queue": "paperless-document-processing",
-        "binding": "DOCUMENT_PROCESS_QUEUE",
-      },
-    ],
-    "consumers": [
-      {
-        "queue": "paperless-document-processing",
-        "max_batch_size": 1,
-        "max_retries": 3,
-        "dead_letter_queue": "paperless-document-processing-dlq",
-      },
-    ],
-  },
-  "migrations": [
-    {
-      "new_sqlite_classes": ["TikaContainer"],
-      "tag": "v1",
-    },
-  ],
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "paperless",
+	"account_id": "f5686db3c4f5b3e38b8f15b0561a28a8",
+	"compatibility_date": "2025-09-02",
+	"compatibility_flags": ["nodejs_compat"],
+	"main": "./src/server.ts",
+	"observability": {
+		"enabled": true
+	},
+	"workers_dev": false,
+	"routes": [{ "pattern": "paperless.mirio.dev", "custom_domain": true }],
+	"hyperdrive": [
+		{
+			"id": "d466a001443648528613acb29631bfc8",
+			"binding": "HYPERDRIVE",
+			"localConnectionString": "postgres://postgres:postgres@localhost:5432/paperless-dev"
+		}
+	],
+	"r2_buckets": [
+		{
+			"binding": "R2",
+			"bucket_name": "paperless-documents"
+		}
+	],
+	"vars": {
+		"ALLOWED_EMAIL_SENDERS": ""
+	},
+	"send_email": [
+		{
+			"name": "EMAIL"
+		}
+	],
+	"containers": [
+		{
+			"class_name": "TikaContainer",
+			"image": "./Dockerfile",
+			"max_instances": 10
+		}
+	],
+	"durable_objects": {
+		"bindings": [
+			{
+				"class_name": "TikaContainer",
+				"name": "TIKA_CONTAINER"
+			}
+		]
+	},
+	"queues": {
+		"producers": [
+			{
+				"queue": "paperless-document-processing",
+				"binding": "DOCUMENT_PROCESS_QUEUE"
+			}
+		],
+		"consumers": [
+			{
+				"queue": "paperless-document-processing",
+				"max_batch_size": 1,
+				"max_retries": 3,
+				"dead_letter_queue": "paperless-document-processing-dlq"
+			}
+		]
+	},
+	"migrations": [
+		{
+			"new_sqlite_classes": ["TikaContainer"],
+			"tag": "v1"
+		}
+	]
 }
