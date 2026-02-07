@@ -1,4 +1,4 @@
-import { getContainer } from "@cloudflare/containers";
+import { Container, getContainer } from "@cloudflare/containers";
 
 export interface TikaResult {
 	content: string;
@@ -6,8 +6,8 @@ export interface TikaResult {
 	metadata: Record<string, string>;
 }
 
-export async function extractWithTika(
-	tikaContainer: DurableObjectNamespace,
+export async function extractWithTika<T extends Container>(
+	tikaContainer: DurableObjectNamespace<T>,
 	body: ReadableStream | Uint8Array | ArrayBuffer,
 	mimeType: string,
 ): Promise<TikaResult> {
@@ -18,7 +18,7 @@ export async function extractWithTika(
 			"Content-Type": mimeType,
 			Accept: "application/json",
 		},
-		body,
+		body: body as BodyInit,
 	});
 
 	if (!response.ok) {
