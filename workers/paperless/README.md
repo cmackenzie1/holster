@@ -1,290 +1,174 @@
-Welcome to your new TanStack app! 
+# Paperless
 
-# Getting Started
+A self-hosted document management system built on Cloudflare Workers. Upload, organize, search, and classify documents with AI-powered suggestions — all running on the edge.
 
-To run this application:
+Inspired by [Paperless-ngx](https://github.com/paperless-ngx/paperless-ngx), rebuilt from scratch for Cloudflare's developer platform.
+
+## Architecture
+
+```mermaid
+graph TD
+    User([Browser]) -->|HTTPS| CFA[Cloudflare Access]
+    CFA --> Worker[Worker<br/>TanStack Start SSR]
+
+    Email([Incoming Email]) -->|Email Routing| Worker
+
+    Worker -->|Store / retrieve files| R2[(R2 Bucket)]
+    Worker -->|Read / write| HD[Hyperdrive]
+    HD --> PG[(PostgreSQL)]
+
+    Worker -->|Enqueue| Queue[Queue]
+    Queue -->|Consume| Worker
+
+    Worker -->|Extract text| Tika[Apache Tika<br/>Container]
+    Worker -->|Classify documents| AI[Workers AI<br/>Llama 3.1 8B]
+```
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| **Runtime** | [Cloudflare Workers](https://developers.cloudflare.com/workers/) |
+| **Framework** | [TanStack Start](https://tanstack.com/start) (React SSR) |
+| **Routing** | [TanStack Router](https://tanstack.com/router) (file-based) |
+| **Database** | PostgreSQL via [Hyperdrive](https://developers.cloudflare.com/hyperdrive/) |
+| **ORM** | [Drizzle](https://orm.drizzle.team/) |
+| **Storage** | [Cloudflare R2](https://developers.cloudflare.com/r2/) |
+| **Auth** | [Cloudflare Access](https://developers.cloudflare.com/cloudflare-one/policies/access/) (JWT) |
+| **Text Extraction** | [Apache Tika](https://tika.apache.org/) 3.2 via [Cloudflare Containers](https://developers.cloudflare.com/containers/) |
+| **AI** | [Workers AI](https://developers.cloudflare.com/workers-ai/) (`@cf/meta/llama-3.1-8b-instruct`) |
+| **Queue** | [Cloudflare Queues](https://developers.cloudflare.com/queues/) |
+| **Styling** | [Tailwind CSS](https://tailwindcss.com/) 4.0 |
+
+## Features
+
+### Document Management
+
+- Upload documents through the web UI or via email
+- Full-text search powered by PostgreSQL `tsvector` with English stemming
+- Organize with color-coded tags and correspondents
+- Archive Serial Numbers (ASN) for physical document tracking
+- Soft-delete with trash and restore
+- Inline file preview for PDFs and images
+
+### Document Processing Pipeline
+
+When a document is uploaded or received via email, it enters an asynchronous processing pipeline:
+
+1. **Store** — File is uploaded to R2 with an MD5 hash for integrity verification
+2. **Queue** — A processing message is enqueued (max 3 retries, dead-letter queue for failures)
+3. **Extract** — [Apache Tika](https://tika.apache.org/), running in a [Cloudflare Container](https://developers.cloudflare.com/containers/), extracts text content from the document
+4. **Post-process** — Extracted text is cleaned through a multi-stage pipeline: control character removal, HTML stripping, hyphenation repair, Unicode normalization, and whitespace cleanup
+5. **Classify** — Workers AI analyzes the content and suggests tags and a correspondent from the existing set, each scored with a confidence value
+6. **Review** — Suggestions appear on the document detail page for the user to accept or dismiss
+
+### Email Ingestion
+
+Documents can be imported by forwarding emails to the worker via [Cloudflare Email Routing](https://developers.cloudflare.com/email-routing/):
+
+- Sender allowlist via the `ALLOWED_EMAIL_SENDERS` environment variable
+- Raw `.eml` files are archived in R2 for auditability
+- Each attachment becomes a separate document and enters the processing pipeline
+- All imports are logged to the `incoming_emails` table with status tracking
+
+### AI-Powered Suggestions
+
+After text extraction, Workers AI classifies each document:
+
+- Suggests tags from the existing tag set
+- Suggests a correspondent from existing correspondents
+- Each suggestion includes a confidence score (0–1) with a 50% minimum threshold
+- Names are matched against existing entities (case-insensitive)
+- Already-assigned tags and correspondents are filtered out to avoid duplicates
+- Users accept or dismiss suggestions from the document detail page
+
+## Cloudflare Bindings
+
+| Binding | Type | Purpose |
+|---------|------|---------|
+| `HYPERDRIVE` | Hyperdrive | PostgreSQL connection pooling and caching |
+| `R2` | R2 Bucket | Document and email file storage |
+| `AI` | Workers AI | Document classification |
+| `TIKA_CONTAINER` | Durable Object | Apache Tika container orchestration |
+| `DOCUMENT_PROCESS_QUEUE` | Queue | Async document processing pipeline |
+| `EMAIL` | Send Email | Outbound email (reserved) |
+| `CF_VERSION_METADATA` | Version Metadata | Deployed version ID and git SHA tag |
+
+## Database
+
+Managed with [Drizzle ORM](https://orm.drizzle.team/) and PostgreSQL. Migrations live in `drizzle/`.
+
+| Table | Purpose |
+|-------|---------|
+| `documents` | Document metadata, extracted content, and a generated `tsvector` search index |
+| `files` | File records with R2 object keys, MIME types, and checksums |
+| `tags` | Color-coded categorization labels |
+| `document_tags` | Many-to-many join between documents and tags |
+| `correspondents` | Sender and source entities |
+| `document_suggestions` | AI-generated tag/correspondent suggestions with confidence scores |
+| `incoming_emails` | Audit log for email imports |
+
+All tables use soft deletes (`deleted_at` column) and timestamp tracking (`created_at`, `updated_at`).
+
+## Project Structure
+
+```
+src/
+├── components/        # React components (Header, sidebar, search)
+├── db/
+│   ├── index.ts       # DB connection factory and repository re-exports
+│   ├── repositories/  # Data access layer
+│   └── schema/        # Drizzle table definitions and relations
+├── queue/
+│   └── types.ts       # Queue message type definitions
+├── routes/            # File-based routes
+│   ├── __root.tsx     # Root layout with version metadata
+│   ├── index.tsx      # Dashboard
+│   ├── documents.$id.tsx
+│   ├── tags.tsx
+│   ├── correspondents.tsx
+│   ├── trash.tsx
+│   └── api.*.ts       # REST API endpoints
+├── utils/
+│   ├── ai-suggestions.ts      # AI classification logic
+│   ├── cloudflare-access.ts   # JWT verification
+│   ├── format.ts              # Formatting helpers
+│   ├── pdf-thumbnail.ts       # Client-side PDF thumbnails
+│   ├── post-process.ts        # Text extraction cleanup
+│   ├── tika.ts                # Tika HTTP client
+│   └── tika-container.ts      # Cloudflare Container definition
+├── server.ts          # Worker entry (fetch, email, queue handlers)
+└── styles.css         # Tailwind CSS entry point
+drizzle/               # SQL migration files
+```
+
+## Development
+
+### Prerequisites
+
+- Node.js and [pnpm](https://pnpm.io/)
+- PostgreSQL running locally (default: `postgres://postgres:postgres@localhost:5432/paperless-dev`)
+
+### Commands
 
 ```bash
-pnpm install
-pnpm start
+pnpm install          # Install dependencies
+pnpm dev              # Start dev server on port 3000
+pnpm test             # Run tests with Vitest
+pnpm db:generate      # Generate migrations from schema changes
+pnpm db:push          # Push schema directly to database
+pnpm db:studio        # Open Drizzle Studio
+pnpm cf-typegen       # Regenerate Cloudflare binding types
 ```
 
-# Building For Production
-
-To build this application for production:
+## Deployment
 
 ```bash
-pnpm build
+pnpm deploy
 ```
 
-## Testing
+This builds the project, uploads a new worker version tagged with the current git short SHA, and deploys it to 100% traffic. The git SHA is displayed in the application footer via the `CF_VERSION_METADATA` binding.
 
-This project uses [Vitest](https://vitest.dev/) for testing. You can run the tests with:
+## Observability
 
-```bash
-pnpm test
-```
-
-## Styling
-
-This project uses [Tailwind CSS](https://tailwindcss.com/) for styling.
-
-
-
-
-## Routing
-This project uses [TanStack Router](https://tanstack.com/router). The initial setup is a file based router. Which means that the routes are managed as files in `src/routes`.
-
-### Adding A Route
-
-To add a new route to your application just add another a new file in the `./src/routes` directory.
-
-TanStack will automatically generate the content of the route file for you.
-
-Now that you have two routes you can use a `Link` component to navigate between them.
-
-### Adding Links
-
-To use SPA (Single Page Application) navigation you will need to import the `Link` component from `@tanstack/react-router`.
-
-```tsx
-import { Link } from "@tanstack/react-router";
-```
-
-Then anywhere in your JSX you can use it like so:
-
-```tsx
-<Link to="/about">About</Link>
-```
-
-This will create a link that will navigate to the `/about` route.
-
-More information on the `Link` component can be found in the [Link documentation](https://tanstack.com/router/v1/docs/framework/react/api/router/linkComponent).
-
-### Using A Layout
-
-In the File Based Routing setup the layout is located in `src/routes/__root.tsx`. Anything you add to the root route will appear in all the routes. The route content will appear in the JSX where you use the `<Outlet />` component.
-
-Here is an example layout that includes a header:
-
-```tsx
-import { Outlet, createRootRoute } from '@tanstack/react-router'
-import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
-
-import { Link } from "@tanstack/react-router";
-
-export const Route = createRootRoute({
-  component: () => (
-    <>
-      <header>
-        <nav>
-          <Link to="/">Home</Link>
-          <Link to="/about">About</Link>
-        </nav>
-      </header>
-      <Outlet />
-      <TanStackRouterDevtools />
-    </>
-  ),
-})
-```
-
-The `<TanStackRouterDevtools />` component is not required so you can remove it if you don't want it in your layout.
-
-More information on layouts can be found in the [Layouts documentation](https://tanstack.com/router/latest/docs/framework/react/guide/routing-concepts#layouts).
-
-
-## Data Fetching
-
-There are multiple ways to fetch data in your application. You can use TanStack Query to fetch data from a server. But you can also use the `loader` functionality built into TanStack Router to load the data for a route before it's rendered.
-
-For example:
-
-```tsx
-const peopleRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/people",
-  loader: async () => {
-    const response = await fetch("https://swapi.dev/api/people");
-    return response.json() as Promise<{
-      results: {
-        name: string;
-      }[];
-    }>;
-  },
-  component: () => {
-    const data = peopleRoute.useLoaderData();
-    return (
-      <ul>
-        {data.results.map((person) => (
-          <li key={person.name}>{person.name}</li>
-        ))}
-      </ul>
-    );
-  },
-});
-```
-
-Loaders simplify your data fetching logic dramatically. Check out more information in the [Loader documentation](https://tanstack.com/router/latest/docs/framework/react/guide/data-loading#loader-parameters).
-
-### React-Query
-
-React-Query is an excellent addition or alternative to route loading and integrating it into you application is a breeze.
-
-First add your dependencies:
-
-```bash
-pnpm add @tanstack/react-query @tanstack/react-query-devtools
-```
-
-Next we'll need to create a query client and provider. We recommend putting those in `main.tsx`.
-
-```tsx
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-
-// ...
-
-const queryClient = new QueryClient();
-
-// ...
-
-if (!rootElement.innerHTML) {
-  const root = ReactDOM.createRoot(rootElement);
-
-  root.render(
-    <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
-    </QueryClientProvider>
-  );
-}
-```
-
-You can also add TanStack Query Devtools to the root route (optional).
-
-```tsx
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-
-const rootRoute = createRootRoute({
-  component: () => (
-    <>
-      <Outlet />
-      <ReactQueryDevtools buttonPosition="top-right" />
-      <TanStackRouterDevtools />
-    </>
-  ),
-});
-```
-
-Now you can use `useQuery` to fetch your data.
-
-```tsx
-import { useQuery } from "@tanstack/react-query";
-
-import "./App.css";
-
-function App() {
-  const { data } = useQuery({
-    queryKey: ["people"],
-    queryFn: () =>
-      fetch("https://swapi.dev/api/people")
-        .then((res) => res.json())
-        .then((data) => data.results as { name: string }[]),
-    initialData: [],
-  });
-
-  return (
-    <div>
-      <ul>
-        {data.map((person) => (
-          <li key={person.name}>{person.name}</li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
-export default App;
-```
-
-You can find out everything you need to know on how to use React-Query in the [React-Query documentation](https://tanstack.com/query/latest/docs/framework/react/overview).
-
-## State Management
-
-Another common requirement for React applications is state management. There are many options for state management in React. TanStack Store provides a great starting point for your project.
-
-First you need to add TanStack Store as a dependency:
-
-```bash
-pnpm add @tanstack/store
-```
-
-Now let's create a simple counter in the `src/App.tsx` file as a demonstration.
-
-```tsx
-import { useStore } from "@tanstack/react-store";
-import { Store } from "@tanstack/store";
-import "./App.css";
-
-const countStore = new Store(0);
-
-function App() {
-  const count = useStore(countStore);
-  return (
-    <div>
-      <button onClick={() => countStore.setState((n) => n + 1)}>
-        Increment - {count}
-      </button>
-    </div>
-  );
-}
-
-export default App;
-```
-
-One of the many nice features of TanStack Store is the ability to derive state from other state. That derived state will update when the base state updates.
-
-Let's check this out by doubling the count using derived state.
-
-```tsx
-import { useStore } from "@tanstack/react-store";
-import { Store, Derived } from "@tanstack/store";
-import "./App.css";
-
-const countStore = new Store(0);
-
-const doubledStore = new Derived({
-  fn: () => countStore.state * 2,
-  deps: [countStore],
-});
-doubledStore.mount();
-
-function App() {
-  const count = useStore(countStore);
-  const doubledCount = useStore(doubledStore);
-
-  return (
-    <div>
-      <button onClick={() => countStore.setState((n) => n + 1)}>
-        Increment - {count}
-      </button>
-      <div>Doubled - {doubledCount}</div>
-    </div>
-  );
-}
-
-export default App;
-```
-
-We use the `Derived` class to create a new store that is derived from another store. The `Derived` class has a `mount` method that will start the derived store updating.
-
-Once we've created the derived store we can use it in the `App` component just like we would any other store using the `useStore` hook.
-
-You can find out everything you need to know on how to use TanStack Store in the [TanStack Store documentation](https://tanstack.com/store/latest).
-
-# Demo files
-
-Files prefixed with `demo` can be safely deleted. They are there to provide a starting point for you to play around with the features you've installed.
-
-# Learn More
-
-You can learn more about all of the offerings from TanStack in the [TanStack documentation](https://tanstack.com).
+All request handlers use a **wide event** logging pattern — one structured JSON log line emitted per request in a `finally` block. Each log includes timing, outcome, and business context (document IDs, file sizes, AI suggestion counts, error details), making it straightforward to query and aggregate in any log analysis tool.
