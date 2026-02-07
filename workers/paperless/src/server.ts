@@ -177,8 +177,7 @@ export default {
 				const title = filename.replace(/\.[^/.]+$/, "");
 
 				// Create document and file records
-				const mimeType =
-					attachment.mimeType || "application/octet-stream";
+				const mimeType = attachment.mimeType || "application/octet-stream";
 				const newDocument = await createDocumentWithFile(db, {
 					title,
 					objectKey,
@@ -282,11 +281,7 @@ export default {
 
 				// Update document content in DB
 				const db = createDbFromHyperdrive(env.HYPERDRIVE);
-				await updateDocumentContent(
-					db,
-					BigInt(documentId),
-					tikaResult.content,
-				);
+				await updateDocumentContent(db, BigInt(documentId), tikaResult.content);
 
 				wideEvent.outcome = "success";
 				msg.ack();
