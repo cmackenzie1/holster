@@ -1,6 +1,6 @@
+import { env } from "cloudflare:workers";
 import { createFileRoute } from "@tanstack/react-router";
 import { json } from "@tanstack/react-start";
-import { env } from "cloudflare:workers";
 import { createDbFromHyperdrive, createDocumentWithFile } from "@/db";
 
 export const Route = createFileRoute("/api/upload")({

@@ -1,15 +1,15 @@
+import { TanStackDevtools } from "@tanstack/react-devtools";
 import {
+	createRootRoute,
+	type ErrorComponentProps,
 	HeadContent,
+	Link,
 	Outlet,
 	Scripts,
-	createRootRoute,
-	Link,
 	useRouter,
-	type ErrorComponentProps,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
-import { TanStackDevtools } from "@tanstack/react-devtools";
-import { FileQuestion, AlertTriangle, Home, RefreshCw } from "lucide-react";
+import { AlertTriangle, FileQuestion, Home, RefreshCw } from "lucide-react";
 
 import Header from "../components/Header";
 
