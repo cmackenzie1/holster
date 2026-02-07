@@ -2,7 +2,12 @@ import handler from "@tanstack/react-start/server-entry";
 import { env } from "cloudflare:workers";
 import PostalMime from "postal-mime";
 import { verifyCloudflareAccess } from "./utils/cloudflare-access";
+import { eq } from "drizzle-orm";
 import { createDbFromHyperdrive, documents, files, incomingEmails } from "./db";
+import { extractWithTika } from "./utils/tika";
+import type { DocumentProcessMessage } from "./queue/types";
+
+export { TikaContainer } from "./utils/tika-container";
 
 interface EmailMessage {
 	readonly from: string;
@@ -182,6 +187,13 @@ export default {
 					md5Hash,
 				});
 
+				// Enqueue async document processing
+				await env.DOCUMENT_PROCESS_QUEUE.send({
+					documentId: newDocument.id.toString(),
+					objectKey,
+					mimeType: attachment.mimeType || "application/octet-stream",
+				});
+
 				createdDocuments.push({
 					id: newDocument.id.toString(),
 					title,
@@ -228,6 +240,74 @@ export default {
 		} finally {
 			wideEvent.duration_ms = Date.now() - startTime;
 			console.log(JSON.stringify(wideEvent));
+		}
+	},
+
+	async queue(
+		batch: MessageBatch<DocumentProcessMessage>,
+	): Promise<void> {
+		for (const msg of batch.messages) {
+			const startTime = Date.now();
+			const wideEvent: Record<string, unknown> = {
+				event: "queue_process_document",
+				timestamp: new Date().toISOString(),
+				documentId: msg.body.documentId,
+				objectKey: msg.body.objectKey,
+				mimeType: msg.body.mimeType,
+			};
+
+			try {
+				const { documentId, objectKey, mimeType } = msg.body;
+
+				// Fetch file from R2
+				const r2Object = await env.R2.get(objectKey);
+				if (!r2Object) {
+					wideEvent.outcome = "error";
+					wideEvent.error = { message: "Object not found in R2" };
+					msg.ack();
+					continue;
+				}
+
+				wideEvent.file_size = r2Object.size;
+
+				// Extract with Tika
+				const tikaResult = await extractWithTika(
+					env.TIKA_CONTAINER,
+					r2Object.body,
+					mimeType,
+				);
+
+				wideEvent.tika = {
+					contentLength: tikaResult.content.length,
+					contentType: tikaResult.contentType,
+				};
+
+				// Update document content in DB
+				const db = createDbFromHyperdrive(env.HYPERDRIVE);
+				await db
+					.update(documents)
+					.set({ content: tikaResult.content })
+					.where(eq(documents.id, BigInt(documentId)));
+
+				wideEvent.outcome = "success";
+				msg.ack();
+			} catch (error) {
+				wideEvent.outcome = "error";
+				wideEvent.error = {
+					message:
+						error instanceof Error
+							? error.message
+							: "Processing failed",
+					type:
+						error instanceof Error
+							? error.name
+							: "UnknownError",
+				};
+				msg.retry();
+			} finally {
+				wideEvent.duration_ms = Date.now() - startTime;
+				console.log(JSON.stringify(wideEvent));
+			}
 		}
 	},
 };

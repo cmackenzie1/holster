@@ -107,6 +107,14 @@ export const Route = createFileRoute("/api/upload")({
 					});
 					wideEvent.file_record_created = true;
 
+					// Enqueue async document processing
+					await env.DOCUMENT_PROCESS_QUEUE.send({
+						documentId: newDocument.id.toString(),
+						objectKey,
+						mimeType: file.type || "application/octet-stream",
+					});
+					wideEvent.queued = true;
+
 					wideEvent.status_code = 200;
 					wideEvent.outcome = "success";
 

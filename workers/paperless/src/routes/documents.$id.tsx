@@ -253,6 +253,10 @@ function DocumentView() {
 	);
 	const [isSavingASN, setIsSavingASN] = useState(false);
 	const [tagsExpanded, setTagsExpanded] = useState(false);
+	const [contentExpanded, setContentExpanded] = useState(false);
+	const [isProcessing, setIsProcessing] = useState(false);
+	const [processQueued, setProcessQueued] = useState(false);
+	const [processError, setProcessError] = useState<string | null>(null);
 	const primaryFile = doc.files[0];
 
 	const MAX_VISIBLE_TAGS = 5;
@@ -374,6 +378,31 @@ function DocumentView() {
 		}
 	};
 
+	const handleProcess = async () => {
+		setIsProcessing(true);
+		setProcessError(null);
+		setProcessQueued(false);
+		try {
+			const response = await fetch(`/api/documents/${doc.id}/process`, {
+				method: "POST",
+			});
+			if (response.ok) {
+				setProcessQueued(true);
+			} else {
+				const data = await response.json();
+				setProcessError(
+					(data as { error?: string }).error ?? "Processing failed",
+				);
+			}
+		} catch (error) {
+			setProcessError(
+				error instanceof Error ? error.message : "Processing failed",
+			);
+		} finally {
+			setIsProcessing(false);
+		}
+	};
+
 	const isPdf = primaryFile?.mimeType === "application/pdf";
 	const isImage = primaryFile?.mimeType?.startsWith("image/") ?? false;
 
@@ -448,6 +477,30 @@ function DocumentView() {
 							)}
 						</div>
 						<div className="flex items-center gap-2 flex-shrink-0">
+							{primaryFile && (
+								<button
+									onClick={handleProcess}
+									disabled={isProcessing || processQueued}
+									className={`flex items-center gap-2 px-4 py-2 ${
+										processQueued
+											? "bg-green-600/20 text-green-400 border border-green-500/30"
+											: "bg-slate-700 hover:bg-slate-600 text-white"
+									} disabled:opacity-50 rounded-lg transition-colors`}
+								>
+									{isProcessing ? (
+										<Loader2 className="w-4 h-4 animate-spin" />
+									) : processQueued ? (
+										<Check className="w-4 h-4" />
+									) : (
+										<RefreshCw className="w-4 h-4" />
+									)}
+									{isProcessing
+										? "Queuing..."
+										: processQueued
+											? "Queued"
+											: "Reprocess"}
+								</button>
+							)}
 							{fileUrl && (
 								<a
 									href={fileUrl}
@@ -509,9 +562,40 @@ function DocumentView() {
 					</div>
 				)}
 
+				{/* Process queued banner */}
+				{processQueued && (
+					<div className="mb-6 flex items-center gap-3 p-3 bg-green-500/10 border border-green-500/30 rounded-lg text-green-400">
+						<Check className="w-5 h-5 flex-shrink-0" />
+						<p className="text-sm flex-1">
+							Document processing has been queued. Content will be
+							extracted shortly.
+						</p>
+						<button
+							onClick={() => setProcessQueued(false)}
+							className="p-1 hover:bg-green-500/20 rounded"
+						>
+							<X className="w-4 h-4" />
+						</button>
+					</div>
+				)}
+
+				{/* Process error banner */}
+				{processError && (
+					<div className="mb-6 flex items-center gap-3 p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400">
+						<AlertTriangle className="w-5 h-5 flex-shrink-0" />
+						<p className="text-sm flex-1">{processError}</p>
+						<button
+							onClick={() => setProcessError(null)}
+							className="p-1 hover:bg-red-500/20 rounded"
+						>
+							<X className="w-4 h-4" />
+						</button>
+					</div>
+				)}
+
 				<div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-					{/* Document Preview */}
-					<div className="lg:col-span-2">
+					{/* Document Preview + Content */}
+					<div className="lg:col-span-2 space-y-6">
 						<div className="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
 							<div className="p-4 border-b border-slate-700">
 								<h2 className="text-lg font-semibold text-white">Preview</h2>
@@ -558,6 +642,42 @@ function DocumentView() {
 									</div>
 								)}
 							</div>
+						</div>
+
+						{/* Extracted Content */}
+						<div className="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
+							<button
+								onClick={() => doc.content && setContentExpanded(!contentExpanded)}
+								className="w-full p-4 border-b border-slate-700 flex items-center justify-between"
+							>
+								<h2 className="text-lg font-semibold text-white flex items-center gap-2">
+									<FileText className="w-5 h-5" />
+									Extracted Content
+								</h2>
+								{doc.content ? (
+									<div className="flex items-center gap-2 text-slate-400">
+										<span className="text-xs">
+											{doc.content.length.toLocaleString()} chars
+										</span>
+										{contentExpanded ? (
+											<ChevronUp className="w-4 h-4" />
+										) : (
+											<ChevronDown className="w-4 h-4" />
+										)}
+									</div>
+								) : (
+									<span className="text-xs text-slate-500">
+										No content extracted
+									</span>
+								)}
+							</button>
+							{doc.content && contentExpanded && (
+								<div className="p-4 max-h-96 overflow-y-auto">
+									<pre className="text-slate-300 text-sm whitespace-pre-wrap font-sans leading-relaxed">
+										{doc.content}
+									</pre>
+								</div>
+							)}
 						</div>
 					</div>
 
@@ -848,19 +968,6 @@ function DocumentView() {
 							</div>
 						</div>
 
-						{/* Content/Notes Card */}
-						{doc.content && (
-							<div className="bg-slate-800 rounded-xl border border-slate-700">
-								<div className="p-4 border-b border-slate-700">
-									<h2 className="text-lg font-semibold text-white">Notes</h2>
-								</div>
-								<div className="p-4">
-									<p className="text-slate-300 whitespace-pre-wrap">
-										{doc.content}
-									</p>
-								</div>
-							</div>
-						)}
 					</div>
 				</div>
 			</div>
