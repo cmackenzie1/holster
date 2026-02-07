@@ -1,22 +1,22 @@
-import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
-import { createServerFn, createMiddleware } from "@tanstack/react-start";
 import { env } from "cloudflare:workers";
-import { useState, useEffect } from "react";
+import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
+import { createMiddleware, createServerFn } from "@tanstack/react-start";
 import {
-	Trash2,
-	RotateCcw,
-	X,
-	Loader2,
-	ArrowLeft,
-	FileText,
-	Clock,
 	AlertTriangle,
+	ArrowLeft,
+	Clock,
+	FileText,
 	Hash,
+	Loader2,
+	RotateCcw,
+	Trash2,
+	X,
 } from "lucide-react";
+import { useEffect, useState } from "react";
 import {
 	createDbFromHyperdrive,
-	listDeletedDocuments,
 	getTrashCount,
+	listDeletedDocuments,
 } from "@/db";
 
 interface DeletedDocumentItem {

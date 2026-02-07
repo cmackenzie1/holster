@@ -1,17 +1,17 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { useState, useEffect, useCallback } from "react";
 import {
 	FileText,
 	Home,
 	Menu,
+	Search,
+	Settings,
 	Tag,
+	Trash2,
+	Upload,
 	Users,
 	X,
-	Settings,
-	Upload,
-	Trash2,
-	Search,
 } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
 
 function SearchBar({
 	onSearch,

@@ -14,5 +14,5 @@ export function createDbFromHyperdrive(hyperdrive: Hyperdrive) {
 
 export type Database = ReturnType<typeof createDb>;
 
-export * from "./schema";
 export * from "./repositories";
+export * from "./schema";

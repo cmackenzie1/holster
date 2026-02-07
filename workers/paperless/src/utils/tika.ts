@@ -1,4 +1,4 @@
-import { Container, getContainer } from "@cloudflare/containers";
+import { type Container, getContainer } from "@cloudflare/containers";
 
 export interface TikaResult {
 	content: string;
