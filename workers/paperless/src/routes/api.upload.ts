@@ -1,7 +1,11 @@
 import { env } from "cloudflare:workers";
 import { createFileRoute } from "@tanstack/react-router";
 import { json } from "@tanstack/react-start";
-import { createDbFromHyperdrive, createDocumentWithFile } from "@/db";
+import {
+	createDbFromHyperdrive,
+	createDocumentWithFile,
+	findFileByMd5Hash,
+} from "@/db";
 
 export const Route = createFileRoute("/api/upload")({
 	server: {
@@ -58,6 +62,22 @@ export const Route = createFileRoute("/api/upload")({
 						.map((b) => b.toString(16).padStart(2, "0"))
 						.join("");
 					wideEvent.file_md5 = md5Hash;
+
+					// Check for duplicate file
+					const existing = await findFileByMd5Hash(db, md5Hash);
+					if (existing) {
+						wideEvent.status_code = 409;
+						wideEvent.outcome = "duplicate";
+						wideEvent.existing_document = existing;
+						return json(
+							{
+								error: "Duplicate file",
+								existingDocumentId: existing.documentId,
+								existingTitle: existing.title,
+							},
+							{ status: 409 },
+						);
+					}
 
 					// Upload to R2
 					await r2.put(objectKey, uint8Array, {
