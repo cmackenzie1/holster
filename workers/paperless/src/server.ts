@@ -1,15 +1,16 @@
-import handler from "@tanstack/react-start/server-entry";
 import { env } from "cloudflare:workers";
+import handler from "@tanstack/react-start/server-entry";
 import PostalMime from "postal-mime";
-import { verifyCloudflareAccess } from "./utils/cloudflare-access";
 import {
 	createDbFromHyperdrive,
 	createDocumentWithFile,
-	updateDocumentContent,
 	recordIncomingEmail,
+	updateDocumentContent,
 } from "./db";
-import { extractWithTika } from "./utils/tika";
 import type { DocumentProcessMessage } from "./queue/types";
+import { verifyCloudflareAccess } from "./utils/cloudflare-access";
+import { postProcessContent } from "./utils/post-process";
+import { extractWithTika } from "./utils/tika";
 
 export { TikaContainer } from "./utils/tika-container";
 
@@ -279,9 +280,18 @@ export default {
 					contentType: tikaResult.contentType,
 				};
 
+				// Post-process extracted content
+				const processed = postProcessContent(tikaResult.content);
+
+				wideEvent.postProcess = {
+					rawLength: processed.rawLength,
+					processedLength: processed.processedLength,
+					reductionPercent: processed.reductionPercent,
+				};
+
 				// Update document content in DB
 				const db = createDbFromHyperdrive(env.HYPERDRIVE);
-				await updateDocumentContent(db, BigInt(documentId), tikaResult.content);
+				await updateDocumentContent(db, BigInt(documentId), processed.content);
 
 				wideEvent.outcome = "success";
 				msg.ack();
