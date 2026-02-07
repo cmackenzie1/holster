@@ -36,6 +36,13 @@
 			"when": 1770498281439,
 			"tag": "0004_magenta_patch",
 			"breakpoints": true
+		},
+		{
+			"idx": 5,
+			"version": "7",
+			"when": 1770503463945,
+			"tag": "0005_powerful_famine",
+			"breakpoints": true
 		}
 	]
 }

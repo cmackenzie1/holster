@@ -45,7 +45,12 @@ export const documents = pgTable(
 			sql`to_tsvector('english', coalesce(title, '') || ' ' || coalesce(content, ''))`,
 		),
 	},
-	(table) => [index("documents_search_idx").using("gin", table.searchVector)],
+	(table) => [
+		index("documents_search_idx").using("gin", table.searchVector),
+		index("documents_deleted_at_idx").on(table.deletedAt),
+		index("documents_created_at_idx").on(table.createdAt),
+		index("documents_correspondent_id_idx").on(table.correspondentId),
+	],
 );
 
 export const documentsRelations = relations(documents, ({ one, many }) => ({
