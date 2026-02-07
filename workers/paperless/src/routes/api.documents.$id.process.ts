@@ -19,10 +19,7 @@ export const Route = createFileRoute("/api/documents/$id/process")({
 					const db = createDbFromHyperdrive(env.HYPERDRIVE);
 
 					// Look up document and its primary file
-					const docInfo = await getDocumentForProcessing(
-						db,
-						BigInt(params.id),
-					);
+					const docInfo = await getDocumentForProcessing(db, BigInt(params.id));
 
 					if (!docInfo) {
 						wideEvent.document = { id: params.id, found: false };
