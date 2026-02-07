@@ -8,7 +8,7 @@ import {
 export interface SuggestionData {
 	id: string;
 	documentId: string;
-	type: "tag" | "correspondent" | "title";
+	type: "tag" | "correspondent" | "title" | "date";
 	name: string;
 	confidence: string;
 	tagId: string | null;

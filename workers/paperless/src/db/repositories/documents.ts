@@ -24,6 +24,7 @@ export interface DocumentWithRelations {
 	title: string;
 	content: string | null;
 	archiveSerialNumber: number | null;
+	documentDate: string | null;
 	dateCreated: string | null;
 	createdAt: string;
 	updatedAt: string;
@@ -117,6 +118,7 @@ export async function getDocumentById(
 		title: doc.title,
 		content: doc.content,
 		archiveSerialNumber: doc.archiveSerialNumber,
+		documentDate: doc.documentDate?.toISOString() ?? null,
 		dateCreated: doc.dateCreated?.toISOString() ?? null,
 		createdAt: doc.createdAt.toISOString(),
 		updatedAt: doc.updatedAt.toISOString(),
@@ -349,6 +351,7 @@ export async function updateDocument(
 		title?: string;
 		content?: string | null;
 		archiveSerialNumber?: number | null;
+		documentDate?: Date | null;
 	},
 ): Promise<boolean> {
 	// Check if document exists and is not deleted
@@ -366,12 +369,15 @@ export async function updateDocument(
 		title?: string;
 		content?: string | null;
 		archiveSerialNumber?: number | null;
+		documentDate?: Date | null;
 	} = {};
 
 	if (updates.title !== undefined) updateData.title = updates.title.trim();
 	if (updates.content !== undefined) updateData.content = updates.content;
 	if (updates.archiveSerialNumber !== undefined)
 		updateData.archiveSerialNumber = updates.archiveSerialNumber;
+	if (updates.documentDate !== undefined)
+		updateData.documentDate = updates.documentDate;
 
 	if (Object.keys(updateData).length > 0) {
 		await db.update(documents).set(updateData).where(eq(documents.id, id));

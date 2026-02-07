@@ -17,6 +17,7 @@ export const suggestionTypeEnum = pgEnum("suggestion_type", [
 	"tag",
 	"correspondent",
 	"title",
+	"date",
 ]);
 
 export const documentSuggestions = pgTable(

@@ -50,6 +50,13 @@
 			"when": 1770505807329,
 			"tag": "0006_flashy_ink",
 			"breakpoints": true
+		},
+		{
+			"idx": 7,
+			"version": "7",
+			"when": 1770508023820,
+			"tag": "0007_panoramic_magik",
+			"breakpoints": true
 		}
 	]
 }

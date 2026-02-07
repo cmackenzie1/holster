@@ -29,6 +29,7 @@ describe("parseAIResponse", () => {
 			tags: [{ name: "invoice", confidence: 0.9 }],
 			correspondent: { name: "Acme Corp", confidence: 0.85 },
 			title: { name: "January 2024 Invoice", confidence: 0.9 },
+			date: { date: "2024-01-15", confidence: 0.95 },
 		});
 		const result = parseAIResponse(raw);
 		expect(result).not.toBeNull();
@@ -36,6 +37,7 @@ describe("parseAIResponse", () => {
 		expect(result?.tags[0].name).toBe("invoice");
 		expect(result?.correspondent?.name).toBe("Acme Corp");
 		expect(result?.title?.name).toBe("January 2024 Invoice");
+		expect(result?.date?.date).toBe("2024-01-15");
 	});
 
 	it("parses markdown-wrapped JSON", () => {
@@ -134,6 +136,50 @@ describe("parseAIResponse", () => {
 		});
 		expect(parseAIResponse(raw)).toBeNull();
 	});
+
+	it("parses JSON with date field", () => {
+		const raw = JSON.stringify({
+			tags: [],
+			correspondent: null,
+			title: null,
+			date: { date: "2024-03-15", confidence: 0.95 },
+		});
+		const result = parseAIResponse(raw);
+		expect(result).not.toBeNull();
+		expect(result?.date?.date).toBe("2024-03-15");
+		expect(result?.date?.confidence).toBe(0.95);
+	});
+
+	it("handles null date", () => {
+		const raw = JSON.stringify({
+			tags: [],
+			correspondent: null,
+			title: null,
+			date: null,
+		});
+		const result = parseAIResponse(raw);
+		expect(result).not.toBeNull();
+		expect(result?.date).toBeNull();
+	});
+
+	it("handles missing date field", () => {
+		const raw = JSON.stringify({
+			tags: [],
+			correspondent: null,
+		});
+		const result = parseAIResponse(raw);
+		expect(result).not.toBeNull();
+		expect(result?.date).toBeUndefined();
+	});
+
+	it("returns null for date with wrong types", () => {
+		const raw = JSON.stringify({
+			tags: [],
+			correspondent: null,
+			date: { date: 20240315, confidence: "high" },
+		});
+		expect(parseAIResponse(raw)).toBeNull();
+	});
 });
 
 describe("matchSuggestions", () => {
@@ -151,6 +197,7 @@ describe("matchSuggestions", () => {
 			tags: [{ name: "Invoice", confidence: 0.9 }],
 			correspondent: null,
 			title: null,
+			date: null,
 		};
 		const result = matchSuggestions(
 			response,
@@ -168,6 +215,7 @@ describe("matchSuggestions", () => {
 			tags: [{ name: "Contract", confidence: 0.8 }],
 			correspondent: null,
 			title: null,
+			date: null,
 		};
 		const result = matchSuggestions(
 			response,
@@ -184,6 +232,7 @@ describe("matchSuggestions", () => {
 			tags: [],
 			correspondent: { name: "acme corp", confidence: 0.85 },
 			title: null,
+			date: null,
 		};
 		const result = matchSuggestions(
 			response,
@@ -201,6 +250,7 @@ describe("matchSuggestions", () => {
 			tags: [],
 			correspondent: { name: "john doe enterprises", confidence: 0.9 },
 			title: null,
+			date: null,
 		};
 		const result = matchSuggestions(
 			response,
@@ -221,6 +271,7 @@ describe("matchSuggestions", () => {
 			],
 			correspondent: { name: "Acme Corp", confidence: 0.4 },
 			title: null,
+			date: null,
 		};
 		const result = matchSuggestions(
 			response,
@@ -232,7 +283,7 @@ describe("matchSuggestions", () => {
 	});
 
 	it("returns empty array for empty response", () => {
-		const response = { tags: [], correspondent: null, title: null };
+		const response = { tags: [], correspondent: null, title: null, date: null };
 		const result = matchSuggestions(
 			response,
 			existingTags,
@@ -246,6 +297,7 @@ describe("matchSuggestions", () => {
 			tags: [],
 			correspondent: null,
 			title: { name: "January 2024 Invoice from Acme", confidence: 0.9 },
+			date: null,
 		};
 		const result = matchSuggestions(
 			response,
@@ -264,6 +316,7 @@ describe("matchSuggestions", () => {
 			tags: [],
 			correspondent: null,
 			title: { name: "Some Title", confidence: 0.3 },
+			date: null,
 		};
 		const result = matchSuggestions(
 			response,
@@ -278,6 +331,7 @@ describe("matchSuggestions", () => {
 			tags: [{ name: "invoice", confidence: 0.9 }],
 			correspondent: { name: "Acme Corp", confidence: 0.85 },
 			title: { name: "Monthly Invoice - January", confidence: 0.88 },
+			date: null,
 		};
 		const result = matchSuggestions(
 			response,
@@ -288,5 +342,58 @@ describe("matchSuggestions", () => {
 		expect(result.find((s) => s.type === "tag")).toBeDefined();
 		expect(result.find((s) => s.type === "correspondent")).toBeDefined();
 		expect(result.find((s) => s.type === "title")).toBeDefined();
+	});
+
+	it("includes date suggestion with null matchedId", () => {
+		const response = {
+			tags: [],
+			correspondent: null,
+			title: null,
+			date: { date: "2024-01-15", confidence: 0.95 },
+		};
+		const result = matchSuggestions(
+			response,
+			existingTags,
+			existingCorrespondents,
+		);
+		expect(result).toHaveLength(1);
+		expect(result[0].type).toBe("date");
+		expect(result[0].name).toBe("2024-01-15");
+		expect(result[0].matchedId).toBeNull();
+		expect(result[0].confidence).toBe(0.95);
+	});
+
+	it("filters out date suggestions below 0.5 confidence", () => {
+		const response = {
+			tags: [],
+			correspondent: null,
+			title: null,
+			date: { date: "2024-01-15", confidence: 0.3 },
+		};
+		const result = matchSuggestions(
+			response,
+			existingTags,
+			existingCorrespondents,
+		);
+		expect(result).toHaveLength(0);
+	});
+
+	it("includes all suggestion types together", () => {
+		const response = {
+			tags: [{ name: "invoice", confidence: 0.9 }],
+			correspondent: { name: "Acme Corp", confidence: 0.85 },
+			title: { name: "Monthly Invoice", confidence: 0.88 },
+			date: { date: "2024-01-15", confidence: 0.92 },
+		};
+		const result = matchSuggestions(
+			response,
+			existingTags,
+			existingCorrespondents,
+		);
+		expect(result).toHaveLength(4);
+		expect(result.find((s) => s.type === "tag")).toBeDefined();
+		expect(result.find((s) => s.type === "correspondent")).toBeDefined();
+		expect(result.find((s) => s.type === "title")).toBeDefined();
+		expect(result.find((s) => s.type === "date")).toBeDefined();
 	});
 });

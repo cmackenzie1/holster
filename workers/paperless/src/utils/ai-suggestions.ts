@@ -2,7 +2,7 @@ const MAX_CONTENT_LENGTH = 5000;
 const MIN_CONFIDENCE = 0.5;
 
 export interface AISuggestion {
-	type: "tag" | "correspondent" | "title";
+	type: "tag" | "correspondent" | "title" | "date";
 	name: string;
 	confidence: number;
 	matchedId: string | null;
@@ -19,12 +19,13 @@ interface AIResponse {
 	tags: Array<{ name: string; confidence: number }>;
 	correspondent: { name: string; confidence: number } | null;
 	title: { name: string; confidence: number } | null;
+	date: { date: string; confidence: number } | null;
 }
 
-const SYSTEM_PROMPT = `You are a document classification assistant. Given a document's title and content, suggest relevant tags, a correspondent (sender/source), and a descriptive title.
+const SYSTEM_PROMPT = `You are a document classification assistant. Given a document's title and content, suggest relevant tags, a correspondent (sender/source), a descriptive title, and the document's date.
 
 Return ONLY valid JSON in this exact format (no markdown, no explanation):
-{"tags": [{"name": "tag name", "confidence": 0.9}], "correspondent": {"name": "correspondent name", "confidence": 0.85}, "title": {"name": "descriptive title", "confidence": 0.9}}
+{"tags": [{"name": "tag name", "confidence": 0.9}], "correspondent": {"name": "correspondent name", "confidence": 0.85}, "title": {"name": "descriptive title", "confidence": 0.9}, "date": {"date": "2024-01-15", "confidence": 0.9}}
 
 Rules:
 - Prefer matching existing tags/correspondents by name when possible
@@ -34,7 +35,9 @@ Rules:
 - correspondent can be null if no clear sender/source is identified
 - Tag names should be lowercase
 - Suggest a concise, descriptive title based on the document content
-- title can be null if the current title already seems descriptive enough`;
+- title can be null if the current title already seems descriptive enough
+- Extract the document's meaningful date (invoice date, letter date, statement date, etc.) in YYYY-MM-DD format
+- date can be null if no clear date is found in the document`;
 
 export function truncateContent(content: string): string {
 	if (content.length <= MAX_CONTENT_LENGTH) return content;
@@ -85,6 +88,11 @@ function isValidAIResponse(obj: unknown): obj is AIResponse {
 	if (resp.title !== null && resp.title !== undefined) {
 		const t = resp.title as Record<string, unknown>;
 		if (typeof t.name !== "string" || typeof t.confidence !== "number")
+			return false;
+	}
+	if (resp.date !== null && resp.date !== undefined) {
+		const d = resp.date as Record<string, unknown>;
+		if (typeof d.date !== "string" || typeof d.confidence !== "number")
 			return false;
 	}
 	return true;
@@ -140,6 +148,15 @@ export function matchSuggestions(
 			type: "title",
 			name: response.title.name,
 			confidence: response.title.confidence,
+			matchedId: null,
+		});
+	}
+
+	if (response.date && response.date.confidence >= MIN_CONFIDENCE) {
+		suggestions.push({
+			type: "date",
+			name: response.date.date,
+			confidence: response.date.confidence,
 			matchedId: null,
 		});
 	}

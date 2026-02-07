@@ -30,6 +30,7 @@ export const documents = pgTable(
 		correspondentId: bigint("correspondent_id", {
 			mode: "bigint",
 		}).references(() => correspondents.id),
+		documentDate: timestamp("document_date", { withTimezone: true }),
 		dateCreated: timestamp("date_created", { withTimezone: true })
 			.notNull()
 			.defaultNow(),
