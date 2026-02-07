@@ -1,4 +1,4 @@
-import { Link, useNavigate, useSearch } from "@tanstack/react-router";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useState, useEffect, useCallback } from "react";
 import {
 	FileText,
@@ -213,10 +213,11 @@ export default function Header({ children }: { children?: React.ReactNode }) {
 	const [isOpen, setIsOpen] = useState(false);
 	const navigate = useNavigate();
 
-	// Get current search query from URL - useSearch must be called unconditionally
-	// We use strict: false to avoid throwing when not on the "/" route
-	const search = useSearch({ from: "/", strict: false });
-	const currentSearch = (search as { q?: string } | undefined)?.q ?? "";
+	// Get current search query from the URL location (works on any route)
+	const locationSearch = useRouterState({
+		select: (s) => s.location.search,
+	});
+	const currentSearch = (locationSearch as { q?: string })?.q ?? "";
 
 	const handleUploadClick = () => {
 		navigate({ to: "/", search: { upload: true, q: currentSearch } });
