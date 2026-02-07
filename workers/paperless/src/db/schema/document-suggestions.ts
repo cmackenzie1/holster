@@ -16,6 +16,7 @@ import { tags } from "./tags";
 export const suggestionTypeEnum = pgEnum("suggestion_type", [
 	"tag",
 	"correspondent",
+	"title",
 ]);
 
 export const documentSuggestions = pgTable(

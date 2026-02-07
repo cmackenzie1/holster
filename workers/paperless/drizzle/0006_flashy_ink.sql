@@ -1,0 +1,1 @@
+ALTER TYPE "public"."suggestion_type" ADD VALUE 'title';

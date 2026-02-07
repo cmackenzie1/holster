@@ -43,6 +43,13 @@
 			"when": 1770503463945,
 			"tag": "0005_powerful_famine",
 			"breakpoints": true
+		},
+		{
+			"idx": 6,
+			"version": "7",
+			"when": 1770505807329,
+			"tag": "0006_flashy_ink",
+			"breakpoints": true
 		}
 	]
 }
