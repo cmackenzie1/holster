@@ -17,24 +17,24 @@
 	},
 	"dependencies": {
 		"@cloudflare/containers": "^0.1.0",
-		"@cloudflare/vite-plugin": "^1.13.8",
+		"@cloudflare/vite-plugin": "^1.23.1",
 		"@tailwindcss/vite": "^4.0.6",
-		"@tanstack/react-devtools": "^0.7.0",
-		"@tanstack/react-router": "^1.158.0",
-		"@tanstack/react-router-devtools": "^1.158.0",
-		"@tanstack/react-router-ssr-query": "^1.131.7",
-		"@tanstack/react-start": "^1.158.0",
+		"@tanstack/react-devtools": "^0.9.5",
+		"@tanstack/react-router": "^1.158.4",
+		"@tanstack/react-router-devtools": "^1.158.4",
+		"@tanstack/react-router-ssr-query": "^1.158.4",
+		"@tanstack/react-start": "^1.159.0",
 		"@tanstack/react-table": "^8.21.3",
-		"@tanstack/router-plugin": "^1.158.0",
-		"drizzle-orm": "^0.44.0",
-		"lucide-react": "^0.544.0",
+		"@tanstack/router-plugin": "^1.158.4",
+		"drizzle-orm": "^0.45.1",
+		"lucide-react": "^0.563.0",
 		"pdfjs-dist": "^5.4.624",
 		"postal-mime": "^2.7.3",
 		"postgres": "^3.4.5",
 		"react": "^19.2.0",
 		"react-dom": "^19.2.0",
 		"tailwindcss": "^4.0.6",
-		"vite-tsconfig-paths": "^5.1.4",
+		"vite-tsconfig-paths": "^6.1.0",
 		"zod": "^4.3.6"
 	},
 	"devDependencies": {
@@ -48,10 +48,10 @@
 		"dotenv": "^16.5.0",
 		"drizzle-kit": "^0.31.0",
 		"jsdom": "^27.0.0",
-		"typescript": "^5.7.2",
+		"typescript": "^5.9.3",
 		"vite": "^7.1.7",
-		"vitest": "^3.0.5",
+		"vitest": "^4.0.18",
 		"web-vitals": "^5.1.0",
-		"wrangler": "^4.61.1"
+		"wrangler": "^4.63.0"
 	}
 }
