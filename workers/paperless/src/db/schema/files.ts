@@ -1,27 +1,40 @@
 import { relations } from "drizzle-orm";
-import { bigint, pgTable, timestamp, varchar } from "drizzle-orm/pg-core";
+import {
+	bigint,
+	index,
+	pgTable,
+	timestamp,
+	varchar,
+} from "drizzle-orm/pg-core";
 import { documents } from "./documents";
 
-export const files = pgTable("files", {
-	id: bigint({ mode: "bigint" }).primaryKey().generatedAlwaysAsIdentity(),
-	documentId: bigint("document_id", { mode: "bigint" })
-		.notNull()
-		.references(() => documents.id),
-	objectKey: varchar("object_key", { length: 1024 }).notNull(),
-	mimeType: varchar("mime_type", { length: 255 }).notNull(),
-	sizeBytes: bigint("size_bytes", { mode: "bigint" }).notNull(),
-	md5Hash: varchar("md5_hash", { length: 32 }),
-	crc32c: varchar("crc32c", { length: 8 }),
-	thumbnailKey: varchar("thumbnail_key", { length: 1024 }),
-	createdAt: timestamp("created_at", { withTimezone: true })
-		.notNull()
-		.defaultNow(),
-	updatedAt: timestamp("updated_at", { withTimezone: true })
-		.notNull()
-		.defaultNow()
-		.$onUpdate(() => new Date()),
-	deletedAt: timestamp("deleted_at", { withTimezone: true }),
-});
+export const files = pgTable(
+	"files",
+	{
+		id: bigint({ mode: "bigint" }).primaryKey().generatedAlwaysAsIdentity(),
+		documentId: bigint("document_id", { mode: "bigint" })
+			.notNull()
+			.references(() => documents.id),
+		objectKey: varchar("object_key", { length: 1024 }).notNull(),
+		mimeType: varchar("mime_type", { length: 255 }).notNull(),
+		sizeBytes: bigint("size_bytes", { mode: "bigint" }).notNull(),
+		md5Hash: varchar("md5_hash", { length: 32 }),
+		crc32c: varchar("crc32c", { length: 8 }),
+		thumbnailKey: varchar("thumbnail_key", { length: 1024 }),
+		createdAt: timestamp("created_at", { withTimezone: true })
+			.notNull()
+			.defaultNow(),
+		updatedAt: timestamp("updated_at", { withTimezone: true })
+			.notNull()
+			.defaultNow()
+			.$onUpdate(() => new Date()),
+		deletedAt: timestamp("deleted_at", { withTimezone: true }),
+	},
+	(table) => [
+		index("files_document_id_idx").on(table.documentId),
+		index("files_deleted_at_idx").on(table.deletedAt),
+	],
+);
 
 export const filesRelations = relations(files, ({ one }) => ({
 	document: one(documents, {

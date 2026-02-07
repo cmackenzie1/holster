@@ -1,6 +1,7 @@
 import { relations } from "drizzle-orm";
 import {
 	bigint,
+	index,
 	pgTable,
 	primaryKey,
 	timestamp,
@@ -8,19 +9,23 @@ import {
 } from "drizzle-orm/pg-core";
 import { documents } from "./documents";
 
-export const tags = pgTable("tags", {
-	id: bigint({ mode: "bigint" }).primaryKey().generatedAlwaysAsIdentity(),
-	name: varchar({ length: 255 }).notNull(),
-	color: varchar({ length: 7 }), // hex color like #ff0000
-	createdAt: timestamp("created_at", { withTimezone: true })
-		.notNull()
-		.defaultNow(),
-	updatedAt: timestamp("updated_at", { withTimezone: true })
-		.notNull()
-		.defaultNow()
-		.$onUpdate(() => new Date()),
-	deletedAt: timestamp("deleted_at", { withTimezone: true }),
-});
+export const tags = pgTable(
+	"tags",
+	{
+		id: bigint({ mode: "bigint" }).primaryKey().generatedAlwaysAsIdentity(),
+		name: varchar({ length: 255 }).notNull(),
+		color: varchar({ length: 7 }), // hex color like #ff0000
+		createdAt: timestamp("created_at", { withTimezone: true })
+			.notNull()
+			.defaultNow(),
+		updatedAt: timestamp("updated_at", { withTimezone: true })
+			.notNull()
+			.defaultNow()
+			.$onUpdate(() => new Date()),
+		deletedAt: timestamp("deleted_at", { withTimezone: true }),
+	},
+	(table) => [index("tags_deleted_at_idx").on(table.deletedAt)],
+);
 
 export const documentTags = pgTable(
 	"document_tags",
@@ -35,7 +40,10 @@ export const documentTags = pgTable(
 			.notNull()
 			.defaultNow(),
 	},
-	(t) => [primaryKey({ columns: [t.documentId, t.tagId] })],
+	(t) => [
+		primaryKey({ columns: [t.documentId, t.tagId] }),
+		index("document_tags_tag_id_idx").on(t.tagId),
+	],
 );
 
 export const tagsRelations = relations(tags, ({ many }) => ({
