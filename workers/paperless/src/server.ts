@@ -9,6 +9,7 @@ import {
 	deletePendingSuggestionsForDocument,
 	documents,
 	documentTags,
+	findFileByMd5Hash,
 	listCorrespondents,
 	listTags,
 	permanentlyDeleteOldDocuments,
@@ -176,6 +177,15 @@ export default {
 				const md5Hash = hashArray
 					.map((b) => b.toString(16).padStart(2, "0"))
 					.join("");
+
+				// Skip duplicate files
+				const existingFile = await findFileByMd5Hash(db, md5Hash);
+				if (existingFile) {
+					wideEvent.duplicateSkipped = wideEvent.duplicateSkipped
+						? (wideEvent.duplicateSkipped as number) + 1
+						: 1;
+					continue;
+				}
 
 				// Upload to R2
 				await env.R2.put(objectKey, content, {
