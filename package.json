@@ -11,12 +11,14 @@
 		"check": "biome check --write ./",
 		"test": "turbo run test",
 		"typegen": "turbo run typegen",
-		"dev": "turbo run dev"
+		"dev": "turbo run dev",
+		"prepare": "husky"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.2.0",
 		"@cloudflare/vitest-pool-workers": "catalog:",
 		"@cloudflare/workers-types": "catalog:",
+		"husky": "^9.1.7",
 		"turbo": "catalog:",
 		"typescript": "catalog:",
 		"vitest": "catalog:"
