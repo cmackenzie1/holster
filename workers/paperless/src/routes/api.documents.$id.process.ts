@@ -35,10 +35,7 @@ export const Route = createFileRoute("/api/documents/$id/process")({
 						wideEvent.document = { id: params.id, found: false };
 						wideEvent.status_code = 404;
 						wideEvent.outcome = "not_found";
-						return json(
-							{ error: "Document not found" },
-							{ status: 404 },
-						);
+						return json({ error: "Document not found" }, { status: 404 });
 					}
 
 					// Get the primary file
@@ -48,12 +45,7 @@ export const Route = createFileRoute("/api/documents/$id/process")({
 							mimeType: files.mimeType,
 						})
 						.from(files)
-						.where(
-							and(
-								eq(files.documentId, doc.id),
-								isNull(files.deletedAt),
-							),
-						)
+						.where(and(eq(files.documentId, doc.id), isNull(files.deletedAt)))
 						.limit(1);
 
 					if (!file) {
@@ -83,29 +75,19 @@ export const Route = createFileRoute("/api/documents/$id/process")({
 					wideEvent.status_code = 202;
 					wideEvent.outcome = "success";
 
-					return json(
-						{ success: true, queued: true },
-						{ status: 202 },
-					);
+					return json({ success: true, queued: true }, { status: 202 });
 				} catch (error) {
 					wideEvent.status_code = 500;
 					wideEvent.outcome = "error";
 					wideEvent.error = {
 						message:
-							error instanceof Error
-								? error.message
-								: "Processing failed",
-						type:
-							error instanceof Error
-								? error.name
-								: "UnknownError",
+							error instanceof Error ? error.message : "Processing failed",
+						type: error instanceof Error ? error.name : "UnknownError",
 					};
 					return json(
 						{
 							error:
-								error instanceof Error
-									? error.message
-									: "Processing failed",
+								error instanceof Error ? error.message : "Processing failed",
 						},
 						{ status: 500 },
 					);
