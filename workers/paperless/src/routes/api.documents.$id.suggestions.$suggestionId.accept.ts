@@ -75,6 +75,10 @@ export const Route = createFileRoute(
 						await updateDocument(db, BigInt(params.id), {
 							title: suggestion.name,
 						});
+					} else if (suggestion.type === "date") {
+						await updateDocument(db, BigInt(params.id), {
+							documentDate: new Date(suggestion.name),
+						});
 					}
 
 					wideEvent.status_code = 200;

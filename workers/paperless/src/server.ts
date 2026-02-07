@@ -362,6 +362,7 @@ export default {
 							.select({
 								title: documents.title,
 								correspondentId: documents.correspondentId,
+								documentDate: documents.documentDate,
 							})
 							.from(documents)
 							.where(eq(documents.id, docId))
@@ -387,9 +388,11 @@ export default {
 						doc?.correspondentId?.toString() ?? null;
 
 					const currentTitle = doc?.title?.toLowerCase() ?? "";
+					const hasDocumentDate = doc?.documentDate !== null;
 					const filtered = aiSuggestions.filter((s) => {
 						if (s.type === "title")
 							return s.name.toLowerCase() !== currentTitle;
+						if (s.type === "date") return !hasDocumentDate;
 						if (!s.matchedId) return true;
 						if (s.type === "tag") return !currentTagIds.has(s.matchedId);
 						return s.matchedId !== currentCorrespondentId;
@@ -421,6 +424,7 @@ export default {
 						correspondents: filtered.filter((s) => s.type === "correspondent")
 							.length,
 						titles: filtered.filter((s) => s.type === "title").length,
+						dates: filtered.filter((s) => s.type === "date").length,
 					};
 				} catch (aiError) {
 					wideEvent.ai_suggestions = {
