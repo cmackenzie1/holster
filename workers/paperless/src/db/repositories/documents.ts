@@ -8,6 +8,7 @@ import {
 	inArray,
 	lt,
 	ilike,
+	sql,
 } from "drizzle-orm";
 import type { Database } from "../index";
 import {
@@ -204,8 +205,8 @@ export async function listDocuments(
 		whereConditions.push(lt(documents.id, BigInt(cursor)));
 	}
 
-	// Search filter: match title, content, or correspondent name
-	const searchPattern = search?.trim() ? `%${search.trim()}%` : null;
+	// Search filter: full-text search on title/content, ilike on correspondent name
+	const searchTerm = search?.trim() || null;
 
 	// Fetch one extra to determine if there are more pages
 	const results = await db
@@ -231,11 +232,10 @@ export async function listDocuments(
 		.where(
 			and(
 				...whereConditions,
-				searchPattern
+				searchTerm
 					? or(
-							ilike(documents.title, searchPattern),
-							ilike(documents.content, searchPattern),
-							ilike(correspondents.name, searchPattern),
+							sql`${documents.searchVector} @@ plainto_tsquery('english', ${searchTerm})`,
+							ilike(correspondents.name, `%${searchTerm}%`),
 						)
 					: undefined,
 			),
