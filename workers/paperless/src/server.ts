@@ -342,7 +342,10 @@ export default {
 					const currentCorrespondentId =
 						doc?.correspondentId?.toString() ?? null;
 
+					const currentTitle = doc?.title?.toLowerCase() ?? "";
 					const filtered = aiSuggestions.filter((s) => {
+						if (s.type === "title")
+							return s.name.toLowerCase() !== currentTitle;
 						if (!s.matchedId) return true;
 						if (s.type === "tag") return !currentTagIds.has(s.matchedId);
 						return s.matchedId !== currentCorrespondentId;
@@ -373,6 +376,7 @@ export default {
 						tags: filtered.filter((s) => s.type === "tag").length,
 						correspondents: filtered.filter((s) => s.type === "correspondent")
 							.length,
+						titles: filtered.filter((s) => s.type === "title").length,
 					};
 				} catch (aiError) {
 					wideEvent.ai_suggestions = {

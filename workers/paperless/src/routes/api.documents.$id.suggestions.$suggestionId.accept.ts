@@ -7,6 +7,7 @@ import {
 	createCorrespondent,
 	createDbFromHyperdrive,
 	createTag,
+	updateDocument,
 	updateDocumentCorrespondent,
 } from "@/db";
 
@@ -70,6 +71,10 @@ export const Route = createFileRoute(
 							BigInt(params.id),
 							BigInt(correspondentId),
 						);
+					} else if (suggestion.type === "title") {
+						await updateDocument(db, BigInt(params.id), {
+							title: suggestion.name,
+						});
 					}
 
 					wideEvent.status_code = 200;
