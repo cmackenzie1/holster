@@ -17,6 +17,9 @@
 			"localConnectionString": "postgres://postgres:postgres@localhost:5432/paperless-dev"
 		}
 	],
+	"ai": {
+		"binding": "AI"
+	},
 	"r2_buckets": [
 		{
 			"binding": "R2",

@@ -1,22 +1,22 @@
 import {
-	eq,
 	and,
-	or,
-	isNull,
-	isNotNull,
 	desc,
-	inArray,
-	lt,
+	eq,
 	ilike,
+	inArray,
+	isNotNull,
+	isNull,
+	lt,
+	or,
 	sql,
 } from "drizzle-orm";
 import type { Database } from "../index";
 import {
-	documents,
-	files,
 	correspondents,
-	tags,
+	documents,
 	documentTags,
+	files,
+	tags,
 } from "../schema";
 
 export interface DocumentWithRelations {
@@ -504,6 +504,20 @@ export async function updateDocumentTags(
 	});
 
 	return { success: true };
+}
+
+/**
+ * Add a single tag to a document, ignoring if already present.
+ */
+export async function addDocumentTag(
+	db: Database,
+	documentId: bigint,
+	tagId: bigint,
+): Promise<void> {
+	await db
+		.insert(documentTags)
+		.values({ documentId, tagId })
+		.onConflictDoNothing();
 }
 
 // ============================================================================

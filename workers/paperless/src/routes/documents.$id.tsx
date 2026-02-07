@@ -1,45 +1,48 @@
+import { env } from "cloudflare:workers";
 import {
 	createFileRoute,
-	Link,
-	useRouter,
-	useNavigate,
 	type ErrorComponentProps,
+	Link,
+	useNavigate,
+	useRouter,
 } from "@tanstack/react-router";
-import { createServerFn, createMiddleware } from "@tanstack/react-start";
-import { env } from "cloudflare:workers";
-import { useState, useEffect } from "react";
+import { createMiddleware, createServerFn } from "@tanstack/react-start";
 import {
+	AlertTriangle,
 	ArrowLeft,
 	Calendar,
-	Download,
-	FileText,
-	Hash,
-	Tag,
-	User,
-	File,
-	Image,
-	FileType,
-	Edit2,
-	X,
-	Loader2,
 	Check,
-	Trash2,
-	FileX,
-	Home,
-	RefreshCw,
-	AlertTriangle,
-	Plus,
-	Search,
 	ChevronDown,
 	ChevronUp,
+	Download,
+	Edit2,
+	File,
+	FileText,
+	FileType,
+	FileX,
+	Hash,
+	Home,
+	Image,
+	Loader2,
+	Plus,
+	RefreshCw,
+	Search,
+	Sparkles,
+	Tag,
+	Trash2,
+	User,
+	X,
 } from "lucide-react";
+import { useEffect, useState } from "react";
 import {
 	createDbFromHyperdrive,
 	getDocumentById,
-	listTags,
-	listCorrespondents,
 	getNextASN,
+	listCorrespondents,
+	listSuggestionsByDocument,
+	listTags,
 } from "@/db";
+import { generateColorFromString } from "@/utils/format";
 
 interface DocumentFile {
 	id: string;
@@ -67,6 +70,16 @@ interface DocumentData {
 	correspondent: { id: string; name: string } | null;
 	tags: DocumentTag[];
 	files: DocumentFile[];
+}
+
+interface SuggestionItem {
+	id: string;
+	type: "tag" | "correspondent";
+	name: string;
+	confidence: string;
+	tagId: string | null;
+	correspondentId: string | null;
+	accepted: boolean | null;
 }
 
 // Middleware to validate and pass the document ID
@@ -149,17 +162,26 @@ const fetchNextASN = createServerFn({ method: "GET" }).handler(async () => {
 	return getNextASN(db);
 });
 
+const getDocumentSuggestions = createServerFn({ method: "GET" })
+	.middleware([documentIdMiddleware])
+	.handler(async ({ data }): Promise<SuggestionItem[]> => {
+		const db = createDbFromHyperdrive(env.HYPERDRIVE);
+		return listSuggestionsByDocument(db, BigInt(data.id));
+	});
+
 export const Route = createFileRoute("/documents/$id")({
 	component: DocumentView,
 	errorComponent: DocumentErrorPage,
 	loader: async ({ params }) => {
-		const [document, allTags, allCorrespondents, nextASN] = await Promise.all([
-			getDocument({ data: { id: params.id } }),
-			getAllTags(),
-			getAllCorrespondents(),
-			fetchNextASN(),
-		]);
-		return { document, allTags, allCorrespondents, nextASN };
+		const [document, allTags, allCorrespondents, nextASN, suggestions] =
+			await Promise.all([
+				getDocument({ data: { id: params.id } }),
+				getAllTags(),
+				getAllCorrespondents(),
+				fetchNextASN(),
+				getDocumentSuggestions({ data: { id: params.id } }),
+			]);
+		return { document, allTags, allCorrespondents, nextASN, suggestions };
 	},
 });
 
@@ -236,6 +258,7 @@ function DocumentView() {
 		allTags = [],
 		allCorrespondents = [],
 		nextASN = 1,
+		suggestions: initialSuggestions = [],
 	} = Route.useLoaderData() ?? {};
 	const router = useRouter();
 	const navigate = useNavigate();
@@ -257,6 +280,11 @@ function DocumentView() {
 	const [isProcessing, setIsProcessing] = useState(false);
 	const [processQueued, setProcessQueued] = useState(false);
 	const [processError, setProcessError] = useState<string | null>(null);
+	const [suggestions, setSuggestions] =
+		useState<SuggestionItem[]>(initialSuggestions);
+	const [actioningSuggestion, setActioningSuggestion] = useState<string | null>(
+		null,
+	);
 	const primaryFile = doc.files[0];
 
 	const MAX_VISIBLE_TAGS = 5;
@@ -270,6 +298,11 @@ function DocumentView() {
 	useEffect(() => {
 		setEditASN(doc.archiveSerialNumber?.toString() ?? "");
 	}, [doc.archiveSerialNumber]);
+
+	// Sync suggestions when loader data changes
+	useEffect(() => {
+		setSuggestions(initialSuggestions);
+	}, [initialSuggestions]);
 
 	const handleSaveTitle = async () => {
 		if (!editTitle.trim() || editTitle.trim() === doc.title) {
@@ -400,6 +433,41 @@ function DocumentView() {
 			);
 		} finally {
 			setIsProcessing(false);
+		}
+	};
+
+	const handleAcceptSuggestion = async (suggestion: SuggestionItem) => {
+		setActioningSuggestion(suggestion.id);
+		try {
+			const response = await fetch(
+				`/api/documents/${doc.id}/suggestions/${suggestion.id}/accept`,
+				{ method: "POST" },
+			);
+			if (response.ok) {
+				setSuggestions((prev) => prev.filter((s) => s.id !== suggestion.id));
+				router.invalidate();
+			}
+		} catch (error) {
+			console.error("Failed to accept suggestion:", error);
+		} finally {
+			setActioningSuggestion(null);
+		}
+	};
+
+	const handleDismissSuggestion = async (suggestion: SuggestionItem) => {
+		setActioningSuggestion(suggestion.id);
+		try {
+			const response = await fetch(
+				`/api/documents/${doc.id}/suggestions/${suggestion.id}/dismiss`,
+				{ method: "POST" },
+			);
+			if (response.ok) {
+				setSuggestions((prev) => prev.filter((s) => s.id !== suggestion.id));
+			}
+		} catch (error) {
+			console.error("Failed to dismiss suggestion:", error);
+		} finally {
+			setActioningSuggestion(null);
 		}
 	};
 
@@ -832,6 +900,80 @@ function DocumentView() {
 							</div>
 						</div>
 
+						{/* AI Suggestions Card */}
+						{suggestions.length > 0 && (
+							<div className="bg-slate-800 rounded-xl border border-cyan-500/30">
+								<div className="p-4 border-b border-slate-700">
+									<h2 className="text-lg font-semibold text-white flex items-center gap-2">
+										<Sparkles className="w-5 h-5 text-cyan-400" />
+										Suggestions
+										<span className="ml-auto text-xs font-normal text-slate-400">
+											{suggestions.length}
+										</span>
+									</h2>
+								</div>
+								<div className="p-4 space-y-3">
+									{suggestions.map((suggestion) => {
+										const isActioning = actioningSuggestion === suggestion.id;
+										const confidence = Math.round(
+											Number.parseFloat(suggestion.confidence) * 100,
+										);
+										return (
+											<div
+												key={suggestion.id}
+												className="flex items-center gap-3 p-3 bg-slate-700/50 rounded-lg"
+											>
+												<div className="flex-1 min-w-0">
+													<div className="flex items-center gap-2">
+														<span
+															className={`text-xs px-1.5 py-0.5 rounded font-medium ${
+																suggestion.type === "tag"
+																	? "bg-blue-500/20 text-blue-400"
+																	: "bg-purple-500/20 text-purple-400"
+															}`}
+														>
+															{suggestion.type}
+														</span>
+														<span className="text-white text-sm truncate">
+															{suggestion.name}
+														</span>
+													</div>
+													<p className="text-xs text-slate-400 mt-1">
+														{confidence}% confidence
+														{suggestion.tagId || suggestion.correspondentId
+															? ""
+															: " (new)"}
+													</p>
+												</div>
+												<div className="flex items-center gap-1 flex-shrink-0">
+													<button
+														onClick={() => handleAcceptSuggestion(suggestion)}
+														disabled={isActioning}
+														className="p-1.5 hover:bg-green-500/20 rounded-lg transition-colors text-green-400 hover:text-green-300 disabled:opacity-50"
+														title="Accept"
+													>
+														{isActioning ? (
+															<Loader2 className="w-4 h-4 animate-spin" />
+														) : (
+															<Check className="w-4 h-4" />
+														)}
+													</button>
+													<button
+														onClick={() => handleDismissSuggestion(suggestion)}
+														disabled={isActioning}
+														className="p-1.5 hover:bg-red-500/20 rounded-lg transition-colors text-slate-400 hover:text-red-400 disabled:opacity-50"
+														title="Dismiss"
+													>
+														<X className="w-4 h-4" />
+													</button>
+												</div>
+											</div>
+										);
+									})}
+								</div>
+							</div>
+						)}
+
 						{/* Tags Card */}
 						<div className="bg-slate-800 rounded-xl border border-slate-700">
 							<div className="p-4 border-b border-slate-700 flex items-center justify-between">
@@ -987,44 +1129,6 @@ interface TagSelectorTag {
  */
 function normalizeTagName(name: string): string {
 	return name.trim().toLowerCase();
-}
-
-/**
- * Generate a deterministic color from a string.
- * Uses a simple hash to pick a hue, with fixed saturation and lightness for pleasant colors.
- */
-function generateColorFromString(str: string): string {
-	if (!str.trim()) return "#3b82f6";
-
-	// Simple hash function
-	let hash = 0;
-	for (let i = 0; i < str.length; i++) {
-		const char = str.charCodeAt(i);
-		hash = (hash << 5) - hash + char;
-		hash = hash & hash;
-	}
-
-	// Use hash to generate hue (0-360)
-	const hue = Math.abs(hash) % 360;
-	const saturation = 65 + (Math.abs(hash >> 8) % 20);
-	const lightness = 45 + (Math.abs(hash >> 16) % 15);
-
-	// Convert HSL to hex
-	const hslToHex = (h: number, s: number, l: number): string => {
-		const sNorm = s / 100;
-		const lNorm = l / 100;
-		const a = sNorm * Math.min(lNorm, 1 - lNorm);
-		const f = (n: number) => {
-			const k = (n + h / 30) % 12;
-			const color = lNorm - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
-			return Math.round(255 * color)
-				.toString(16)
-				.padStart(2, "0");
-		};
-		return `#${f(0)}${f(8)}${f(4)}`;
-	};
-
-	return hslToHex(hue, saturation, lightness);
 }
 
 /**

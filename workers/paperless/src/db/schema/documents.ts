@@ -1,6 +1,7 @@
 import { relations, sql } from "drizzle-orm";
 import {
 	bigint,
+	customType,
 	index,
 	integer,
 	pgTable,
@@ -8,9 +9,9 @@ import {
 	timestamp,
 	varchar,
 } from "drizzle-orm/pg-core";
-import { customType } from "drizzle-orm/pg-core";
-import { files } from "./files";
 import { correspondents } from "./correspondents";
+import { documentSuggestions } from "./document-suggestions";
+import { files } from "./files";
 import { documentTags } from "./tags";
 
 const tsvector = customType<{ data: string }>({
@@ -54,6 +55,7 @@ export const documentsRelations = relations(documents, ({ one, many }) => ({
 	}),
 	files: many(files),
 	documentTags: many(documentTags),
+	suggestions: many(documentSuggestions),
 }));
 
 export type Document = typeof documents.$inferSelect;

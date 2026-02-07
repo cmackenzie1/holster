@@ -31,8 +31,11 @@ import { Route as DemoStartSsrSpaModeRouteImport } from './routes/demo/start.ssr
 import { Route as DemoStartSsrFullSsrRouteImport } from './routes/demo/start.ssr.full-ssr'
 import { Route as DemoStartSsrDataOnlyRouteImport } from './routes/demo/start.ssr.data-only'
 import { Route as ApiDocumentsIdTagsRouteImport } from './routes/api.documents.$id.tags'
+import { Route as ApiDocumentsIdSuggestionsRouteImport } from './routes/api.documents.$id.suggestions'
 import { Route as ApiDocumentsIdProcessRouteImport } from './routes/api.documents.$id.process'
 import { Route as ApiDocumentsIdCorrespondentRouteImport } from './routes/api.documents.$id.correspondent'
+import { Route as ApiDocumentsIdSuggestionsSuggestionIdDismissRouteImport } from './routes/api.documents.$id.suggestions.$suggestionId.dismiss'
+import { Route as ApiDocumentsIdSuggestionsSuggestionIdAcceptRouteImport } from './routes/api.documents.$id.suggestions.$suggestionId.accept'
 
 const TrashRoute = TrashRouteImport.update({
   id: '/trash',
@@ -144,6 +147,12 @@ const ApiDocumentsIdTagsRoute = ApiDocumentsIdTagsRouteImport.update({
   path: '/tags',
   getParentRoute: () => ApiDocumentsIdRoute,
 } as any)
+const ApiDocumentsIdSuggestionsRoute =
+  ApiDocumentsIdSuggestionsRouteImport.update({
+    id: '/suggestions',
+    path: '/suggestions',
+    getParentRoute: () => ApiDocumentsIdRoute,
+  } as any)
 const ApiDocumentsIdProcessRoute = ApiDocumentsIdProcessRouteImport.update({
   id: '/process',
   path: '/process',
@@ -154,6 +163,18 @@ const ApiDocumentsIdCorrespondentRoute =
     id: '/correspondent',
     path: '/correspondent',
     getParentRoute: () => ApiDocumentsIdRoute,
+  } as any)
+const ApiDocumentsIdSuggestionsSuggestionIdDismissRoute =
+  ApiDocumentsIdSuggestionsSuggestionIdDismissRouteImport.update({
+    id: '/$suggestionId/dismiss',
+    path: '/$suggestionId/dismiss',
+    getParentRoute: () => ApiDocumentsIdSuggestionsRoute,
+  } as any)
+const ApiDocumentsIdSuggestionsSuggestionIdAcceptRoute =
+  ApiDocumentsIdSuggestionsSuggestionIdAcceptRouteImport.update({
+    id: '/$suggestionId/accept',
+    path: '/$suggestionId/accept',
+    getParentRoute: () => ApiDocumentsIdSuggestionsRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -176,11 +197,14 @@ export interface FileRoutesByFullPath {
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
   '/api/documents/$id/correspondent': typeof ApiDocumentsIdCorrespondentRoute
   '/api/documents/$id/process': typeof ApiDocumentsIdProcessRoute
+  '/api/documents/$id/suggestions': typeof ApiDocumentsIdSuggestionsRouteWithChildren
   '/api/documents/$id/tags': typeof ApiDocumentsIdTagsRoute
   '/demo/start/ssr/data-only': typeof DemoStartSsrDataOnlyRoute
   '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
   '/demo/start/ssr/spa-mode': typeof DemoStartSsrSpaModeRoute
   '/demo/start/ssr/': typeof DemoStartSsrIndexRoute
+  '/api/documents/$id/suggestions/$suggestionId/accept': typeof ApiDocumentsIdSuggestionsSuggestionIdAcceptRoute
+  '/api/documents/$id/suggestions/$suggestionId/dismiss': typeof ApiDocumentsIdSuggestionsSuggestionIdDismissRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -202,11 +226,14 @@ export interface FileRoutesByTo {
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
   '/api/documents/$id/correspondent': typeof ApiDocumentsIdCorrespondentRoute
   '/api/documents/$id/process': typeof ApiDocumentsIdProcessRoute
+  '/api/documents/$id/suggestions': typeof ApiDocumentsIdSuggestionsRouteWithChildren
   '/api/documents/$id/tags': typeof ApiDocumentsIdTagsRoute
   '/demo/start/ssr/data-only': typeof DemoStartSsrDataOnlyRoute
   '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
   '/demo/start/ssr/spa-mode': typeof DemoStartSsrSpaModeRoute
   '/demo/start/ssr': typeof DemoStartSsrIndexRoute
+  '/api/documents/$id/suggestions/$suggestionId/accept': typeof ApiDocumentsIdSuggestionsSuggestionIdAcceptRoute
+  '/api/documents/$id/suggestions/$suggestionId/dismiss': typeof ApiDocumentsIdSuggestionsSuggestionIdDismissRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -229,11 +256,14 @@ export interface FileRoutesById {
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
   '/api/documents/$id/correspondent': typeof ApiDocumentsIdCorrespondentRoute
   '/api/documents/$id/process': typeof ApiDocumentsIdProcessRoute
+  '/api/documents/$id/suggestions': typeof ApiDocumentsIdSuggestionsRouteWithChildren
   '/api/documents/$id/tags': typeof ApiDocumentsIdTagsRoute
   '/demo/start/ssr/data-only': typeof DemoStartSsrDataOnlyRoute
   '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
   '/demo/start/ssr/spa-mode': typeof DemoStartSsrSpaModeRoute
   '/demo/start/ssr/': typeof DemoStartSsrIndexRoute
+  '/api/documents/$id/suggestions/$suggestionId/accept': typeof ApiDocumentsIdSuggestionsSuggestionIdAcceptRoute
+  '/api/documents/$id/suggestions/$suggestionId/dismiss': typeof ApiDocumentsIdSuggestionsSuggestionIdDismissRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -257,11 +287,14 @@ export interface FileRouteTypes {
     | '/demo/start/server-funcs'
     | '/api/documents/$id/correspondent'
     | '/api/documents/$id/process'
+    | '/api/documents/$id/suggestions'
     | '/api/documents/$id/tags'
     | '/demo/start/ssr/data-only'
     | '/demo/start/ssr/full-ssr'
     | '/demo/start/ssr/spa-mode'
     | '/demo/start/ssr/'
+    | '/api/documents/$id/suggestions/$suggestionId/accept'
+    | '/api/documents/$id/suggestions/$suggestionId/dismiss'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -283,11 +316,14 @@ export interface FileRouteTypes {
     | '/demo/start/server-funcs'
     | '/api/documents/$id/correspondent'
     | '/api/documents/$id/process'
+    | '/api/documents/$id/suggestions'
     | '/api/documents/$id/tags'
     | '/demo/start/ssr/data-only'
     | '/demo/start/ssr/full-ssr'
     | '/demo/start/ssr/spa-mode'
     | '/demo/start/ssr'
+    | '/api/documents/$id/suggestions/$suggestionId/accept'
+    | '/api/documents/$id/suggestions/$suggestionId/dismiss'
   id:
     | '__root__'
     | '/'
@@ -309,11 +345,14 @@ export interface FileRouteTypes {
     | '/demo/start/server-funcs'
     | '/api/documents/$id/correspondent'
     | '/api/documents/$id/process'
+    | '/api/documents/$id/suggestions'
     | '/api/documents/$id/tags'
     | '/demo/start/ssr/data-only'
     | '/demo/start/ssr/full-ssr'
     | '/demo/start/ssr/spa-mode'
     | '/demo/start/ssr/'
+    | '/api/documents/$id/suggestions/$suggestionId/accept'
+    | '/api/documents/$id/suggestions/$suggestionId/dismiss'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -493,6 +532,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiDocumentsIdTagsRouteImport
       parentRoute: typeof ApiDocumentsIdRoute
     }
+    '/api/documents/$id/suggestions': {
+      id: '/api/documents/$id/suggestions'
+      path: '/suggestions'
+      fullPath: '/api/documents/$id/suggestions'
+      preLoaderRoute: typeof ApiDocumentsIdSuggestionsRouteImport
+      parentRoute: typeof ApiDocumentsIdRoute
+    }
     '/api/documents/$id/process': {
       id: '/api/documents/$id/process'
       path: '/process'
@@ -506,6 +552,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/documents/$id/correspondent'
       preLoaderRoute: typeof ApiDocumentsIdCorrespondentRouteImport
       parentRoute: typeof ApiDocumentsIdRoute
+    }
+    '/api/documents/$id/suggestions/$suggestionId/dismiss': {
+      id: '/api/documents/$id/suggestions/$suggestionId/dismiss'
+      path: '/$suggestionId/dismiss'
+      fullPath: '/api/documents/$id/suggestions/$suggestionId/dismiss'
+      preLoaderRoute: typeof ApiDocumentsIdSuggestionsSuggestionIdDismissRouteImport
+      parentRoute: typeof ApiDocumentsIdSuggestionsRoute
+    }
+    '/api/documents/$id/suggestions/$suggestionId/accept': {
+      id: '/api/documents/$id/suggestions/$suggestionId/accept'
+      path: '/$suggestionId/accept'
+      fullPath: '/api/documents/$id/suggestions/$suggestionId/accept'
+      preLoaderRoute: typeof ApiDocumentsIdSuggestionsSuggestionIdAcceptRouteImport
+      parentRoute: typeof ApiDocumentsIdSuggestionsRoute
     }
   }
 }
@@ -544,15 +604,35 @@ const ApiTrashRouteWithChildren = ApiTrashRoute._addFileChildren(
   ApiTrashRouteChildren,
 )
 
+interface ApiDocumentsIdSuggestionsRouteChildren {
+  ApiDocumentsIdSuggestionsSuggestionIdAcceptRoute: typeof ApiDocumentsIdSuggestionsSuggestionIdAcceptRoute
+  ApiDocumentsIdSuggestionsSuggestionIdDismissRoute: typeof ApiDocumentsIdSuggestionsSuggestionIdDismissRoute
+}
+
+const ApiDocumentsIdSuggestionsRouteChildren: ApiDocumentsIdSuggestionsRouteChildren =
+  {
+    ApiDocumentsIdSuggestionsSuggestionIdAcceptRoute:
+      ApiDocumentsIdSuggestionsSuggestionIdAcceptRoute,
+    ApiDocumentsIdSuggestionsSuggestionIdDismissRoute:
+      ApiDocumentsIdSuggestionsSuggestionIdDismissRoute,
+  }
+
+const ApiDocumentsIdSuggestionsRouteWithChildren =
+  ApiDocumentsIdSuggestionsRoute._addFileChildren(
+    ApiDocumentsIdSuggestionsRouteChildren,
+  )
+
 interface ApiDocumentsIdRouteChildren {
   ApiDocumentsIdCorrespondentRoute: typeof ApiDocumentsIdCorrespondentRoute
   ApiDocumentsIdProcessRoute: typeof ApiDocumentsIdProcessRoute
+  ApiDocumentsIdSuggestionsRoute: typeof ApiDocumentsIdSuggestionsRouteWithChildren
   ApiDocumentsIdTagsRoute: typeof ApiDocumentsIdTagsRoute
 }
 
 const ApiDocumentsIdRouteChildren: ApiDocumentsIdRouteChildren = {
   ApiDocumentsIdCorrespondentRoute: ApiDocumentsIdCorrespondentRoute,
   ApiDocumentsIdProcessRoute: ApiDocumentsIdProcessRoute,
+  ApiDocumentsIdSuggestionsRoute: ApiDocumentsIdSuggestionsRouteWithChildren,
   ApiDocumentsIdTagsRoute: ApiDocumentsIdTagsRoute,
 }
 

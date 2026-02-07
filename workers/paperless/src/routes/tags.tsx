@@ -1,63 +1,25 @@
+import { env } from "cloudflare:workers";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
-import { env } from "cloudflare:workers";
-import { useState, useEffect } from "react";
 import {
-	Tag,
-	Plus,
-	Edit2,
-	Trash2,
-	Check,
-	X,
-	Loader2,
 	ArrowLeft,
+	Check,
+	Edit2,
 	FileText,
+	Loader2,
+	Plus,
+	Tag,
+	Trash2,
+	X,
 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { createDbFromHyperdrive, listTags } from "@/db";
+import { generateColorFromString } from "@/utils/format";
 
 interface TagData {
 	id: string;
 	name: string;
 	color: string | null;
-}
-
-/**
- * Generate a deterministic color from a string.
- * Uses a simple hash to pick a hue, with fixed saturation and lightness for pleasant colors.
- */
-function generateColorFromString(str: string): string {
-	if (!str.trim()) return "#3b82f6";
-
-	// Simple hash function
-	let hash = 0;
-	for (let i = 0; i < str.length; i++) {
-		const char = str.charCodeAt(i);
-		hash = (hash << 5) - hash + char;
-		hash = hash & hash; // Convert to 32-bit integer
-	}
-
-	// Use hash to generate hue (0-360)
-	const hue = Math.abs(hash) % 360;
-	// Fixed saturation and lightness for nice, readable colors
-	const saturation = 65 + (Math.abs(hash >> 8) % 20); // 65-85%
-	const lightness = 45 + (Math.abs(hash >> 16) % 15); // 45-60%
-
-	// Convert HSL to hex
-	const hslToHex = (h: number, s: number, l: number): string => {
-		const sNorm = s / 100;
-		const lNorm = l / 100;
-		const a = sNorm * Math.min(lNorm, 1 - lNorm);
-		const f = (n: number) => {
-			const k = (n + h / 30) % 12;
-			const color = lNorm - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
-			return Math.round(255 * color)
-				.toString(16)
-				.padStart(2, "0");
-		};
-		return `#${f(0)}${f(8)}${f(4)}`;
-	};
-
-	return hslToHex(hue, saturation, lightness);
 }
 
 const getAllTags = createServerFn({ method: "GET" }).handler(async () => {
