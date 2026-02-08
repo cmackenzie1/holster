@@ -1,3 +1,4 @@
+export * from "./comments";
 export * from "./correspondents";
 export * from "./documents";
 export * from "./files";
