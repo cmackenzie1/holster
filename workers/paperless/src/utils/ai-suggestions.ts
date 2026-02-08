@@ -164,10 +164,16 @@ export function matchSuggestions(
 	return suggestions;
 }
 
+export interface GenerateSuggestionsResult {
+	suggestions: AISuggestion[];
+	rawResponse?: string;
+	parseError?: string;
+}
+
 export async function generateSuggestions(
 	ai: Ai,
 	input: GenerateSuggestionsInput,
-): Promise<AISuggestion[]> {
+): Promise<GenerateSuggestionsResult> {
 	const truncatedContent = truncateContent(input.documentContent);
 
 	const userPrompt = `Document title: ${input.documentTitle}
@@ -187,18 +193,34 @@ Existing correspondents: ${input.existingCorrespondents.map((c) => c.name).join(
 		});
 
 		if (!("response" in response) || typeof response.response !== "string") {
-			return [];
+			return {
+				suggestions: [],
+				parseError: "AI returned non-string response",
+			};
 		}
 
-		const parsed = parseAIResponse(response.response);
-		if (!parsed) return [];
+		const raw = response.response;
+		const parsed = parseAIResponse(raw);
+		if (!parsed) {
+			return {
+				suggestions: [],
+				rawResponse: raw.slice(0, 500),
+				parseError: "Failed to parse AI response as valid JSON",
+			};
+		}
 
-		return matchSuggestions(
-			parsed,
-			input.existingTags,
-			input.existingCorrespondents,
-		);
-	} catch {
-		return [];
+		return {
+			suggestions: matchSuggestions(
+				parsed,
+				input.existingTags,
+				input.existingCorrespondents,
+			),
+			rawResponse: raw.slice(0, 500),
+		};
+	} catch (error) {
+		return {
+			suggestions: [],
+			parseError: error instanceof Error ? error.message : "AI request failed",
+		};
 	}
 }
