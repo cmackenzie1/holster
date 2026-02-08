@@ -1,4 +1,5 @@
 export * from "./correspondents";
+export * from "./document-comments";
 export * from "./document-suggestions";
 export * from "./documents";
 export * from "./files";

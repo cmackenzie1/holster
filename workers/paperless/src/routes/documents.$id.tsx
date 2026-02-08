@@ -24,9 +24,11 @@ import {
 	Home,
 	Image,
 	Loader2,
+	MessageSquare,
 	Plus,
 	RefreshCw,
 	Search,
+	Send,
 	Sparkles,
 	Tag,
 	Trash2,
@@ -38,6 +40,8 @@ import {
 	createDbFromHyperdrive,
 	getDocumentById,
 	getNextASN,
+	listActedSuggestionsByDocument,
+	listCommentsByDocument,
 	listCorrespondents,
 	listSuggestionsByDocument,
 	listTags,
@@ -170,19 +174,103 @@ const getDocumentSuggestions = createServerFn({ method: "GET" })
 		return listSuggestionsByDocument(db, BigInt(data.id));
 	});
 
+type TimelineEvent =
+	| { type: "document_created"; timestamp: string }
+	| {
+			type: "comment_added";
+			timestamp: string;
+			commentId: string;
+			content: string;
+	  }
+	| {
+			type: "suggestion_accepted";
+			timestamp: string;
+			suggestionType: string;
+			suggestionName: string;
+	  }
+	| {
+			type: "suggestion_dismissed";
+			timestamp: string;
+			suggestionType: string;
+			suggestionName: string;
+	  };
+
+const getDocumentTimeline = createServerFn({ method: "GET" })
+	.middleware([documentIdMiddleware])
+	.handler(async ({ data }): Promise<TimelineEvent[]> => {
+		const db = createDbFromHyperdrive(env.HYPERDRIVE);
+		const docId = BigInt(data.id);
+
+		const [comments, actedSuggestions, doc] = await Promise.all([
+			listCommentsByDocument(db, docId),
+			listActedSuggestionsByDocument(db, docId),
+			getDocumentById(db, docId),
+		]);
+
+		const events: TimelineEvent[] = [];
+
+		if (doc) {
+			events.push({
+				type: "document_created",
+				timestamp: doc.createdAt,
+			});
+		}
+
+		for (const comment of comments) {
+			events.push({
+				type: "comment_added",
+				timestamp: comment.createdAt,
+				commentId: comment.id,
+				content: comment.content,
+			});
+		}
+
+		for (const suggestion of actedSuggestions) {
+			events.push({
+				type: suggestion.accepted
+					? "suggestion_accepted"
+					: "suggestion_dismissed",
+				timestamp: suggestion.actedAt,
+				suggestionType: suggestion.type,
+				suggestionName: suggestion.name,
+			});
+		}
+
+		events.sort(
+			(a, b) =>
+				new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
+		);
+
+		return events;
+	});
+
 export const Route = createFileRoute("/documents/$id")({
 	component: DocumentView,
 	errorComponent: DocumentErrorPage,
 	loader: async ({ params }) => {
-		const [document, allTags, allCorrespondents, nextASN, suggestions] =
-			await Promise.all([
-				getDocument({ data: { id: params.id } }),
-				getAllTags(),
-				getAllCorrespondents(),
-				fetchNextASN(),
-				getDocumentSuggestions({ data: { id: params.id } }),
-			]);
-		return { document, allTags, allCorrespondents, nextASN, suggestions };
+		const [
+			document,
+			allTags,
+			allCorrespondents,
+			nextASN,
+			suggestions,
+			timeline,
+		] = await Promise.all([
+			getDocument({ data: { id: params.id } }),
+			getAllTags(),
+			getAllCorrespondents(),
+			fetchNextASN(),
+			getDocumentSuggestions({ data: { id: params.id } }),
+			getDocumentTimeline({ data: { id: params.id } }),
+		]);
+		return {
+			document,
+			allTags,
+			allCorrespondents,
+			nextASN,
+			suggestions,
+			timeline,
+		};
 	},
 });
 
@@ -260,6 +348,7 @@ function DocumentView() {
 		allCorrespondents = [],
 		nextASN = 1,
 		suggestions: initialSuggestions = [],
+		timeline: initialTimeline = [],
 	} = Route.useLoaderData() ?? {};
 	const router = useRouter();
 	const navigate = useNavigate();
@@ -289,6 +378,12 @@ function DocumentView() {
 	const [actioningSuggestion, setActioningSuggestion] = useState<string | null>(
 		null,
 	);
+	const [timeline, setTimeline] = useState<TimelineEvent[]>(initialTimeline);
+	const [newComment, setNewComment] = useState("");
+	const [isSubmittingComment, setIsSubmittingComment] = useState(false);
+	const [deletingCommentId, setDeletingCommentId] = useState<string | null>(
+		null,
+	);
 	const primaryFile = doc.files[0];
 
 	const MAX_VISIBLE_TAGS = 5;
@@ -312,6 +407,56 @@ function DocumentView() {
 	useEffect(() => {
 		setSuggestions(initialSuggestions);
 	}, [initialSuggestions]);
+
+	// Sync timeline when loader data changes
+	useEffect(() => {
+		setTimeline(initialTimeline);
+	}, [initialTimeline]);
+
+	const handleAddComment = async () => {
+		const content = newComment.trim();
+		if (!content) return;
+
+		setIsSubmittingComment(true);
+		try {
+			const response = await fetch(`/api/documents/${doc.id}/comments`, {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ content }),
+			});
+
+			if (response.ok) {
+				setNewComment("");
+				router.invalidate();
+			}
+		} catch (error) {
+			console.error("Failed to add comment:", error);
+		} finally {
+			setIsSubmittingComment(false);
+		}
+	};
+
+	const handleDeleteComment = async (commentId: string) => {
+		setDeletingCommentId(commentId);
+		// Optimistic remove
+		setTimeline((prev) =>
+			prev.filter(
+				(e) => !(e.type === "comment_added" && e.commentId === commentId),
+			),
+		);
+		try {
+			await fetch(`/api/documents/${doc.id}/comments/${commentId}`, {
+				method: "DELETE",
+			});
+			router.invalidate();
+		} catch (error) {
+			console.error("Failed to delete comment:", error);
+			// Revert on error
+			setTimeline(initialTimeline);
+		} finally {
+			setDeletingCommentId(null);
+		}
+	};
 
 	const handleSaveTitle = async () => {
 		if (!editTitle.trim() || editTitle.trim() === doc.title) {
@@ -1202,6 +1347,69 @@ function DocumentView() {
 								)}
 							</div>
 						</div>
+
+						{/* Activity Card */}
+						<div className="bg-slate-800 rounded-xl border border-slate-700">
+							<div className="p-4 border-b border-slate-700">
+								<h2 className="text-lg font-semibold text-white flex items-center gap-2">
+									<MessageSquare className="w-5 h-5" />
+									Activity
+									<span className="ml-auto text-xs font-normal text-slate-400">
+										{timeline.length}
+									</span>
+								</h2>
+							</div>
+							<div className="max-h-96 overflow-y-auto">
+								{timeline.length > 0 ? (
+									<div className="p-4 space-y-3">
+										{timeline.map((event, idx) => (
+											<TimelineEntry
+												key={`${event.type}-${event.timestamp}-${idx}`}
+												event={event}
+												deletingCommentId={deletingCommentId}
+												onDeleteComment={handleDeleteComment}
+											/>
+										))}
+									</div>
+								) : (
+									<div className="p-4">
+										<p className="text-slate-500 text-sm">No activity yet</p>
+									</div>
+								)}
+							</div>
+							<div className="p-4 border-t border-slate-700">
+								<div className="flex gap-2">
+									<textarea
+										value={newComment}
+										onChange={(e) => setNewComment(e.target.value)}
+										placeholder="Add a comment..."
+										className="flex-1 px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 resize-none"
+										rows={2}
+										onKeyDown={(e) => {
+											if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+												e.preventDefault();
+												handleAddComment();
+											}
+										}}
+										disabled={isSubmittingComment}
+									/>
+									<button
+										onClick={handleAddComment}
+										disabled={isSubmittingComment || !newComment.trim()}
+										className="self-end p-2 bg-cyan-500 hover:bg-cyan-600 disabled:bg-slate-600 disabled:cursor-not-allowed text-white rounded-lg transition-colors"
+									>
+										{isSubmittingComment ? (
+											<Loader2 className="w-4 h-4 animate-spin" />
+										) : (
+											<Send className="w-4 h-4" />
+										)}
+									</button>
+								</div>
+								<p className="text-xs text-slate-500 mt-1">
+									Ctrl+Enter to submit
+								</p>
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -1477,6 +1685,92 @@ function TagSelectorModal({
 						Save
 					</button>
 				</div>
+			</div>
+		</div>
+	);
+}
+
+function TimelineEntry({
+	event,
+	deletingCommentId,
+	onDeleteComment,
+}: {
+	event: TimelineEvent;
+	deletingCommentId: string | null;
+	onDeleteComment: (id: string) => void;
+}) {
+	const timeStr = new Date(event.timestamp).toLocaleDateString(undefined, {
+		month: "short",
+		day: "numeric",
+		hour: "2-digit",
+		minute: "2-digit",
+	});
+
+	if (event.type === "document_created") {
+		return (
+			<div className="flex items-start gap-2 text-sm">
+				<FileText className="w-4 h-4 text-slate-400 mt-0.5 flex-shrink-0" />
+				<div className="flex-1 min-w-0">
+					<p className="text-slate-400">Document created</p>
+					<p className="text-xs text-slate-500">{timeStr}</p>
+				</div>
+			</div>
+		);
+	}
+
+	if (event.type === "comment_added") {
+		const isDeleting = deletingCommentId === event.commentId;
+		return (
+			<div className="p-3 bg-slate-700/50 rounded-lg border-l-2 border-cyan-500/50">
+				<div className="flex items-start gap-2">
+					<MessageSquare className="w-4 h-4 text-cyan-400 mt-0.5 flex-shrink-0" />
+					<div className="flex-1 min-w-0">
+						<p className="text-white text-sm whitespace-pre-wrap break-words">
+							{event.content}
+						</p>
+						<p className="text-xs text-slate-500 mt-1">{timeStr}</p>
+					</div>
+					<button
+						onClick={() => onDeleteComment(event.commentId)}
+						disabled={isDeleting}
+						className="p-1 hover:bg-red-500/20 rounded transition-colors text-slate-500 hover:text-red-400 disabled:opacity-50 flex-shrink-0"
+						title="Delete comment"
+					>
+						{isDeleting ? (
+							<Loader2 className="w-3.5 h-3.5 animate-spin" />
+						) : (
+							<Trash2 className="w-3.5 h-3.5" />
+						)}
+					</button>
+				</div>
+			</div>
+		);
+	}
+
+	if (event.type === "suggestion_accepted") {
+		return (
+			<div className="flex items-start gap-2 text-sm">
+				<Check className="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
+				<div className="flex-1 min-w-0">
+					<p className="text-slate-400">
+						Accepted {event.suggestionType}:{" "}
+						<span className="text-green-400">{event.suggestionName}</span>
+					</p>
+					<p className="text-xs text-slate-500">{timeStr}</p>
+				</div>
+			</div>
+		);
+	}
+
+	// suggestion_dismissed
+	return (
+		<div className="flex items-start gap-2 text-sm">
+			<X className="w-4 h-4 text-slate-500 mt-0.5 flex-shrink-0" />
+			<div className="flex-1 min-w-0">
+				<p className="text-slate-500">
+					Dismissed {event.suggestionType}: {event.suggestionName}
+				</p>
+				<p className="text-xs text-slate-500">{timeStr}</p>
 			</div>
 		</div>
 	);

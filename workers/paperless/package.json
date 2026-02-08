@@ -5,6 +5,7 @@
 	"scripts": {
 		"dev": "vite dev --port 3000",
 		"build": "vite build",
+		"build:verify": "pnpm run build && wrangler deploy --dry-run",
 		"serve": "vite preview",
 		"test": "vitest run",
 		"deploy": "pnpm run build && VERSION_ID=$(wrangler versions upload --tag $(git rev-parse --short HEAD) --message \"$(git log -1 --pretty=%s)\" 2>&1 | grep 'Worker Version ID:' | awk '{print $4}') && wrangler versions deploy $VERSION_ID@100 --yes",

@@ -11,6 +11,7 @@ import {
 	varchar,
 } from "drizzle-orm/pg-core";
 import { correspondents } from "./correspondents";
+import { documentComments } from "./document-comments";
 import { documentSuggestions } from "./document-suggestions";
 import { files } from "./files";
 import { documentTags } from "./tags";
@@ -63,6 +64,7 @@ export const documentsRelations = relations(documents, ({ one, many }) => ({
 	files: many(files),
 	documentTags: many(documentTags),
 	suggestions: many(documentSuggestions),
+	comments: many(documentComments),
 }));
 
 export type Document = typeof documents.$inferSelect;

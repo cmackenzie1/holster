@@ -1,4 +1,4 @@
-import { and, desc, eq, isNull } from "drizzle-orm";
+import { and, desc, eq, isNotNull, isNull } from "drizzle-orm";
 import type { Database } from "../index";
 import {
 	documentSuggestions,
@@ -89,6 +89,38 @@ export async function dismissSuggestion(
 		.returning({ id: documentSuggestions.id });
 
 	return !!updated;
+}
+
+export interface ActedSuggestionData {
+	id: string;
+	type: "tag" | "correspondent" | "title" | "date";
+	name: string;
+	accepted: boolean;
+	actedAt: string;
+}
+
+export async function listActedSuggestionsByDocument(
+	db: Database,
+	documentId: bigint,
+): Promise<ActedSuggestionData[]> {
+	const results = await db
+		.select()
+		.from(documentSuggestions)
+		.where(
+			and(
+				eq(documentSuggestions.documentId, documentId),
+				isNotNull(documentSuggestions.accepted),
+			),
+		)
+		.orderBy(desc(documentSuggestions.updatedAt));
+
+	return results.map((s) => ({
+		id: s.id.toString(),
+		type: s.type,
+		name: s.name,
+		accepted: s.accepted as boolean,
+		actedAt: s.updatedAt.toISOString(),
+	}));
 }
 
 export async function deletePendingSuggestionsForDocument(
