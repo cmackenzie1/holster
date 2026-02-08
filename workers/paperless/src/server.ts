@@ -373,12 +373,14 @@ export default {
 							.where(eq(documentTags.documentId, docId)),
 					]);
 
-					const aiSuggestions = await generateSuggestions(env.AI, {
+					const aiResult = await generateSuggestions(env.AI, {
 						documentTitle: doc?.title ?? "",
 						documentContent: processed.content,
 						existingTags,
 						existingCorrespondents,
 					});
+
+					const aiSuggestions = aiResult.suggestions;
 
 					// Filter out suggestions for tags/correspondents already on the document
 					const currentTagIds = new Set(
@@ -425,6 +427,8 @@ export default {
 							.length,
 						titles: filtered.filter((s) => s.type === "title").length,
 						dates: filtered.filter((s) => s.type === "date").length,
+						rawResponse: aiResult.rawResponse,
+						parseError: aiResult.parseError,
 					};
 				} catch (aiError) {
 					wideEvent.ai_suggestions = {
