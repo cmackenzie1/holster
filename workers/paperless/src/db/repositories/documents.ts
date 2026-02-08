@@ -44,6 +44,7 @@ export interface DocumentListItem {
 	id: string;
 	title: string;
 	archiveSerialNumber: number | null;
+	documentDate: string | null;
 	dateCreated: string | null;
 	createdAt: string;
 	correspondent: string | null;
@@ -118,7 +119,7 @@ export async function getDocumentById(
 		title: doc.title,
 		content: doc.content,
 		archiveSerialNumber: doc.archiveSerialNumber,
-		documentDate: doc.documentDate?.toISOString() ?? null,
+		documentDate: doc.documentDate ?? null,
 		dateCreated: doc.dateCreated?.toISOString() ?? null,
 		createdAt: doc.createdAt.toISOString(),
 		updatedAt: doc.updatedAt.toISOString(),
@@ -216,6 +217,7 @@ export async function listDocuments(
 			id: documents.id,
 			title: documents.title,
 			archiveSerialNumber: documents.archiveSerialNumber,
+			documentDate: documents.documentDate,
 			dateCreated: documents.dateCreated,
 			createdAt: documents.createdAt,
 			correspondent: {
@@ -326,6 +328,7 @@ export async function listDocuments(
 		id: doc.id.toString(),
 		title: doc.title,
 		archiveSerialNumber: doc.archiveSerialNumber,
+		documentDate: doc.documentDate ?? null,
 		dateCreated: doc.dateCreated?.toISOString() ?? null,
 		createdAt: doc.createdAt.toISOString(),
 		correspondent: doc.correspondent?.name ?? null,
@@ -351,7 +354,7 @@ export async function updateDocument(
 		title?: string;
 		content?: string | null;
 		archiveSerialNumber?: number | null;
-		documentDate?: Date | null;
+		documentDate?: string | null;
 	},
 ): Promise<boolean> {
 	// Check if document exists and is not deleted
@@ -369,7 +372,7 @@ export async function updateDocument(
 		title?: string;
 		content?: string | null;
 		archiveSerialNumber?: number | null;
-		documentDate?: Date | null;
+		documentDate?: string | null;
 	} = {};
 
 	if (updates.title !== undefined) updateData.title = updates.title.trim();

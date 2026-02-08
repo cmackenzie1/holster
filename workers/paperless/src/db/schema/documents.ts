@@ -2,6 +2,7 @@ import { relations, sql } from "drizzle-orm";
 import {
 	bigint,
 	customType,
+	date,
 	index,
 	integer,
 	pgTable,
@@ -30,7 +31,7 @@ export const documents = pgTable(
 		correspondentId: bigint("correspondent_id", {
 			mode: "bigint",
 		}).references(() => correspondents.id),
-		documentDate: timestamp("document_date", { withTimezone: true }),
+		documentDate: date("document_date"),
 		dateCreated: timestamp("date_created", { withTimezone: true })
 			.notNull()
 			.defaultNow(),

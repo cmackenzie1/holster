@@ -77,7 +77,7 @@ export const Route = createFileRoute(
 						});
 					} else if (suggestion.type === "date") {
 						await updateDocument(db, BigInt(params.id), {
-							documentDate: new Date(suggestion.name),
+							documentDate: suggestion.name,
 						});
 					}
 

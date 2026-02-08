@@ -1,5 +1,6 @@
 const MAX_CONTENT_LENGTH = 5000;
 const MIN_CONFIDENCE = 0.5;
+const AI_MODEL = "@cf/meta/llama-3.1-8b-instruct-fast";
 
 export interface AISuggestion {
 	type: "tag" | "correspondent" | "title" | "date";
@@ -41,7 +42,10 @@ Rules:
 
 export function truncateContent(content: string): string {
 	if (content.length <= MAX_CONTENT_LENGTH) return content;
-	return content.slice(0, MAX_CONTENT_LENGTH);
+	const half = Math.floor(MAX_CONTENT_LENGTH / 2);
+	const head = content.slice(0, half);
+	const tail = content.slice(-half);
+	return `${head}\n\n[...]\n\n${tail}`;
 }
 
 export function parseAIResponse(raw: string): AIResponse | null {
@@ -165,6 +169,7 @@ export function matchSuggestions(
 }
 
 export interface GenerateSuggestionsResult {
+	model: string;
 	suggestions: AISuggestion[];
 	rawResponse?: string;
 	parseError?: string;
@@ -185,7 +190,7 @@ Existing tags: ${input.existingTags.map((t) => t.name).join(", ") || "(none)"}
 Existing correspondents: ${input.existingCorrespondents.map((c) => c.name).join(", ") || "(none)"}`;
 
 	try {
-		const response = await ai.run("@cf/meta/llama-3.1-8b-instruct", {
+		const response = await ai.run(AI_MODEL, {
 			messages: [
 				{ role: "system", content: SYSTEM_PROMPT },
 				{ role: "user", content: userPrompt },
@@ -194,6 +199,7 @@ Existing correspondents: ${input.existingCorrespondents.map((c) => c.name).join(
 
 		if (!("response" in response) || typeof response.response !== "string") {
 			return {
+				model: AI_MODEL,
 				suggestions: [],
 				parseError: "AI returned non-string response",
 			};
@@ -203,6 +209,7 @@ Existing correspondents: ${input.existingCorrespondents.map((c) => c.name).join(
 		const parsed = parseAIResponse(raw);
 		if (!parsed) {
 			return {
+				model: AI_MODEL,
 				suggestions: [],
 				rawResponse: raw.slice(0, 500),
 				parseError: "Failed to parse AI response as valid JSON",
@@ -210,6 +217,7 @@ Existing correspondents: ${input.existingCorrespondents.map((c) => c.name).join(
 		}
 
 		return {
+			model: AI_MODEL,
 			suggestions: matchSuggestions(
 				parsed,
 				input.existingTags,
@@ -219,6 +227,7 @@ Existing correspondents: ${input.existingCorrespondents.map((c) => c.name).join(
 		};
 	} catch (error) {
 		return {
+			model: AI_MODEL,
 			suggestions: [],
 			parseError: error instanceof Error ? error.message : "AI request failed",
 		};

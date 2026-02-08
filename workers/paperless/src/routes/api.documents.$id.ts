@@ -82,11 +82,13 @@ export const Route = createFileRoute("/api/documents/$id")({
 
 				try {
 					const body = await request.json();
-					const { title, content, archiveSerialNumber } = body as {
-						title?: string;
-						content?: string | null;
-						archiveSerialNumber?: number | null;
-					};
+					const { title, content, archiveSerialNumber, documentDate } =
+						body as {
+							title?: string;
+							content?: string | null;
+							archiveSerialNumber?: number | null;
+							documentDate?: string | null;
+						};
 
 					// Validate title if provided
 					if (
@@ -99,12 +101,28 @@ export const Route = createFileRoute("/api/documents/$id")({
 						return json({ error: "Title cannot be empty" }, { status: 400 });
 					}
 
+					// Validate documentDate if provided (must be YYYY-MM-DD or null)
+					if (
+						documentDate !== undefined &&
+						documentDate !== null &&
+						!/^\d{4}-\d{2}-\d{2}$/.test(documentDate)
+					) {
+						wideEvent.status_code = 400;
+						wideEvent.outcome = "validation_error";
+						wideEvent.error = { message: "Invalid date format" };
+						return json(
+							{ error: "Invalid date format, expected YYYY-MM-DD" },
+							{ status: 400 },
+						);
+					}
+
 					const db = createDbFromHyperdrive(env.HYPERDRIVE);
 
 					const updated = await updateDocument(db, BigInt(params.id), {
 						title,
 						content,
 						archiveSerialNumber,
+						documentDate,
 					});
 
 					if (!updated) {

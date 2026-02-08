@@ -1,0 +1,1 @@
+ALTER TABLE "documents" ALTER COLUMN "document_date" SET DATA TYPE date;
