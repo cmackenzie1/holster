@@ -57,6 +57,13 @@
 			"when": 1770508023820,
 			"tag": "0007_panoramic_magik",
 			"breakpoints": true
+		},
+		{
+			"idx": 8,
+			"version": "7",
+			"when": 1770513548417,
+			"tag": "0008_nappy_xavin",
+			"breakpoints": true
 		}
 	]
 }

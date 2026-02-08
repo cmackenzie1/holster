@@ -419,6 +419,7 @@ export default {
 					}
 
 					wideEvent.ai_suggestions = {
+						model: aiResult.model,
 						generated: aiSuggestions.length,
 						filtered_out: aiSuggestions.length - filtered.length,
 						stored: filtered.length,

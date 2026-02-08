@@ -64,6 +64,7 @@ interface DocumentData {
 	title: string;
 	content: string | null;
 	archiveSerialNumber: number | null;
+	documentDate: string | null;
 	dateCreated: string | null;
 	createdAt: string;
 	updatedAt: string;
@@ -74,7 +75,7 @@ interface DocumentData {
 
 interface SuggestionItem {
 	id: string;
-	type: "tag" | "correspondent";
+	type: "tag" | "correspondent" | "title" | "date";
 	name: string;
 	confidence: string;
 	tagId: string | null;
@@ -275,6 +276,9 @@ function DocumentView() {
 		doc.archiveSerialNumber?.toString() ?? "",
 	);
 	const [isSavingASN, setIsSavingASN] = useState(false);
+	const [isEditingDate, setIsEditingDate] = useState(false);
+	const [editDate, setEditDate] = useState(doc.documentDate ?? "");
+	const [isSavingDate, setIsSavingDate] = useState(false);
 	const [tagsExpanded, setTagsExpanded] = useState(false);
 	const [contentExpanded, setContentExpanded] = useState(false);
 	const [isProcessing, setIsProcessing] = useState(false);
@@ -298,6 +302,11 @@ function DocumentView() {
 	useEffect(() => {
 		setEditASN(doc.archiveSerialNumber?.toString() ?? "");
 	}, [doc.archiveSerialNumber]);
+
+	// Sync editDate when doc.documentDate changes
+	useEffect(() => {
+		setEditDate(doc.documentDate ?? "");
+	}, [doc.documentDate]);
 
 	// Sync suggestions when loader data changes
 	useEffect(() => {
@@ -373,6 +382,38 @@ function DocumentView() {
 	const handleCancelEditASN = () => {
 		setIsEditingASN(false);
 		setEditASN(doc.archiveSerialNumber?.toString() ?? "");
+	};
+
+	const handleSaveDate = async () => {
+		const newDate = editDate.trim() || null;
+
+		if (newDate === (doc.documentDate ?? null)) {
+			setIsEditingDate(false);
+			return;
+		}
+
+		setIsSavingDate(true);
+		try {
+			const response = await fetch(`/api/documents/${doc.id}`, {
+				method: "PATCH",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ documentDate: newDate }),
+			});
+
+			if (response.ok) {
+				setIsEditingDate(false);
+				router.invalidate();
+			}
+		} catch (error) {
+			console.error("Failed to update document date:", error);
+		} finally {
+			setIsSavingDate(false);
+		}
+	};
+
+	const handleCancelEditDate = () => {
+		setIsEditingDate(false);
+		setEditDate(doc.documentDate ?? "");
 	};
 
 	const handleAssignNextASN = async () => {
@@ -532,7 +573,7 @@ function DocumentView() {
 									</h1>
 									<button
 										onClick={() => setIsEditingTitle(true)}
-										className="p-1.5 opacity-0 group-hover:opacity-100 hover:bg-slate-700 rounded-lg transition-all text-slate-400 hover:text-white"
+										className="p-1.5 hover:bg-slate-700 rounded-lg transition-colors text-slate-400 hover:text-white"
 									>
 										<Edit2 className="w-4 h-4" />
 									</button>
@@ -864,20 +905,70 @@ function DocumentView() {
 								{/* Document Date */}
 								<div className="flex items-start gap-3">
 									<Calendar className="w-5 h-5 text-slate-400 mt-0.5" />
-									<div>
+									<div className="flex-1">
 										<p className="text-sm text-slate-400">Document Date</p>
-										<p className="text-white">
-											{doc.dateCreated
-												? new Date(doc.dateCreated).toLocaleDateString(
-														undefined,
-														{
-															year: "numeric",
-															month: "long",
-															day: "numeric",
-														},
-													)
-												: "Not set"}
-										</p>
+										{isEditingDate ? (
+											<div className="flex items-center gap-2 mt-1">
+												<input
+													type="date"
+													value={editDate}
+													onChange={(e) => setEditDate(e.target.value)}
+													className="px-2 py-1 bg-slate-700 border border-slate-600 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 [color-scheme:dark]"
+													onKeyDown={(e) => {
+														if (e.key === "Enter") handleSaveDate();
+														if (e.key === "Escape") handleCancelEditDate();
+													}}
+													disabled={isSavingDate}
+												/>
+												<button
+													type="button"
+													onClick={handleSaveDate}
+													disabled={isSavingDate}
+													className="p-1 hover:bg-slate-700 rounded text-green-400 hover:text-green-300 disabled:opacity-50"
+												>
+													<Check className="w-4 h-4" />
+												</button>
+												<button
+													type="button"
+													onClick={handleCancelEditDate}
+													disabled={isSavingDate}
+													className="p-1 hover:bg-slate-700 rounded text-slate-400 hover:text-white disabled:opacity-50"
+												>
+													<X className="w-4 h-4" />
+												</button>
+												{doc.documentDate && (
+													<button
+														type="button"
+														onClick={() => setEditDate("")}
+														disabled={isSavingDate}
+														className="px-2 py-1 text-xs border border-red-500/50 text-red-400 hover:bg-red-500/20 rounded transition-colors disabled:opacity-50"
+													>
+														Clear
+													</button>
+												)}
+											</div>
+										) : (
+											<div className="flex items-center gap-2 group/date">
+												<p className="text-white">
+													{doc.documentDate
+														? new Date(
+																`${doc.documentDate}T00:00:00`,
+															).toLocaleDateString(undefined, {
+																year: "numeric",
+																month: "long",
+																day: "numeric",
+															})
+														: "Not set"}
+												</p>
+												<button
+													type="button"
+													onClick={() => setIsEditingDate(true)}
+													className="p-1.5 hover:bg-slate-700 rounded-lg transition-colors text-slate-400 hover:text-white"
+												>
+													<Edit2 className="w-4 h-4" />
+												</button>
+											</div>
+										)}
 									</div>
 								</div>
 

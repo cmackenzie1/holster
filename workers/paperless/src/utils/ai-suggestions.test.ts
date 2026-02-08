@@ -11,10 +11,14 @@ describe("truncateContent", () => {
 		expect(truncateContent(content)).toBe(content);
 	});
 
-	it("truncates content exceeding 5000 chars", () => {
-		const content = "a".repeat(6000);
+	it("truncates content exceeding 5000 chars using head + tail", () => {
+		const content = `${"a".repeat(3000)}${"b".repeat(3000)}`;
 		const result = truncateContent(content);
-		expect(result.length).toBe(5000);
+		expect(result).toContain("[...]");
+		expect(result.startsWith("a")).toBe(true);
+		expect(result.endsWith("b")).toBe(true);
+		// 2500 head + "\n\n[...]\n\n" (9 chars) + 2500 tail
+		expect(result.length).toBe(5009);
 	});
 
 	it("returns exact 5000 chars unchanged", () => {

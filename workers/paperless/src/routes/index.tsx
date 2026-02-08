@@ -58,6 +58,7 @@ interface DocumentRow {
 	id: string;
 	title: string;
 	archiveSerialNumber: number | null;
+	documentDate: string | null;
 	dateCreated: string | null;
 	createdAt: string;
 	correspondent: string | null;
@@ -431,7 +432,7 @@ function Dashboard() {
 					);
 				},
 			}),
-			columnHelper.accessor("dateCreated", {
+			columnHelper.accessor("documentDate", {
 				header: () => (
 					<div className="flex items-center gap-2">
 						<Calendar className="w-4 h-4" />
@@ -439,11 +440,15 @@ function Dashboard() {
 					</div>
 				),
 				cell: (info) => {
-					const value = info.getValue();
+					const docDate = info.getValue();
+					const fallback = info.row.original.dateCreated;
+					const display = docDate
+						? new Date(`${docDate}T00:00:00`).toLocaleDateString()
+						: fallback
+							? new Date(fallback).toLocaleDateString()
+							: null;
 					return (
-						<span className="text-slate-300 text-sm">
-							{value ? new Date(value).toLocaleDateString() : "-"}
-						</span>
+						<span className="text-slate-300 text-sm">{display ?? "-"}</span>
 					);
 				},
 			}),
