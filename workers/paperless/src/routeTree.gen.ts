@@ -34,6 +34,8 @@ import { Route as ApiDocumentsIdTagsRouteImport } from './routes/api.documents.$
 import { Route as ApiDocumentsIdSuggestionsRouteImport } from './routes/api.documents.$id.suggestions'
 import { Route as ApiDocumentsIdProcessRouteImport } from './routes/api.documents.$id.process'
 import { Route as ApiDocumentsIdCorrespondentRouteImport } from './routes/api.documents.$id.correspondent'
+import { Route as ApiDocumentsIdCommentsRouteImport } from './routes/api.documents.$id.comments'
+import { Route as ApiDocumentsIdCommentsCommentIdRouteImport } from './routes/api.documents.$id.comments.$commentId'
 import { Route as ApiDocumentsIdSuggestionsSuggestionIdDismissRouteImport } from './routes/api.documents.$id.suggestions.$suggestionId.dismiss'
 import { Route as ApiDocumentsIdSuggestionsSuggestionIdAcceptRouteImport } from './routes/api.documents.$id.suggestions.$suggestionId.accept'
 
@@ -164,6 +166,17 @@ const ApiDocumentsIdCorrespondentRoute =
     path: '/correspondent',
     getParentRoute: () => ApiDocumentsIdRoute,
   } as any)
+const ApiDocumentsIdCommentsRoute = ApiDocumentsIdCommentsRouteImport.update({
+  id: '/comments',
+  path: '/comments',
+  getParentRoute: () => ApiDocumentsIdRoute,
+} as any)
+const ApiDocumentsIdCommentsCommentIdRoute =
+  ApiDocumentsIdCommentsCommentIdRouteImport.update({
+    id: '/$commentId',
+    path: '/$commentId',
+    getParentRoute: () => ApiDocumentsIdCommentsRoute,
+  } as any)
 const ApiDocumentsIdSuggestionsSuggestionIdDismissRoute =
   ApiDocumentsIdSuggestionsSuggestionIdDismissRouteImport.update({
     id: '/$suggestionId/dismiss',
@@ -195,6 +208,7 @@ export interface FileRoutesByFullPath {
   '/demo/api/names': typeof DemoApiNamesRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
+  '/api/documents/$id/comments': typeof ApiDocumentsIdCommentsRouteWithChildren
   '/api/documents/$id/correspondent': typeof ApiDocumentsIdCorrespondentRoute
   '/api/documents/$id/process': typeof ApiDocumentsIdProcessRoute
   '/api/documents/$id/suggestions': typeof ApiDocumentsIdSuggestionsRouteWithChildren
@@ -203,6 +217,7 @@ export interface FileRoutesByFullPath {
   '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
   '/demo/start/ssr/spa-mode': typeof DemoStartSsrSpaModeRoute
   '/demo/start/ssr/': typeof DemoStartSsrIndexRoute
+  '/api/documents/$id/comments/$commentId': typeof ApiDocumentsIdCommentsCommentIdRoute
   '/api/documents/$id/suggestions/$suggestionId/accept': typeof ApiDocumentsIdSuggestionsSuggestionIdAcceptRoute
   '/api/documents/$id/suggestions/$suggestionId/dismiss': typeof ApiDocumentsIdSuggestionsSuggestionIdDismissRoute
 }
@@ -224,6 +239,7 @@ export interface FileRoutesByTo {
   '/demo/api/names': typeof DemoApiNamesRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
+  '/api/documents/$id/comments': typeof ApiDocumentsIdCommentsRouteWithChildren
   '/api/documents/$id/correspondent': typeof ApiDocumentsIdCorrespondentRoute
   '/api/documents/$id/process': typeof ApiDocumentsIdProcessRoute
   '/api/documents/$id/suggestions': typeof ApiDocumentsIdSuggestionsRouteWithChildren
@@ -232,6 +248,7 @@ export interface FileRoutesByTo {
   '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
   '/demo/start/ssr/spa-mode': typeof DemoStartSsrSpaModeRoute
   '/demo/start/ssr': typeof DemoStartSsrIndexRoute
+  '/api/documents/$id/comments/$commentId': typeof ApiDocumentsIdCommentsCommentIdRoute
   '/api/documents/$id/suggestions/$suggestionId/accept': typeof ApiDocumentsIdSuggestionsSuggestionIdAcceptRoute
   '/api/documents/$id/suggestions/$suggestionId/dismiss': typeof ApiDocumentsIdSuggestionsSuggestionIdDismissRoute
 }
@@ -254,6 +271,7 @@ export interface FileRoutesById {
   '/demo/api/names': typeof DemoApiNamesRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
+  '/api/documents/$id/comments': typeof ApiDocumentsIdCommentsRouteWithChildren
   '/api/documents/$id/correspondent': typeof ApiDocumentsIdCorrespondentRoute
   '/api/documents/$id/process': typeof ApiDocumentsIdProcessRoute
   '/api/documents/$id/suggestions': typeof ApiDocumentsIdSuggestionsRouteWithChildren
@@ -262,6 +280,7 @@ export interface FileRoutesById {
   '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
   '/demo/start/ssr/spa-mode': typeof DemoStartSsrSpaModeRoute
   '/demo/start/ssr/': typeof DemoStartSsrIndexRoute
+  '/api/documents/$id/comments/$commentId': typeof ApiDocumentsIdCommentsCommentIdRoute
   '/api/documents/$id/suggestions/$suggestionId/accept': typeof ApiDocumentsIdSuggestionsSuggestionIdAcceptRoute
   '/api/documents/$id/suggestions/$suggestionId/dismiss': typeof ApiDocumentsIdSuggestionsSuggestionIdDismissRoute
 }
@@ -285,6 +304,7 @@ export interface FileRouteTypes {
     | '/demo/api/names'
     | '/demo/start/api-request'
     | '/demo/start/server-funcs'
+    | '/api/documents/$id/comments'
     | '/api/documents/$id/correspondent'
     | '/api/documents/$id/process'
     | '/api/documents/$id/suggestions'
@@ -293,6 +313,7 @@ export interface FileRouteTypes {
     | '/demo/start/ssr/full-ssr'
     | '/demo/start/ssr/spa-mode'
     | '/demo/start/ssr/'
+    | '/api/documents/$id/comments/$commentId'
     | '/api/documents/$id/suggestions/$suggestionId/accept'
     | '/api/documents/$id/suggestions/$suggestionId/dismiss'
   fileRoutesByTo: FileRoutesByTo
@@ -314,6 +335,7 @@ export interface FileRouteTypes {
     | '/demo/api/names'
     | '/demo/start/api-request'
     | '/demo/start/server-funcs'
+    | '/api/documents/$id/comments'
     | '/api/documents/$id/correspondent'
     | '/api/documents/$id/process'
     | '/api/documents/$id/suggestions'
@@ -322,6 +344,7 @@ export interface FileRouteTypes {
     | '/demo/start/ssr/full-ssr'
     | '/demo/start/ssr/spa-mode'
     | '/demo/start/ssr'
+    | '/api/documents/$id/comments/$commentId'
     | '/api/documents/$id/suggestions/$suggestionId/accept'
     | '/api/documents/$id/suggestions/$suggestionId/dismiss'
   id:
@@ -343,6 +366,7 @@ export interface FileRouteTypes {
     | '/demo/api/names'
     | '/demo/start/api-request'
     | '/demo/start/server-funcs'
+    | '/api/documents/$id/comments'
     | '/api/documents/$id/correspondent'
     | '/api/documents/$id/process'
     | '/api/documents/$id/suggestions'
@@ -351,6 +375,7 @@ export interface FileRouteTypes {
     | '/demo/start/ssr/full-ssr'
     | '/demo/start/ssr/spa-mode'
     | '/demo/start/ssr/'
+    | '/api/documents/$id/comments/$commentId'
     | '/api/documents/$id/suggestions/$suggestionId/accept'
     | '/api/documents/$id/suggestions/$suggestionId/dismiss'
   fileRoutesById: FileRoutesById
@@ -553,6 +578,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiDocumentsIdCorrespondentRouteImport
       parentRoute: typeof ApiDocumentsIdRoute
     }
+    '/api/documents/$id/comments': {
+      id: '/api/documents/$id/comments'
+      path: '/comments'
+      fullPath: '/api/documents/$id/comments'
+      preLoaderRoute: typeof ApiDocumentsIdCommentsRouteImport
+      parentRoute: typeof ApiDocumentsIdRoute
+    }
+    '/api/documents/$id/comments/$commentId': {
+      id: '/api/documents/$id/comments/$commentId'
+      path: '/$commentId'
+      fullPath: '/api/documents/$id/comments/$commentId'
+      preLoaderRoute: typeof ApiDocumentsIdCommentsCommentIdRouteImport
+      parentRoute: typeof ApiDocumentsIdCommentsRoute
+    }
     '/api/documents/$id/suggestions/$suggestionId/dismiss': {
       id: '/api/documents/$id/suggestions/$suggestionId/dismiss'
       path: '/$suggestionId/dismiss'
@@ -604,6 +643,20 @@ const ApiTrashRouteWithChildren = ApiTrashRoute._addFileChildren(
   ApiTrashRouteChildren,
 )
 
+interface ApiDocumentsIdCommentsRouteChildren {
+  ApiDocumentsIdCommentsCommentIdRoute: typeof ApiDocumentsIdCommentsCommentIdRoute
+}
+
+const ApiDocumentsIdCommentsRouteChildren: ApiDocumentsIdCommentsRouteChildren =
+  {
+    ApiDocumentsIdCommentsCommentIdRoute: ApiDocumentsIdCommentsCommentIdRoute,
+  }
+
+const ApiDocumentsIdCommentsRouteWithChildren =
+  ApiDocumentsIdCommentsRoute._addFileChildren(
+    ApiDocumentsIdCommentsRouteChildren,
+  )
+
 interface ApiDocumentsIdSuggestionsRouteChildren {
   ApiDocumentsIdSuggestionsSuggestionIdAcceptRoute: typeof ApiDocumentsIdSuggestionsSuggestionIdAcceptRoute
   ApiDocumentsIdSuggestionsSuggestionIdDismissRoute: typeof ApiDocumentsIdSuggestionsSuggestionIdDismissRoute
@@ -623,6 +676,7 @@ const ApiDocumentsIdSuggestionsRouteWithChildren =
   )
 
 interface ApiDocumentsIdRouteChildren {
+  ApiDocumentsIdCommentsRoute: typeof ApiDocumentsIdCommentsRouteWithChildren
   ApiDocumentsIdCorrespondentRoute: typeof ApiDocumentsIdCorrespondentRoute
   ApiDocumentsIdProcessRoute: typeof ApiDocumentsIdProcessRoute
   ApiDocumentsIdSuggestionsRoute: typeof ApiDocumentsIdSuggestionsRouteWithChildren
@@ -630,6 +684,7 @@ interface ApiDocumentsIdRouteChildren {
 }
 
 const ApiDocumentsIdRouteChildren: ApiDocumentsIdRouteChildren = {
+  ApiDocumentsIdCommentsRoute: ApiDocumentsIdCommentsRouteWithChildren,
   ApiDocumentsIdCorrespondentRoute: ApiDocumentsIdCorrespondentRoute,
   ApiDocumentsIdProcessRoute: ApiDocumentsIdProcessRoute,
   ApiDocumentsIdSuggestionsRoute: ApiDocumentsIdSuggestionsRouteWithChildren,
