@@ -216,6 +216,19 @@ interface UploadResponse {
 	documentId?: string;
 	title?: string;
 	error?: string;
+	existingDocumentId?: string;
+	existingTitle?: string;
+}
+
+class UploadError extends Error {
+	existingDocumentId?: string;
+	existingTitle?: string;
+
+	constructor(message: string, response?: UploadResponse) {
+		super(message);
+		this.existingDocumentId = response?.existingDocumentId;
+		this.existingTitle = response?.existingTitle;
+	}
 }
 
 async function uploadDocument(file: File): Promise<UploadResponse> {
@@ -243,7 +256,7 @@ async function uploadDocument(file: File): Promise<UploadResponse> {
 	const result: UploadResponse = await response.json();
 
 	if (!response.ok) {
-		throw new Error(result.error || "Upload failed");
+		throw new UploadError(result.error || "Upload failed", result);
 	}
 
 	return result;
@@ -567,6 +580,14 @@ function Dashboard() {
 										status: "error" as const,
 										error:
 											error instanceof Error ? error.message : "Upload failed",
+										existingDocumentId:
+											error instanceof UploadError
+												? error.existingDocumentId
+												: undefined,
+										existingTitle:
+											error instanceof UploadError
+												? error.existingTitle
+												: undefined,
 									}
 								: u,
 						),
@@ -705,9 +726,30 @@ function Dashboard() {
 										{upload.status === "error" && (
 											<AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0" />
 										)}
-										<span className="text-white truncate flex-1">
-											{upload.file.name}
-										</span>
+										<div className="flex-1 min-w-0">
+											<span className="text-white truncate block">
+												{upload.file.name}
+											</span>
+											{upload.status === "error" && (
+												<span className="text-red-400 text-xs">
+													{upload.existingDocumentId ? (
+														<>
+															Duplicate of{" "}
+															<a
+																href={`/documents/${upload.existingDocumentId}`}
+																className="underline hover:text-red-300"
+																onClick={(e) => e.stopPropagation()}
+															>
+																{upload.existingTitle ||
+																	`#${upload.existingDocumentId}`}
+															</a>
+														</>
+													) : (
+														upload.error
+													)}
+												</span>
+											)}
+										</div>
 									</div>
 								))}
 								{quickUploads.every((u) => u.status !== "uploading") && (
@@ -1232,6 +1274,8 @@ interface FileUploadState {
 	file: File;
 	status: UploadStatus;
 	error?: string;
+	existingDocumentId?: string;
+	existingTitle?: string;
 }
 
 function UploadModal({
@@ -1283,6 +1327,14 @@ function UploadModal({
 									status: "error" as const,
 									error:
 										error instanceof Error ? error.message : "Upload failed",
+									existingDocumentId:
+										error instanceof UploadError
+											? error.existingDocumentId
+											: undefined,
+									existingTitle:
+										error instanceof UploadError
+											? error.existingTitle
+											: undefined,
 								}
 							: u,
 					),
@@ -1388,6 +1440,24 @@ function UploadModal({
 										<p className="text-slate-400 text-xs">
 											{formatFileSize(upload.file.size)}
 										</p>
+										{upload.status === "error" && (
+											<p className="text-red-400 text-xs mt-1">
+												{upload.existingDocumentId ? (
+													<>
+														Duplicate of{" "}
+														<a
+															href={`/documents/${upload.existingDocumentId}`}
+															className="underline hover:text-red-300"
+														>
+															{upload.existingTitle ||
+																`#${upload.existingDocumentId}`}
+														</a>
+													</>
+												) : (
+													upload.error
+												)}
+											</p>
+										)}
 									</div>
 									<div className="flex-shrink-0">
 										{upload.status === "uploading" && (
@@ -1397,9 +1467,7 @@ function UploadModal({
 											<CheckCircle className="w-5 h-5 text-green-400" />
 										)}
 										{upload.status === "error" && (
-											<span title={upload.error}>
-												<AlertCircle className="w-5 h-5 text-red-400" />
-											</span>
+											<AlertCircle className="w-5 h-5 text-red-400" />
 										)}
 									</div>
 								</div>
