@@ -6,6 +6,6 @@ catalog:
   "wrangler": "^4.63.0"
   "@cloudflare/vitest-pool-workers": "^0.12.10"
   "@cloudflare/workers-types": "^4.20260207.0"
-  "vitest": "~3.2.4"
+  "vitest": "~4.0.18"
   "turbo": "^2.8.3"
   "typescript": "^5.9.3"
