@@ -64,6 +64,20 @@
 			"when": 1770513548417,
 			"tag": "0008_nappy_xavin",
 			"breakpoints": true
+		},
+		{
+			"idx": 9,
+			"version": "7",
+			"when": 1770586025304,
+			"tag": "0009_nappy_paper_doll",
+			"breakpoints": true
+		},
+		{
+			"idx": 10,
+			"version": "7",
+			"when": 1770693444614,
+			"tag": "0010_special_chamber",
+			"breakpoints": true
 		}
 	]
 }

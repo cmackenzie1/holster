@@ -6,6 +6,7 @@ import {
 	Check,
 	Edit2,
 	FileText,
+	Info,
 	Loader2,
 	Plus,
 	Tag,
@@ -184,6 +185,21 @@ function TagsPage() {
 								</p>
 							</div>
 						</div>
+					</div>
+				</div>
+
+				{/* Info Box */}
+				<div className="flex gap-3 p-4 bg-slate-700/30 border border-slate-700 rounded-xl mb-6">
+					<Info className="w-5 h-5 text-cyan-400 flex-shrink-0 mt-0.5" />
+					<div className="text-sm text-slate-300">
+						<p>
+							<span className="text-white font-medium">Tags</span> are labels to
+							classify and organize documents. A document can have multiple
+							tags.
+						</p>
+						<p className="text-slate-400 mt-1">
+							Examples: Important, Tax Deductible, Needs Review, 2025, Warranty.
+						</p>
 					</div>
 				</div>
 

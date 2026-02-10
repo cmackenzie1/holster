@@ -1,6 +1,7 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import {
 	FileText,
+	FolderOpen,
 	Home,
 	Menu,
 	Search,
@@ -152,6 +153,19 @@ function Sidebar({
 					>
 						<Users size={20} />
 						<span className="font-medium">Correspondents</span>
+					</Link>
+
+					<Link
+						to="/categories"
+						onClick={onClose}
+						className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-800 transition-colors text-slate-300 hover:text-white"
+						activeProps={{
+							className:
+								"flex items-center gap-3 px-3 py-2.5 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-colors text-white",
+						}}
+					>
+						<FolderOpen size={20} />
+						<span className="font-medium">Categories</span>
 					</Link>
 
 					<Link

@@ -10,6 +10,7 @@ import {
 	timestamp,
 	varchar,
 } from "drizzle-orm/pg-core";
+import { categories } from "./categories";
 import { correspondents } from "./correspondents";
 import { documentComments } from "./document-comments";
 import { documentSuggestions } from "./document-suggestions";
@@ -32,6 +33,9 @@ export const documents = pgTable(
 		correspondentId: bigint("correspondent_id", {
 			mode: "bigint",
 		}).references(() => correspondents.id),
+		categoryId: bigint("category_id", {
+			mode: "bigint",
+		}).references(() => categories.id),
 		documentDate: date("document_date"),
 		dateCreated: timestamp("date_created", { withTimezone: true })
 			.notNull()
@@ -53,6 +57,7 @@ export const documents = pgTable(
 		index("documents_deleted_at_idx").on(table.deletedAt),
 		index("documents_created_at_idx").on(table.createdAt),
 		index("documents_correspondent_id_idx").on(table.correspondentId),
+		index("documents_category_id_idx").on(table.categoryId),
 	],
 );
 
@@ -60,6 +65,10 @@ export const documentsRelations = relations(documents, ({ one, many }) => ({
 	correspondent: one(correspondents, {
 		fields: [documents.correspondentId],
 		references: [correspondents.id],
+	}),
+	category: one(categories, {
+		fields: [documents.categoryId],
+		references: [categories.id],
 	}),
 	files: many(files),
 	documentTags: many(documentTags),

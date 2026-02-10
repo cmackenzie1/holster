@@ -5,155 +5,161 @@ import {
 	ArrowLeft,
 	Check,
 	Edit2,
-	FileText,
+	FolderOpen,
 	Info,
 	Loader2,
 	Plus,
 	Trash2,
-	User,
-	Users,
 	X,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { createDbFromHyperdrive, listCorrespondents } from "@/db";
+import { createDbFromHyperdrive, listCategories } from "@/db";
+import { generateColorFromString } from "@/utils/format";
 
-interface CorrespondentData {
+interface CategoryData {
 	id: string;
 	name: string;
+	color: string | null;
 }
 
-const getAllCorrespondents = createServerFn({ method: "GET" }).handler(
-	async () => {
-		const startTime = Date.now();
-		const wideEvent: Record<string, unknown> = {
-			function: "getAllCorrespondents",
-			timestamp: new Date().toISOString(),
+const getAllCategories = createServerFn({ method: "GET" }).handler(async () => {
+	const startTime = Date.now();
+	const wideEvent: Record<string, unknown> = {
+		function: "getAllCategories",
+		timestamp: new Date().toISOString(),
+	};
+
+	try {
+		const db = createDbFromHyperdrive(env.HYPERDRIVE);
+		const results = await listCategories(db);
+
+		wideEvent.categories_count = results.length;
+		wideEvent.outcome = "success";
+
+		return results;
+	} catch (error) {
+		wideEvent.outcome = "error";
+		wideEvent.error = {
+			message: error instanceof Error ? error.message : String(error),
+			type: error instanceof Error ? error.name : "UnknownError",
 		};
+		throw error;
+	} finally {
+		wideEvent.duration_ms = Date.now() - startTime;
+		console.log(JSON.stringify(wideEvent));
+	}
+});
 
-		try {
-			const db = createDbFromHyperdrive(env.HYPERDRIVE);
-			const results = await listCorrespondents(db);
-
-			wideEvent.correspondents_count = results.length;
-			wideEvent.outcome = "success";
-
-			return results;
-		} catch (error) {
-			wideEvent.outcome = "error";
-			wideEvent.error = {
-				message: error instanceof Error ? error.message : String(error),
-				type: error instanceof Error ? error.name : "UnknownError",
-			};
-			throw error;
-		} finally {
-			wideEvent.duration_ms = Date.now() - startTime;
-			console.log(JSON.stringify(wideEvent));
-		}
-	},
-);
-
-export const Route = createFileRoute("/correspondents")({
-	component: CorrespondentsPage,
+export const Route = createFileRoute("/categories")({
+	component: CategoriesPage,
 	loader: async () => {
-		const correspondents = await getAllCorrespondents();
-		return { correspondents };
+		const categories = await getAllCategories();
+		return { categories };
 	},
 });
 
-function CorrespondentsPage() {
-	const { correspondents: initialCorrespondents = [] } =
-		Route.useLoaderData() ?? {};
-	const [correspondents, setCorrespondents] = useState<CorrespondentData[]>(
-		initialCorrespondents,
-	);
+function CategoriesPage() {
+	const { categories: initialCategories = [] } = Route.useLoaderData() ?? {};
+	const [categories, setCategories] =
+		useState<CategoryData[]>(initialCategories);
 	const [editingId, setEditingId] = useState<string | null>(null);
 	const [editName, setEditName] = useState("");
+	const [editColor, setEditColor] = useState("");
 	const [newName, setNewName] = useState("");
+	const [newColor, setNewColor] = useState("#3b82f6");
 	const [isCreating, setIsCreating] = useState(false);
 	const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 	const [isDeleting, setIsDeleting] = useState(false);
 
-	// Sync correspondents when loader data changes
+	// Sync categories when loader data changes
 	useEffect(() => {
-		setCorrespondents(initialCorrespondents ?? []);
-	}, [initialCorrespondents]);
+		setCategories(initialCategories ?? []);
+	}, [initialCategories]);
 
-	const fetchCorrespondents = async () => {
+	// Auto-generate color when name changes
+	useEffect(() => {
+		setNewColor(generateColorFromString(newName));
+	}, [newName]);
+
+	const fetchCategories = async () => {
 		try {
-			const response = await fetch("/api/correspondents");
+			const response = await fetch("/api/categories");
 			const data = (await response.json()) as {
-				correspondents?: CorrespondentData[];
+				categories?: CategoryData[];
 			};
-			setCorrespondents(data.correspondents || []);
+			setCategories(data.categories || []);
 		} catch (error) {
-			console.error("Failed to fetch correspondents:", error);
+			console.error("Failed to fetch categories:", error);
 		}
 	};
 
-	const startEditing = (correspondent: CorrespondentData) => {
-		setEditingId(correspondent.id);
-		setEditName(correspondent.name);
+	const startEditing = (category: CategoryData) => {
+		setEditingId(category.id);
+		setEditName(category.name);
+		setEditColor(category.color || "#3b82f6");
 	};
 
 	const cancelEditing = () => {
 		setEditingId(null);
 		setEditName("");
+		setEditColor("");
 	};
 
 	const saveEdit = async () => {
 		if (!editingId || !editName.trim()) return;
 
 		try {
-			const response = await fetch(`/api/correspondents/${editingId}`, {
+			const response = await fetch(`/api/categories/${editingId}`, {
 				method: "PATCH",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ name: editName.trim() }),
+				body: JSON.stringify({ name: editName.trim(), color: editColor }),
 			});
 
 			if (response.ok) {
-				await fetchCorrespondents();
+				await fetchCategories();
 				cancelEditing();
 			}
 		} catch (error) {
-			console.error("Failed to update correspondent:", error);
+			console.error("Failed to update category:", error);
 		}
 	};
 
-	const createCorrespondent = async () => {
+	const createCategory = async () => {
 		if (!newName.trim()) return;
 
 		setIsCreating(true);
 		try {
-			const response = await fetch("/api/correspondents", {
+			const response = await fetch("/api/categories", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ name: newName.trim() }),
+				body: JSON.stringify({ name: newName.trim(), color: newColor }),
 			});
 
 			if (response.ok) {
-				await fetchCorrespondents();
+				await fetchCategories();
 				setNewName("");
+				setNewColor("#3b82f6");
 			}
 		} catch (error) {
-			console.error("Failed to create correspondent:", error);
+			console.error("Failed to create category:", error);
 		} finally {
 			setIsCreating(false);
 		}
 	};
 
-	const deleteCorrespondent = async (id: string) => {
+	const deleteCategory = async (id: string) => {
 		setIsDeleting(true);
 		try {
-			const response = await fetch(`/api/correspondents/${id}`, {
+			const response = await fetch(`/api/categories/${id}`, {
 				method: "DELETE",
 			});
 
 			if (response.ok) {
-				await fetchCorrespondents();
+				await fetchCategories();
 				setDeleteConfirmId(null);
 			}
 		} catch (error) {
-			console.error("Failed to delete correspondent:", error);
+			console.error("Failed to delete category:", error);
 		} finally {
 			setIsDeleting(false);
 		}
@@ -173,14 +179,12 @@ function CorrespondentsPage() {
 					</Link>
 					<div className="flex items-center justify-between">
 						<div className="flex items-center gap-3">
-							<Users className="w-8 h-8 text-cyan-400" />
+							<FolderOpen className="w-8 h-8 text-cyan-400" />
 							<div>
-								<h1 className="text-2xl font-bold text-white">
-									Correspondents
-								</h1>
+								<h1 className="text-2xl font-bold text-white">Categories</h1>
 								<p className="text-slate-400">
-									{correspondents.length} correspondent
-									{correspondents.length !== 1 ? "s" : ""}
+									{categories.length} categor
+									{categories.length !== 1 ? "ies" : "y"}
 								</p>
 							</div>
 						</div>
@@ -192,36 +196,41 @@ function CorrespondentsPage() {
 					<Info className="w-5 h-5 text-cyan-400 flex-shrink-0 mt-0.5" />
 					<div className="text-sm text-slate-300">
 						<p>
-							A <span className="text-white font-medium">correspondent</span> is
-							who sent or is associated with a document. Each document can have
-							one correspondent.
+							A <span className="text-white font-medium">category</span> is a
+							broad grouping for a document. Each document can belong to one
+							category.
 						</p>
 						<p className="text-slate-400 mt-1">
-							Examples: Your bank, the tax office, an insurance company, a
-							doctor's office.
+							Examples: Bills, Tax Year 2025, Medical Records, Contracts,
+							Receipts.
 						</p>
 					</div>
 				</div>
 
-				{/* Create New Correspondent */}
+				{/* Create New Category */}
 				<div className="bg-slate-800 rounded-xl border border-slate-700 p-4 mb-6">
 					<h2 className="text-lg font-semibold text-white mb-4">
-						Add New Correspondent
+						Create New Category
 					</h2>
 					<div className="flex items-center gap-3">
-						<User className="w-6 h-6 text-slate-400 flex-shrink-0" />
+						<input
+							type="color"
+							value={newColor}
+							onChange={(e) => setNewColor(e.target.value)}
+							className="w-12 h-12 rounded-lg cursor-pointer bg-transparent border-0"
+						/>
 						<input
 							type="text"
 							value={newName}
 							onChange={(e) => setNewName(e.target.value)}
-							placeholder="Correspondent name..."
+							placeholder="Category name..."
 							className="flex-1 px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"
 							onKeyDown={(e) => {
-								if (e.key === "Enter") createCorrespondent();
+								if (e.key === "Enter") createCategory();
 							}}
 						/>
 						<button
-							onClick={createCorrespondent}
+							onClick={createCategory}
 							disabled={!newName.trim() || isCreating}
 							className="flex items-center gap-2 px-6 py-3 bg-cyan-500 hover:bg-cyan-600 disabled:bg-slate-600 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors"
 						>
@@ -230,36 +239,39 @@ function CorrespondentsPage() {
 							) : (
 								<Plus className="w-5 h-5" />
 							)}
-							Add
+							Create
 						</button>
 					</div>
 				</div>
 
-				{/* Correspondents List */}
+				{/* Categories List */}
 				<div className="bg-slate-800 rounded-xl border border-slate-700">
 					<div className="p-4 border-b border-slate-700">
-						<h2 className="text-lg font-semibold text-white">
-							All Correspondents
-						</h2>
+						<h2 className="text-lg font-semibold text-white">All Categories</h2>
 					</div>
 
-					{correspondents.length === 0 ? (
+					{categories.length === 0 ? (
 						<div className="p-8 text-center">
-							<Users className="w-12 h-12 text-slate-600 mx-auto mb-4" />
+							<FolderOpen className="w-12 h-12 text-slate-600 mx-auto mb-4" />
 							<p className="text-slate-400">
-								No correspondents yet. Add your first correspondent above.
+								No categories yet. Create your first category above.
 							</p>
 						</div>
 					) : (
 						<div className="divide-y divide-slate-700">
-							{correspondents.map((correspondent) => (
+							{categories.map((category) => (
 								<div
-									key={correspondent.id}
+									key={category.id}
 									className="p-4 flex items-center gap-4 hover:bg-slate-700/30 transition-colors"
 								>
-									{editingId === correspondent.id ? (
+									{editingId === category.id ? (
 										<>
-											<User className="w-10 h-10 p-2 bg-slate-700 rounded-lg text-slate-400 flex-shrink-0" />
+											<input
+												type="color"
+												value={editColor}
+												onChange={(e) => setEditColor(e.target.value)}
+												className="w-10 h-10 rounded cursor-pointer bg-transparent border-0"
+											/>
 											<input
 												type="text"
 												value={editName}
@@ -284,22 +296,20 @@ function CorrespondentsPage() {
 												<X className="w-5 h-5" />
 											</button>
 										</>
-									) : deleteConfirmId === correspondent.id ? (
+									) : deleteConfirmId === category.id ? (
 										<>
 											<div className="flex-1">
 												<p className="text-white">
 													Delete "
-													<span className="font-medium">
-														{correspondent.name}
-													</span>
+													<span className="font-medium">{category.name}</span>
 													"?
 												</p>
 												<p className="text-sm text-slate-400">
-													This will remove the correspondent from all documents.
+													This will remove the category from all documents.
 												</p>
 											</div>
 											<button
-												onClick={() => deleteCorrespondent(correspondent.id)}
+												onClick={() => deleteCategory(category.id)}
 												disabled={isDeleting}
 												className="px-4 py-2 bg-red-500 hover:bg-red-600 disabled:bg-red-500/50 text-white text-sm font-medium rounded-lg"
 											>
@@ -319,22 +329,44 @@ function CorrespondentsPage() {
 										</>
 									) : (
 										<>
-											<div className="w-10 h-10 bg-slate-700 rounded-lg flex items-center justify-center flex-shrink-0">
-												<User className="w-5 h-5 text-slate-400" />
-											</div>
+											<div
+												className="w-10 h-10 rounded-lg border-2 flex-shrink-0"
+												style={{
+													backgroundColor: category.color
+														? `${category.color}30`
+														: "#37415130",
+													borderColor: category.color ?? "#4B5563",
+												}}
+											/>
 											<div className="flex-1 min-w-0">
 												<p className="text-white font-medium">
-													{correspondent.name}
+													{category.name}
+												</p>
+												<p className="text-sm text-slate-400">
+													{category.color ?? "No color"}
 												</p>
 											</div>
+											<span
+												className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium"
+												style={{
+													backgroundColor: category.color
+														? `${category.color}20`
+														: "#374151",
+													color: category.color ?? "#9CA3AF",
+													borderColor: category.color ?? "#4B5563",
+													borderWidth: "1px",
+												}}
+											>
+												{category.name}
+											</span>
 											<button
-												onClick={() => startEditing(correspondent)}
+												onClick={() => startEditing(category)}
 												className="p-2 hover:bg-slate-600 rounded-lg text-slate-400 hover:text-white"
 											>
 												<Edit2 className="w-5 h-5" />
 											</button>
 											<button
-												onClick={() => setDeleteConfirmId(correspondent.id)}
+												onClick={() => setDeleteConfirmId(category.id)}
 												className="p-2 hover:bg-slate-600 rounded-lg text-slate-400 hover:text-red-400"
 											>
 												<Trash2 className="w-5 h-5" />

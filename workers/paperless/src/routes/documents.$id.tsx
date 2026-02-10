@@ -20,6 +20,7 @@ import {
 	FileText,
 	FileType,
 	FileX,
+	FolderOpen,
 	Hash,
 	Home,
 	Image,
@@ -41,6 +42,7 @@ import {
 	getDocumentById,
 	getNextASN,
 	listActedSuggestionsByDocument,
+	listCategories,
 	listCommentsByDocument,
 	listCorrespondents,
 	listSuggestionsByDocument,
@@ -73,17 +75,19 @@ interface DocumentData {
 	createdAt: string;
 	updatedAt: string;
 	correspondent: { id: string; name: string } | null;
+	category: { id: string; name: string; color: string | null } | null;
 	tags: DocumentTag[];
 	files: DocumentFile[];
 }
 
 interface SuggestionItem {
 	id: string;
-	type: "tag" | "correspondent" | "title" | "date";
+	type: "tag" | "correspondent" | "title" | "date" | "category";
 	name: string;
 	confidence: string;
 	tagId: string | null;
 	correspondentId: string | null;
+	categoryId: string | null;
 	accepted: boolean | null;
 }
 
@@ -161,6 +165,11 @@ const getAllCorrespondents = createServerFn({ method: "GET" }).handler(
 		return listCorrespondents(db);
 	},
 );
+
+const getAllCategories = createServerFn({ method: "GET" }).handler(async () => {
+	const db = createDbFromHyperdrive(env.HYPERDRIVE);
+	return listCategories(db);
+});
 
 const fetchNextASN = createServerFn({ method: "GET" }).handler(async () => {
 	const db = createDbFromHyperdrive(env.HYPERDRIVE);
@@ -252,6 +261,7 @@ export const Route = createFileRoute("/documents/$id")({
 			document,
 			allTags,
 			allCorrespondents,
+			allCategories,
 			nextASN,
 			suggestions,
 			timeline,
@@ -259,6 +269,7 @@ export const Route = createFileRoute("/documents/$id")({
 			getDocument({ data: { id: params.id } }),
 			getAllTags(),
 			getAllCorrespondents(),
+			getAllCategories(),
 			fetchNextASN(),
 			getDocumentSuggestions({ data: { id: params.id } }),
 			getDocumentTimeline({ data: { id: params.id } }),
@@ -267,6 +278,7 @@ export const Route = createFileRoute("/documents/$id")({
 			document,
 			allTags,
 			allCorrespondents,
+			allCategories,
 			nextASN,
 			suggestions,
 			timeline,
@@ -346,6 +358,7 @@ function DocumentView() {
 		document: doc,
 		allTags = [],
 		allCorrespondents = [],
+		allCategories = [],
 		nextASN = 1,
 		suggestions: initialSuggestions = [],
 		timeline: initialTimeline = [],
@@ -355,6 +368,7 @@ function DocumentView() {
 	const [isTagSelectorOpen, setIsTagSelectorOpen] = useState(false);
 	const [isCorrespondentSelectorOpen, setIsCorrespondentSelectorOpen] =
 		useState(false);
+	const [isCategorySelectorOpen, setIsCategorySelectorOpen] = useState(false);
 	const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 	const [isDeleting, setIsDeleting] = useState(false);
 	const [isEditingTitle, setIsEditingTitle] = useState(false);
@@ -1047,6 +1061,37 @@ function DocumentView() {
 									</button>
 								</div>
 
+								{/* Category */}
+								<div className="flex items-start gap-3">
+									<FolderOpen className="w-5 h-5 text-slate-400 mt-0.5" />
+									<div className="flex-1">
+										<p className="text-sm text-slate-400">Category</p>
+										{doc.category ? (
+											<span
+												className="inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium"
+												style={{
+													backgroundColor: doc.category.color
+														? `${doc.category.color}20`
+														: "#374151",
+													color: doc.category.color ?? "#9CA3AF",
+													borderColor: doc.category.color ?? "#4B5563",
+													borderWidth: "1px",
+												}}
+											>
+												{doc.category.name}
+											</span>
+										) : (
+											<p className="text-white">None</p>
+										)}
+									</div>
+									<button
+										onClick={() => setIsCategorySelectorOpen(true)}
+										className="p-1.5 hover:bg-slate-700 rounded-lg transition-colors text-slate-400 hover:text-white"
+									>
+										<Edit2 className="w-4 h-4" />
+									</button>
+								</div>
+
 								{/* Document Date */}
 								<div className="flex items-start gap-3">
 									<Calendar className="w-5 h-5 text-slate-400 mt-0.5" />
@@ -1165,7 +1210,9 @@ function DocumentView() {
 															className={`text-xs px-1.5 py-0.5 rounded font-medium ${
 																suggestion.type === "tag"
 																	? "bg-blue-500/20 text-blue-400"
-																	: "bg-purple-500/20 text-purple-400"
+																	: suggestion.type === "category"
+																		? "bg-emerald-500/20 text-emerald-400"
+																		: "bg-purple-500/20 text-purple-400"
 															}`}
 														>
 															{suggestion.type}
@@ -1176,7 +1223,9 @@ function DocumentView() {
 													</div>
 													<p className="text-xs text-slate-400 mt-1">
 														{confidence}% confidence
-														{suggestion.tagId || suggestion.correspondentId
+														{suggestion.tagId ||
+														suggestion.correspondentId ||
+														suggestion.categoryId
 															? ""
 															: " (new)"}
 													</p>
@@ -1296,6 +1345,20 @@ function DocumentView() {
 								onClose={() => setIsCorrespondentSelectorOpen(false)}
 								onUpdate={() => {
 									setIsCorrespondentSelectorOpen(false);
+									router.invalidate();
+								}}
+							/>
+						)}
+
+						{/* Category Selector Modal */}
+						{isCategorySelectorOpen && (
+							<CategorySelectorModal
+								documentId={doc.id}
+								currentCategoryId={doc.category?.id ?? null}
+								allCategories={allCategories}
+								onClose={() => setIsCategorySelectorOpen(false)}
+								onUpdate={() => {
+									setIsCategorySelectorOpen(false);
 									router.invalidate();
 								}}
 							/>
@@ -1782,6 +1845,169 @@ function formatFileSize(bytes: number): string {
 	const sizes = ["B", "KB", "MB", "GB"];
 	const i = Math.floor(Math.log(bytes) / Math.log(k));
 	return `${Number.parseFloat((bytes / k ** i).toFixed(1))} ${sizes[i]}`;
+}
+
+interface CategorySelectorCategory {
+	id: string;
+	name: string;
+	color: string | null;
+}
+
+function CategorySelectorModal({
+	documentId,
+	currentCategoryId,
+	allCategories,
+	onClose,
+	onUpdate,
+}: {
+	documentId: string;
+	currentCategoryId: string | null;
+	allCategories: CategorySelectorCategory[];
+	onClose: () => void;
+	onUpdate: () => void;
+}) {
+	const [selectedId, setSelectedId] = useState<string | null>(
+		currentCategoryId,
+	);
+	const [isSaving, setIsSaving] = useState(false);
+
+	const handleSave = async () => {
+		setIsSaving(true);
+		try {
+			const response = await fetch(`/api/documents/${documentId}/category`, {
+				method: "PUT",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ categoryId: selectedId }),
+			});
+
+			if (response.ok) {
+				onUpdate();
+			}
+		} catch (error) {
+			console.error("Failed to update category:", error);
+		} finally {
+			setIsSaving(false);
+		}
+	};
+
+	const hasChanges = selectedId !== currentCategoryId;
+
+	return (
+		<div className="fixed inset-0 z-50 flex items-center justify-center">
+			{/* Backdrop */}
+			<div
+				className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+				onClick={onClose}
+			/>
+
+			{/* Modal */}
+			<div className="relative bg-slate-800 rounded-xl border border-slate-700 shadow-2xl w-full max-w-md mx-4">
+				{/* Header */}
+				<div className="flex items-center justify-between p-4 border-b border-slate-700">
+					<h2 className="text-lg font-semibold text-white flex items-center gap-2">
+						<FolderOpen className="w-5 h-5" />
+						Select Category
+					</h2>
+					<button
+						onClick={onClose}
+						className="p-1 hover:bg-slate-700 rounded-lg transition-colors text-slate-400 hover:text-white"
+					>
+						<X className="w-5 h-5" />
+					</button>
+				</div>
+
+				{/* Content */}
+				<div className="p-4 max-h-[60vh] overflow-y-auto">
+					{allCategories.length === 0 ? (
+						<p className="text-slate-400 text-center py-4">
+							No categories available. Create categories from the Categories
+							page.
+						</p>
+					) : (
+						<div className="space-y-2">
+							{/* None option */}
+							<button
+								onClick={() => setSelectedId(null)}
+								className={`w-full flex items-center gap-3 p-3 rounded-lg transition-colors ${
+									selectedId === null
+										? "bg-slate-600"
+										: "bg-slate-700/50 hover:bg-slate-700"
+								}`}
+							>
+								<div
+									className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+										selectedId === null
+											? "bg-cyan-500 border-cyan-500"
+											: "border-slate-500"
+									}`}
+								>
+									{selectedId === null && (
+										<div className="w-2 h-2 bg-white rounded-full" />
+									)}
+								</div>
+								<span className="text-slate-400 italic">None</span>
+							</button>
+
+							{allCategories.map((category) => (
+								<button
+									key={category.id}
+									onClick={() => setSelectedId(category.id)}
+									className={`w-full flex items-center gap-3 p-3 rounded-lg transition-colors ${
+										selectedId === category.id
+											? "bg-slate-600"
+											: "bg-slate-700/50 hover:bg-slate-700"
+									}`}
+								>
+									<div
+										className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+											selectedId === category.id
+												? "bg-cyan-500 border-cyan-500"
+												: "border-slate-500"
+										}`}
+									>
+										{selectedId === category.id && (
+											<div className="w-2 h-2 bg-white rounded-full" />
+										)}
+									</div>
+									<div
+										className="w-4 h-4 rounded-full"
+										style={{
+											backgroundColor: category.color ?? "#4B5563",
+										}}
+									/>
+									<span className="text-white flex-1 text-left">
+										{category.name}
+									</span>
+								</button>
+							))}
+						</div>
+					)}
+				</div>
+
+				{/* Footer */}
+				<div className="flex justify-end gap-3 p-4 border-t border-slate-700">
+					<button
+						onClick={onClose}
+						className="px-4 py-2 text-slate-300 hover:text-white transition-colors"
+					>
+						Cancel
+					</button>
+					<button
+						onClick={handleSave}
+						disabled={!hasChanges || isSaving}
+						className="flex items-center gap-2 px-4 py-2 bg-cyan-500 hover:bg-cyan-600 disabled:bg-slate-600 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors"
+					>
+						{isSaving ? (
+							<Loader2 className="w-4 h-4 animate-spin" />
+						) : (
+							<Check className="w-4 h-4" />
+						)}
+						Save
+					</button>
+				</div>
+			</div>
+		</div>
+	);
 }
 
 interface CorrespondentSelectorCorrespondent {

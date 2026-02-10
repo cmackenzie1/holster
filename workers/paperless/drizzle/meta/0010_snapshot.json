@@ -1,6 +1,6 @@
 {
-	"id": "853cc7cf-dcf2-4ba7-8288-499ab83e2c13",
-	"prevId": "10b84164-d85b-4d87-8eec-32e2a1dbb6d7",
+	"id": "4fa7acb9-c5d5-4dac-b3d3-703db305c83a",
+	"prevId": "853cc7cf-dcf2-4ba7-8288-499ab83e2c13",
 	"version": "7",
 	"dialect": "postgresql",
 	"tables": {
@@ -300,6 +300,12 @@
 					"primaryKey": false,
 					"notNull": false
 				},
+				"category_id": {
+					"name": "category_id",
+					"type": "bigint",
+					"primaryKey": false,
+					"notNull": false
+				},
 				"accepted": {
 					"name": "accepted",
 					"type": "boolean",
@@ -383,6 +389,15 @@
 					"tableFrom": "document_suggestions",
 					"tableTo": "correspondents",
 					"columnsFrom": ["correspondent_id"],
+					"columnsTo": ["id"],
+					"onDelete": "no action",
+					"onUpdate": "no action"
+				},
+				"document_suggestions_category_id_categories_id_fk": {
+					"name": "document_suggestions_category_id_categories_id_fk",
+					"tableFrom": "document_suggestions",
+					"tableTo": "categories",
+					"columnsFrom": ["category_id"],
 					"columnsTo": ["id"],
 					"onDelete": "no action",
 					"onUpdate": "no action"
@@ -982,7 +997,7 @@
 		"public.suggestion_type": {
 			"name": "suggestion_type",
 			"schema": "public",
-			"values": ["tag", "correspondent", "title", "date"]
+			"values": ["tag", "correspondent", "title", "date", "category"]
 		},
 		"public.incoming_email_status": {
 			"name": "incoming_email_status",
