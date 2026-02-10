@@ -195,11 +195,16 @@ describe("matchSuggestions", () => {
 		{ id: "10", name: "Acme Corp" },
 		{ id: "11", name: "Globex Inc" },
 	];
+	const existingCategories = [
+		{ id: "20", name: "Bills" },
+		{ id: "21", name: "Tax" },
+	];
 
 	it("matches existing tags case-insensitively and uses existing name", () => {
 		const response = {
 			tags: [{ name: "Invoice", confidence: 0.9 }],
 			correspondent: null,
+			category: null,
 			title: null,
 			date: null,
 		};
@@ -207,6 +212,7 @@ describe("matchSuggestions", () => {
 			response,
 			existingTags,
 			existingCorrespondents,
+			existingCategories,
 		);
 		expect(result).toHaveLength(1);
 		expect(result[0].matchedId).toBe("1");
@@ -218,6 +224,7 @@ describe("matchSuggestions", () => {
 		const response = {
 			tags: [{ name: "Contract", confidence: 0.8 }],
 			correspondent: null,
+			category: null,
 			title: null,
 			date: null,
 		};
@@ -225,6 +232,7 @@ describe("matchSuggestions", () => {
 			response,
 			existingTags,
 			existingCorrespondents,
+			existingCategories,
 		);
 		expect(result).toHaveLength(1);
 		expect(result[0].matchedId).toBeNull();
@@ -235,6 +243,7 @@ describe("matchSuggestions", () => {
 		const response = {
 			tags: [],
 			correspondent: { name: "acme corp", confidence: 0.85 },
+			category: null,
 			title: null,
 			date: null,
 		};
@@ -242,6 +251,7 @@ describe("matchSuggestions", () => {
 			response,
 			existingTags,
 			existingCorrespondents,
+			existingCategories,
 		);
 		expect(result).toHaveLength(1);
 		expect(result[0].type).toBe("correspondent");
@@ -253,6 +263,7 @@ describe("matchSuggestions", () => {
 		const response = {
 			tags: [],
 			correspondent: { name: "john doe enterprises", confidence: 0.9 },
+			category: null,
 			title: null,
 			date: null,
 		};
@@ -260,6 +271,7 @@ describe("matchSuggestions", () => {
 			response,
 			existingTags,
 			existingCorrespondents,
+			existingCategories,
 		);
 		expect(result).toHaveLength(1);
 		expect(result[0].type).toBe("correspondent");
@@ -274,6 +286,7 @@ describe("matchSuggestions", () => {
 				{ name: "other", confidence: 0.3 },
 			],
 			correspondent: { name: "Acme Corp", confidence: 0.4 },
+			category: null,
 			title: null,
 			date: null,
 		};
@@ -281,17 +294,25 @@ describe("matchSuggestions", () => {
 			response,
 			existingTags,
 			existingCorrespondents,
+			existingCategories,
 		);
 		expect(result).toHaveLength(1);
 		expect(result[0].name).toBe("invoice");
 	});
 
 	it("returns empty array for empty response", () => {
-		const response = { tags: [], correspondent: null, title: null, date: null };
+		const response = {
+			tags: [],
+			correspondent: null,
+			category: null,
+			title: null,
+			date: null,
+		};
 		const result = matchSuggestions(
 			response,
 			existingTags,
 			existingCorrespondents,
+			existingCategories,
 		);
 		expect(result).toHaveLength(0);
 	});
@@ -300,6 +321,7 @@ describe("matchSuggestions", () => {
 		const response = {
 			tags: [],
 			correspondent: null,
+			category: null,
 			title: { name: "January 2024 Invoice from Acme", confidence: 0.9 },
 			date: null,
 		};
@@ -307,6 +329,7 @@ describe("matchSuggestions", () => {
 			response,
 			existingTags,
 			existingCorrespondents,
+			existingCategories,
 		);
 		expect(result).toHaveLength(1);
 		expect(result[0].type).toBe("title");
@@ -319,6 +342,7 @@ describe("matchSuggestions", () => {
 		const response = {
 			tags: [],
 			correspondent: null,
+			category: null,
 			title: { name: "Some Title", confidence: 0.3 },
 			date: null,
 		};
@@ -326,6 +350,7 @@ describe("matchSuggestions", () => {
 			response,
 			existingTags,
 			existingCorrespondents,
+			existingCategories,
 		);
 		expect(result).toHaveLength(0);
 	});
@@ -334,6 +359,7 @@ describe("matchSuggestions", () => {
 		const response = {
 			tags: [{ name: "invoice", confidence: 0.9 }],
 			correspondent: { name: "Acme Corp", confidence: 0.85 },
+			category: null,
 			title: { name: "Monthly Invoice - January", confidence: 0.88 },
 			date: null,
 		};
@@ -341,6 +367,7 @@ describe("matchSuggestions", () => {
 			response,
 			existingTags,
 			existingCorrespondents,
+			existingCategories,
 		);
 		expect(result).toHaveLength(3);
 		expect(result.find((s) => s.type === "tag")).toBeDefined();
@@ -352,6 +379,7 @@ describe("matchSuggestions", () => {
 		const response = {
 			tags: [],
 			correspondent: null,
+			category: null,
 			title: null,
 			date: { date: "2024-01-15", confidence: 0.95 },
 		};
@@ -359,6 +387,7 @@ describe("matchSuggestions", () => {
 			response,
 			existingTags,
 			existingCorrespondents,
+			existingCategories,
 		);
 		expect(result).toHaveLength(1);
 		expect(result[0].type).toBe("date");
@@ -371,6 +400,7 @@ describe("matchSuggestions", () => {
 		const response = {
 			tags: [],
 			correspondent: null,
+			category: null,
 			title: null,
 			date: { date: "2024-01-15", confidence: 0.3 },
 		};
@@ -378,6 +408,7 @@ describe("matchSuggestions", () => {
 			response,
 			existingTags,
 			existingCorrespondents,
+			existingCategories,
 		);
 		expect(result).toHaveLength(0);
 	});
@@ -386,6 +417,7 @@ describe("matchSuggestions", () => {
 		const response = {
 			tags: [{ name: "invoice", confidence: 0.9 }],
 			correspondent: { name: "Acme Corp", confidence: 0.85 },
+			category: { name: "Bills", confidence: 0.8 },
 			title: { name: "Monthly Invoice", confidence: 0.88 },
 			date: { date: "2024-01-15", confidence: 0.92 },
 		};
@@ -393,11 +425,70 @@ describe("matchSuggestions", () => {
 			response,
 			existingTags,
 			existingCorrespondents,
+			existingCategories,
 		);
-		expect(result).toHaveLength(4);
+		expect(result).toHaveLength(5);
 		expect(result.find((s) => s.type === "tag")).toBeDefined();
 		expect(result.find((s) => s.type === "correspondent")).toBeDefined();
+		expect(result.find((s) => s.type === "category")).toBeDefined();
 		expect(result.find((s) => s.type === "title")).toBeDefined();
 		expect(result.find((s) => s.type === "date")).toBeDefined();
+	});
+
+	it("matches existing categories case-insensitively", () => {
+		const response = {
+			tags: [],
+			correspondent: null,
+			category: { name: "bills", confidence: 0.85 },
+			title: null,
+			date: null,
+		};
+		const result = matchSuggestions(
+			response,
+			existingTags,
+			existingCorrespondents,
+			existingCategories,
+		);
+		expect(result).toHaveLength(1);
+		expect(result[0].type).toBe("category");
+		expect(result[0].matchedId).toBe("20");
+		expect(result[0].name).toBe("Bills");
+	});
+
+	it("title-cases new category names", () => {
+		const response = {
+			tags: [],
+			correspondent: null,
+			category: { name: "medical records", confidence: 0.9 },
+			title: null,
+			date: null,
+		};
+		const result = matchSuggestions(
+			response,
+			existingTags,
+			existingCorrespondents,
+			existingCategories,
+		);
+		expect(result).toHaveLength(1);
+		expect(result[0].type).toBe("category");
+		expect(result[0].matchedId).toBeNull();
+		expect(result[0].name).toBe("Medical Records");
+	});
+
+	it("filters out category suggestions below 0.5 confidence", () => {
+		const response = {
+			tags: [],
+			correspondent: null,
+			category: { name: "Bills", confidence: 0.3 },
+			title: null,
+			date: null,
+		};
+		const result = matchSuggestions(
+			response,
+			existingTags,
+			existingCorrespondents,
+			existingCategories,
+		);
+		expect(result).toHaveLength(0);
 	});
 });
