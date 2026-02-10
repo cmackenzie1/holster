@@ -7,7 +7,7 @@ export class TikaContainer extends Container<Env> {
 	sleepAfter = "2m";
 	// Environment variables passed to the container
 	envVars = {
-		MESSAGE: "I was passed in via the container class!",
+		JAVA_OPTS: "-Xms256m -Xmx2g",
 	};
 
 	// Optional lifecycle hooks
