@@ -3,7 +3,7 @@ const MIN_CONFIDENCE = 0.5;
 const AI_MODEL = "@cf/meta/llama-3.1-8b-instruct-fast";
 
 export interface AISuggestion {
-	type: "tag" | "correspondent" | "title" | "date";
+	type: "tag" | "correspondent" | "title" | "date" | "category";
 	name: string;
 	confidence: number;
 	matchedId: string | null;
@@ -14,26 +14,30 @@ interface GenerateSuggestionsInput {
 	documentContent: string;
 	existingTags: Array<{ id: string; name: string }>;
 	existingCorrespondents: Array<{ id: string; name: string }>;
+	existingCategories: Array<{ id: string; name: string }>;
 }
 
 interface AIResponse {
 	tags: Array<{ name: string; confidence: number }>;
 	correspondent: { name: string; confidence: number } | null;
+	category: { name: string; confidence: number } | null;
 	title: { name: string; confidence: number } | null;
 	date: { date: string; confidence: number } | null;
 }
 
-const SYSTEM_PROMPT = `You are a document classification assistant. Given a document's title and content, suggest relevant tags, a correspondent (sender/source), a descriptive title, and the document's date.
+const SYSTEM_PROMPT = `You are a document classification assistant. Given a document's title and content, suggest relevant tags, a correspondent (sender/source), a category (broad grouping), a descriptive title, and the document's date.
 
 Return ONLY valid JSON in this exact format (no markdown, no explanation):
-{"tags": [{"name": "tag name", "confidence": 0.9}], "correspondent": {"name": "correspondent name", "confidence": 0.85}, "title": {"name": "descriptive title", "confidence": 0.9}, "date": {"date": "2024-01-15", "confidence": 0.9}}
+{"tags": [{"name": "tag name", "confidence": 0.9}], "correspondent": {"name": "correspondent name", "confidence": 0.85}, "category": {"name": "category name", "confidence": 0.85}, "title": {"name": "descriptive title", "confidence": 0.9}, "date": {"date": "2024-01-15", "confidence": 0.9}}
 
 Rules:
-- Prefer matching existing tags/correspondents by name when possible
+- Prefer matching existing tags/correspondents/categories by name when possible
 - confidence is a float between 0 and 1
-- Only suggest tags and correspondents you are reasonably confident about (>= 0.5)
+- Only suggest tags, correspondents, and categories you are reasonably confident about (>= 0.5)
 - Return at most 5 tag suggestions
 - correspondent can be null if no clear sender/source is identified
+- category is a broad grouping like "Bills", "Tax", "Medical Records", "Contracts", "Receipts"
+- category can be null if no clear category fits
 - Tag names should be lowercase
 - Suggest a concise, descriptive title based on the document content
 - title can be null if the current title already seems descriptive enough
@@ -89,6 +93,11 @@ function isValidAIResponse(obj: unknown): obj is AIResponse {
 		if (typeof c.name !== "string" || typeof c.confidence !== "number")
 			return false;
 	}
+	if (resp.category !== null && resp.category !== undefined) {
+		const cat = resp.category as Record<string, unknown>;
+		if (typeof cat.name !== "string" || typeof cat.confidence !== "number")
+			return false;
+	}
 	if (resp.title !== null && resp.title !== undefined) {
 		const t = resp.title as Record<string, unknown>;
 		if (typeof t.name !== "string" || typeof t.confidence !== "number")
@@ -115,12 +124,16 @@ export function matchSuggestions(
 	response: AIResponse,
 	existingTags: Array<{ id: string; name: string }>,
 	existingCorrespondents: Array<{ id: string; name: string }>,
+	existingCategories: Array<{ id: string; name: string }>,
 ): AISuggestion[] {
 	const suggestions: AISuggestion[] = [];
 
 	const tagLookup = new Map(existingTags.map((t) => [t.name.toLowerCase(), t]));
 	const corrLookup = new Map(
 		existingCorrespondents.map((c) => [c.name.toLowerCase(), c]),
+	);
+	const catLookup = new Map(
+		existingCategories.map((c) => [c.name.toLowerCase(), c]),
 	);
 
 	for (const tag of response.tags) {
@@ -143,6 +156,16 @@ export function matchSuggestions(
 			type: "correspondent",
 			name: existing ? existing.name : titleCase(response.correspondent.name),
 			confidence: response.correspondent.confidence,
+			matchedId: existing?.id ?? null,
+		});
+	}
+
+	if (response.category && response.category.confidence >= MIN_CONFIDENCE) {
+		const existing = catLookup.get(response.category.name.toLowerCase());
+		suggestions.push({
+			type: "category",
+			name: existing ? existing.name : titleCase(response.category.name),
+			confidence: response.category.confidence,
 			matchedId: existing?.id ?? null,
 		});
 	}
@@ -187,7 +210,8 @@ Document content:
 ${truncatedContent}
 
 Existing tags: ${input.existingTags.map((t) => t.name).join(", ") || "(none)"}
-Existing correspondents: ${input.existingCorrespondents.map((c) => c.name).join(", ") || "(none)"}`;
+Existing correspondents: ${input.existingCorrespondents.map((c) => c.name).join(", ") || "(none)"}
+Existing categories: ${input.existingCategories.map((c) => c.name).join(", ") || "(none)"}`;
 
 	try {
 		const response = await ai.run(AI_MODEL, {
@@ -222,6 +246,7 @@ Existing correspondents: ${input.existingCorrespondents.map((c) => c.name).join(
 				parsed,
 				input.existingTags,
 				input.existingCorrespondents,
+				input.existingCategories,
 			),
 			rawResponse: raw.slice(0, 500),
 		};

@@ -10,6 +10,7 @@ import {
 	documents,
 	documentTags,
 	findFileByMd5Hash,
+	listCategories,
 	listCorrespondents,
 	listTags,
 	permanentlyDeleteOldDocuments,
@@ -53,7 +54,10 @@ export default {
 			url.pathname.endsWith(".woff") ||
 			url.pathname.endsWith(".woff2");
 
-		if (!isStaticAsset) {
+		const isLocal =
+			url.hostname === "localhost" || url.hostname === "127.0.0.1";
+
+		if (!isStaticAsset && !isLocal) {
 			const result = await verifyCloudflareAccess(request);
 
 			if (!result.valid) {
@@ -351,10 +355,12 @@ export default {
 					// Clear stale pending suggestions before generating new ones (handles reprocessing)
 					await deletePendingSuggestionsForDocument(db, BigInt(documentId));
 
-					const [existingTags, existingCorrespondents] = await Promise.all([
-						listTags(db),
-						listCorrespondents(db),
-					]);
+					const [existingTags, existingCorrespondents, existingCategories] =
+						await Promise.all([
+							listTags(db),
+							listCorrespondents(db),
+							listCategories(db),
+						]);
 
 					const docId = BigInt(documentId);
 					const [[doc], currentDocTags] = await Promise.all([
@@ -362,6 +368,7 @@ export default {
 							.select({
 								title: documents.title,
 								correspondentId: documents.correspondentId,
+								categoryId: documents.categoryId,
 								documentDate: documents.documentDate,
 							})
 							.from(documents)
@@ -378,16 +385,18 @@ export default {
 						documentContent: processed.content,
 						existingTags,
 						existingCorrespondents,
+						existingCategories,
 					});
 
 					const aiSuggestions = aiResult.suggestions;
 
-					// Filter out suggestions for tags/correspondents already on the document
+					// Filter out suggestions for tags/correspondents/categories already on the document
 					const currentTagIds = new Set(
 						currentDocTags.map((t) => t.tagId.toString()),
 					);
 					const currentCorrespondentId =
 						doc?.correspondentId?.toString() ?? null;
+					const currentCategoryId = doc?.categoryId?.toString() ?? null;
 
 					const currentTitle = doc?.title?.toLowerCase() ?? "";
 					const hasDocumentDate = doc?.documentDate !== null;
@@ -395,6 +404,8 @@ export default {
 						if (s.type === "title")
 							return s.name.toLowerCase() !== currentTitle;
 						if (s.type === "date") return !hasDocumentDate;
+						if (s.type === "category")
+							return !s.matchedId || s.matchedId !== currentCategoryId;
 						if (!s.matchedId) return true;
 						if (s.type === "tag") return !currentTagIds.has(s.matchedId);
 						return s.matchedId !== currentCorrespondentId;
@@ -413,6 +424,10 @@ export default {
 									s.type === "correspondent" && s.matchedId
 										? BigInt(s.matchedId)
 										: null,
+								categoryId:
+									s.type === "category" && s.matchedId
+										? BigInt(s.matchedId)
+										: null,
 							}),
 						);
 						await createSuggestions(db, suggestionRows);
@@ -426,6 +441,7 @@ export default {
 						tags: filtered.filter((s) => s.type === "tag").length,
 						correspondents: filtered.filter((s) => s.type === "correspondent")
 							.length,
+						categories: filtered.filter((s) => s.type === "category").length,
 						titles: filtered.filter((s) => s.type === "title").length,
 						dates: filtered.filter((s) => s.type === "date").length,
 						rawResponse: aiResult.rawResponse,

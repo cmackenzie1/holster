@@ -9,6 +9,7 @@ import {
 	timestamp,
 	varchar,
 } from "drizzle-orm/pg-core";
+import { categories } from "./categories";
 import { correspondents } from "./correspondents";
 import { documents } from "./documents";
 import { tags } from "./tags";
@@ -18,6 +19,7 @@ export const suggestionTypeEnum = pgEnum("suggestion_type", [
 	"correspondent",
 	"title",
 	"date",
+	"category",
 ]);
 
 export const documentSuggestions = pgTable(
@@ -33,6 +35,9 @@ export const documentSuggestions = pgTable(
 		tagId: bigint("tag_id", { mode: "bigint" }).references(() => tags.id),
 		correspondentId: bigint("correspondent_id", { mode: "bigint" }).references(
 			() => correspondents.id,
+		),
+		categoryId: bigint("category_id", { mode: "bigint" }).references(
+			() => categories.id,
 		),
 		accepted: boolean(),
 		createdAt: timestamp("created_at", { withTimezone: true })
@@ -66,6 +71,10 @@ export const documentSuggestionsRelations = relations(
 		correspondent: one(correspondents, {
 			fields: [documentSuggestions.correspondentId],
 			references: [correspondents.id],
+		}),
+		category: one(categories, {
+			fields: [documentSuggestions.categoryId],
+			references: [categories.id],
 		}),
 	}),
 );

@@ -12,6 +12,7 @@ import {
 } from "drizzle-orm";
 import type { Database } from "../index";
 import {
+	categories,
 	correspondents,
 	documents,
 	documentTags,
@@ -29,6 +30,7 @@ export interface DocumentWithRelations {
 	createdAt: string;
 	updatedAt: string;
 	correspondent: { id: string; name: string } | null;
+	category: { id: string; name: string; color: string | null } | null;
 	tags: Array<{ id: string; name: string; color: string | null }>;
 	files: Array<{
 		id: string;
@@ -48,6 +50,7 @@ export interface DocumentListItem {
 	dateCreated: string | null;
 	createdAt: string;
 	correspondent: string | null;
+	category: { name: string; color: string | null } | null;
 	tags: Array<{ id: bigint; name: string; color: string | null }>;
 	primaryFile: {
 		objectKey: string;
@@ -103,6 +106,19 @@ export async function getDocumentById(
 		correspondent = corr;
 	}
 
+	// Fetch category if exists (also filter soft-deleted)
+	let category = null;
+	if (doc.categoryId) {
+		const [cat] = await db
+			.select()
+			.from(categories)
+			.where(
+				and(eq(categories.id, doc.categoryId), isNull(categories.deletedAt)),
+			)
+			.limit(1);
+		category = cat;
+	}
+
 	// Fetch tags (filter soft-deleted tags)
 	const docTags = await db
 		.select({
@@ -125,6 +141,13 @@ export async function getDocumentById(
 		updatedAt: doc.updatedAt.toISOString(),
 		correspondent: correspondent
 			? { id: correspondent.id.toString(), name: correspondent.name }
+			: null,
+		category: category
+			? {
+					id: category.id.toString(),
+					name: category.name,
+					color: category.color,
+				}
 			: null,
 		tags: docTags.map((t) => ({
 			id: t.id.toString(),
@@ -224,6 +247,10 @@ export async function listDocuments(
 				id: correspondents.id,
 				name: correspondents.name,
 			},
+			category: {
+				name: categories.name,
+				color: categories.color,
+			},
 		})
 		.from(documents)
 		.leftJoin(
@@ -231,6 +258,13 @@ export async function listDocuments(
 			and(
 				eq(documents.correspondentId, correspondents.id),
 				isNull(correspondents.deletedAt),
+			),
+		)
+		.leftJoin(
+			categories,
+			and(
+				eq(documents.categoryId, categories.id),
+				isNull(categories.deletedAt),
 			),
 		)
 		.where(
@@ -332,6 +366,9 @@ export async function listDocuments(
 		dateCreated: doc.dateCreated?.toISOString() ?? null,
 		createdAt: doc.createdAt.toISOString(),
 		correspondent: doc.correspondent?.name ?? null,
+		category: doc.category?.name
+			? { name: doc.category.name, color: doc.category.color }
+			: null,
 		tags: tagsByDocument.get(doc.id.toString()) ?? [],
 		primaryFile: primaryFileByDocument.get(doc.id.toString()) ?? null,
 	}));
@@ -459,6 +496,48 @@ export async function updateDocumentCorrespondent(
 	await db
 		.update(documents)
 		.set({ correspondentId })
+		.where(eq(documents.id, documentId));
+
+	return { success: true };
+}
+
+/**
+ * Update a document's category.
+ * Returns true if updated, false if document not found.
+ */
+export async function updateDocumentCategory(
+	db: Database,
+	documentId: bigint,
+	categoryId: bigint | null,
+): Promise<{ success: boolean; error?: string }> {
+	// Check if document exists and is not deleted
+	const [doc] = await db
+		.select({ id: documents.id })
+		.from(documents)
+		.where(and(eq(documents.id, documentId), isNull(documents.deletedAt)))
+		.limit(1);
+
+	if (!doc) {
+		return { success: false, error: "Document not found" };
+	}
+
+	// If categoryId is provided, verify it exists and is not deleted
+	if (categoryId !== null) {
+		const [category] = await db
+			.select({ id: categories.id })
+			.from(categories)
+			.where(and(eq(categories.id, categoryId), isNull(categories.deletedAt)))
+			.limit(1);
+
+		if (!category) {
+			return { success: false, error: "Category not found" };
+		}
+	}
+
+	// Update the document's category
+	await db
+		.update(documents)
+		.set({ categoryId })
 		.where(eq(documents.id, documentId));
 
 	return { success: true };

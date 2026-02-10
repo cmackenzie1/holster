@@ -8,11 +8,12 @@ import {
 export interface SuggestionData {
 	id: string;
 	documentId: string;
-	type: "tag" | "correspondent" | "title" | "date";
+	type: "tag" | "correspondent" | "title" | "date" | "category";
 	name: string;
 	confidence: string;
 	tagId: string | null;
 	correspondentId: string | null;
+	categoryId: string | null;
 	accepted: boolean | null;
 	createdAt: string;
 }
@@ -48,6 +49,7 @@ export async function listSuggestionsByDocument(
 		confidence: s.confidence,
 		tagId: s.tagId?.toString() ?? null,
 		correspondentId: s.correspondentId?.toString() ?? null,
+		categoryId: s.categoryId?.toString() ?? null,
 		accepted: s.accepted,
 		createdAt: s.createdAt.toISOString(),
 	}));
@@ -73,6 +75,7 @@ export async function acceptSuggestion(
 		confidence: updated.confidence,
 		tagId: updated.tagId?.toString() ?? null,
 		correspondentId: updated.correspondentId?.toString() ?? null,
+		categoryId: updated.categoryId?.toString() ?? null,
 		accepted: updated.accepted,
 		createdAt: updated.createdAt.toISOString(),
 	};
@@ -93,7 +96,7 @@ export async function dismissSuggestion(
 
 export interface ActedSuggestionData {
 	id: string;
-	type: "tag" | "correspondent" | "title" | "date";
+	type: "tag" | "correspondent" | "title" | "date" | "category";
 	name: string;
 	accepted: boolean;
 	actedAt: string;

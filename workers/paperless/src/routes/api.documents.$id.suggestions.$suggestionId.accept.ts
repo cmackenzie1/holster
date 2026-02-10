@@ -4,10 +4,12 @@ import { json } from "@tanstack/react-start";
 import {
 	acceptSuggestion,
 	addDocumentTag,
+	createCategory,
 	createCorrespondent,
 	createDbFromHyperdrive,
 	createTag,
 	updateDocument,
+	updateDocumentCategory,
 	updateDocumentCorrespondent,
 } from "@/db";
 
@@ -70,6 +72,18 @@ export const Route = createFileRoute(
 							db,
 							BigInt(params.id),
 							BigInt(correspondentId),
+						);
+					} else if (suggestion.type === "category") {
+						let categoryId = suggestion.categoryId;
+						if (!categoryId) {
+							const newCategory = await createCategory(db, suggestion.name);
+							categoryId = newCategory.id;
+							wideEvent.created_category = categoryId;
+						}
+						await updateDocumentCategory(
+							db,
+							BigInt(params.id),
+							BigInt(categoryId),
 						);
 					} else if (suggestion.type === "title") {
 						await updateDocument(db, BigInt(params.id), {

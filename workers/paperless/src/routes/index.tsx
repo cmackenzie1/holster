@@ -21,6 +21,7 @@ import {
 	FileText,
 	FileType,
 	Filter,
+	FolderOpen,
 	HardDrive,
 	Hash,
 	Image,
@@ -41,6 +42,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import {
 	createDbFromHyperdrive,
 	getStorageStats,
+	listCategories,
 	listCorrespondents,
 	listDocuments,
 	listTags,
@@ -62,6 +64,7 @@ interface DocumentRow {
 	dateCreated: string | null;
 	createdAt: string;
 	correspondent: string | null;
+	category: { name: string; color: string | null } | null;
 	tags: Array<{ id: bigint; name: string; color: string | null }>;
 }
 
@@ -131,6 +134,35 @@ const getAllTags = createServerFn({ method: "GET" }).handler(async () => {
 		const results = await listTags(db);
 
 		wideEvent.tags_count = results.length;
+		wideEvent.outcome = "success";
+
+		return results;
+	} catch (error) {
+		wideEvent.outcome = "error";
+		wideEvent.error = {
+			message: error instanceof Error ? error.message : String(error),
+			type: error instanceof Error ? error.name : "UnknownError",
+		};
+		throw error;
+	} finally {
+		wideEvent.duration_ms = Date.now() - startTime;
+		console.log(JSON.stringify(wideEvent));
+	}
+});
+
+const getAllCategories = createServerFn({ method: "GET" }).handler(async () => {
+	const startTime = Date.now();
+	const wideEvent: Record<string, unknown> = {
+		function: "getAllCategories",
+		timestamp: new Date().toISOString(),
+	};
+
+	try {
+		const db = createDbFromHyperdrive(env.HYPERDRIVE);
+
+		const results = await listCategories(db);
+
+		wideEvent.categories_count = results.length;
 		wideEvent.outcome = "success";
 
 		return results;
@@ -271,16 +303,23 @@ export const Route = createFileRoute("/")({
 	}),
 	loader: async ({ search }) => {
 		const searchQuery = (search as { q?: string })?.q ?? "";
-		const [documentsResult, allTags, allCorrespondents, storageStats] =
-			await Promise.all([
-				getDocuments({ data: { search: searchQuery || undefined } }),
-				getAllTags(),
-				getAllCorrespondents(),
-				getStorageStatsServer(),
-			]);
+		const [
+			documentsResult,
+			allTags,
+			allCategories,
+			allCorrespondents,
+			storageStats,
+		] = await Promise.all([
+			getDocuments({ data: { search: searchQuery || undefined } }),
+			getAllTags(),
+			getAllCategories(),
+			getAllCorrespondents(),
+			getStorageStatsServer(),
+		]);
 		return {
 			documentsResult,
 			allTags,
+			allCategories,
 			allCorrespondents,
 			storageStats,
 			initialSearch: searchQuery,
@@ -296,6 +335,7 @@ function Dashboard() {
 			hasMore: false,
 		},
 		allTags = [],
+		allCategories = [],
 		allCorrespondents = [],
 		storageStats = { totalBytes: 0, fileCount: 0 },
 		initialSearch = "",
@@ -398,6 +438,35 @@ function Dashboard() {
 				cell: (info) => (
 					<span className="text-slate-300">{info.getValue() ?? "-"}</span>
 				),
+			}),
+			columnHelper.accessor("category", {
+				header: () => (
+					<div className="flex items-center gap-2">
+						<FolderOpen className="w-4 h-4" />
+						Category
+					</div>
+				),
+				cell: (info) => {
+					const category = info.getValue();
+					if (!category) {
+						return <span className="text-slate-500 text-sm">-</span>;
+					}
+					return (
+						<span
+							className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium"
+							style={{
+								backgroundColor: category.color
+									? `${category.color}20`
+									: "#374151",
+								color: category.color ?? "#9CA3AF",
+								borderColor: category.color ?? "#4B5563",
+								borderWidth: "1px",
+							}}
+						>
+							{category.name}
+						</span>
+					);
+				},
 			}),
 			columnHelper.accessor("tags", {
 				header: () => (
@@ -628,11 +697,11 @@ function Dashboard() {
 						<h2 className="text-lg font-semibold text-white mb-4">
 							Statistics
 						</h2>
-						<div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
+						<div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
 							<div className="bg-slate-700/50 rounded-lg p-4">
 								<div className="flex items-center gap-2 text-slate-400 text-sm mb-1">
-									<FileText className="w-4 h-4" />
-									Loaded
+									<FileText className="w-4 h-4 flex-shrink-0" />
+									Documents
 								</div>
 								<p className="text-2xl font-bold text-white">
 									{documents.length}
@@ -641,7 +710,7 @@ function Dashboard() {
 							</div>
 							<div className="bg-slate-700/50 rounded-lg p-4">
 								<div className="flex items-center gap-2 text-slate-400 text-sm mb-1">
-									<HardDrive className="w-4 h-4" />
+									<HardDrive className="w-4 h-4 flex-shrink-0" />
 									Storage
 								</div>
 								<p className="text-2xl font-bold text-white">
@@ -650,25 +719,7 @@ function Dashboard() {
 							</div>
 							<div className="bg-slate-700/50 rounded-lg p-4">
 								<div className="flex items-center gap-2 text-slate-400 text-sm mb-1">
-									<Tag className="w-4 h-4" />
-									Tags
-								</div>
-								<p className="text-2xl font-bold text-white">
-									{allTags.length}
-								</p>
-							</div>
-							<div className="bg-slate-700/50 rounded-lg p-4">
-								<div className="flex items-center gap-2 text-slate-400 text-sm mb-1">
-									<Users className="w-4 h-4" />
-									Correspondents
-								</div>
-								<p className="text-2xl font-bold text-white">
-									{allCorrespondents.length}
-								</p>
-							</div>
-							<div className="bg-slate-700/50 rounded-lg p-4">
-								<div className="flex items-center gap-2 text-slate-400 text-sm mb-1">
-									<Hash className="w-4 h-4" />
+									<Hash className="w-4 h-4 flex-shrink-0" />
 									Current ASN
 								</div>
 								<p className="text-2xl font-bold text-white">
@@ -677,6 +728,33 @@ function Dashboard() {
 												...documents.map((d) => d.archiveSerialNumber || 0),
 											)
 										: 0}
+								</p>
+							</div>
+							<div className="bg-slate-700/50 rounded-lg p-4">
+								<div className="flex items-center gap-2 text-slate-400 text-sm mb-1">
+									<Users className="w-4 h-4 flex-shrink-0" />
+									Correspondents
+								</div>
+								<p className="text-2xl font-bold text-white">
+									{allCorrespondents.length}
+								</p>
+							</div>
+							<div className="bg-slate-700/50 rounded-lg p-4">
+								<div className="flex items-center gap-2 text-slate-400 text-sm mb-1">
+									<FolderOpen className="w-4 h-4 flex-shrink-0" />
+									Categories
+								</div>
+								<p className="text-2xl font-bold text-white">
+									{allCategories.length}
+								</p>
+							</div>
+							<div className="bg-slate-700/50 rounded-lg p-4">
+								<div className="flex items-center gap-2 text-slate-400 text-sm mb-1">
+									<Tag className="w-4 h-4 flex-shrink-0" />
+									Tags
+								</div>
+								<p className="text-2xl font-bold text-white">
+									{allTags.length}
 								</p>
 							</div>
 						</div>
@@ -1115,9 +1193,23 @@ function Dashboard() {
 												{doc.title}
 											</h3>
 											{doc.correspondent && (
-												<p className="text-slate-400 text-xs truncate mb-2">
+												<p className="text-slate-400 text-xs truncate mb-1 flex items-center gap-1">
+													<User className="w-3 h-3 flex-shrink-0" />
 													{doc.correspondent}
 												</p>
+											)}
+											{doc.category && (
+												<span
+													className="inline-flex items-center px-1.5 py-0.5 rounded text-xs mb-1"
+													style={{
+														backgroundColor: doc.category.color
+															? `${doc.category.color}20`
+															: "#374151",
+														color: doc.category.color ?? "#9CA3AF",
+													}}
+												>
+													{doc.category.name}
+												</span>
 											)}
 											{doc.tags.length > 0 && (
 												<div className="flex flex-wrap gap-1">

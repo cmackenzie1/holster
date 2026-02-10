@@ -12,12 +12,14 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as TrashRouteImport } from './routes/trash'
 import { Route as TagsRouteImport } from './routes/tags'
 import { Route as CorrespondentsRouteImport } from './routes/correspondents'
+import { Route as CategoriesRouteImport } from './routes/categories'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DocumentsIdRouteImport } from './routes/documents.$id'
 import { Route as ApiUploadRouteImport } from './routes/api.upload'
 import { Route as ApiTrashRouteImport } from './routes/api.trash'
 import { Route as ApiTagsRouteImport } from './routes/api.tags'
 import { Route as ApiCorrespondentsRouteImport } from './routes/api.correspondents'
+import { Route as ApiCategoriesRouteImport } from './routes/api.categories'
 import { Route as DemoStartServerFuncsRouteImport } from './routes/demo/start.server-funcs'
 import { Route as DemoStartApiRequestRouteImport } from './routes/demo/start.api-request'
 import { Route as DemoApiNamesRouteImport } from './routes/demo/api.names'
@@ -26,6 +28,7 @@ import { Route as ApiTagsIdRouteImport } from './routes/api.tags.$id'
 import { Route as ApiFilesKeyRouteImport } from './routes/api.files.$key'
 import { Route as ApiDocumentsIdRouteImport } from './routes/api.documents.$id'
 import { Route as ApiCorrespondentsIdRouteImport } from './routes/api.correspondents.$id'
+import { Route as ApiCategoriesIdRouteImport } from './routes/api.categories.$id'
 import { Route as DemoStartSsrIndexRouteImport } from './routes/demo/start.ssr.index'
 import { Route as DemoStartSsrSpaModeRouteImport } from './routes/demo/start.ssr.spa-mode'
 import { Route as DemoStartSsrFullSsrRouteImport } from './routes/demo/start.ssr.full-ssr'
@@ -35,6 +38,7 @@ import { Route as ApiDocumentsIdSuggestionsRouteImport } from './routes/api.docu
 import { Route as ApiDocumentsIdProcessRouteImport } from './routes/api.documents.$id.process'
 import { Route as ApiDocumentsIdCorrespondentRouteImport } from './routes/api.documents.$id.correspondent'
 import { Route as ApiDocumentsIdCommentsRouteImport } from './routes/api.documents.$id.comments'
+import { Route as ApiDocumentsIdCategoryRouteImport } from './routes/api.documents.$id.category'
 import { Route as ApiDocumentsIdCommentsCommentIdRouteImport } from './routes/api.documents.$id.comments.$commentId'
 import { Route as ApiDocumentsIdSuggestionsSuggestionIdDismissRouteImport } from './routes/api.documents.$id.suggestions.$suggestionId.dismiss'
 import { Route as ApiDocumentsIdSuggestionsSuggestionIdAcceptRouteImport } from './routes/api.documents.$id.suggestions.$suggestionId.accept'
@@ -52,6 +56,11 @@ const TagsRoute = TagsRouteImport.update({
 const CorrespondentsRoute = CorrespondentsRouteImport.update({
   id: '/correspondents',
   path: '/correspondents',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CategoriesRoute = CategoriesRouteImport.update({
+  id: '/categories',
+  path: '/categories',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -82,6 +91,11 @@ const ApiTagsRoute = ApiTagsRouteImport.update({
 const ApiCorrespondentsRoute = ApiCorrespondentsRouteImport.update({
   id: '/api/correspondents',
   path: '/api/correspondents',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiCategoriesRoute = ApiCategoriesRouteImport.update({
+  id: '/api/categories',
+  path: '/api/categories',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DemoStartServerFuncsRoute = DemoStartServerFuncsRouteImport.update({
@@ -123,6 +137,11 @@ const ApiCorrespondentsIdRoute = ApiCorrespondentsIdRouteImport.update({
   id: '/$id',
   path: '/$id',
   getParentRoute: () => ApiCorrespondentsRoute,
+} as any)
+const ApiCategoriesIdRoute = ApiCategoriesIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => ApiCategoriesRoute,
 } as any)
 const DemoStartSsrIndexRoute = DemoStartSsrIndexRouteImport.update({
   id: '/demo/start/ssr/',
@@ -171,6 +190,11 @@ const ApiDocumentsIdCommentsRoute = ApiDocumentsIdCommentsRouteImport.update({
   path: '/comments',
   getParentRoute: () => ApiDocumentsIdRoute,
 } as any)
+const ApiDocumentsIdCategoryRoute = ApiDocumentsIdCategoryRouteImport.update({
+  id: '/category',
+  path: '/category',
+  getParentRoute: () => ApiDocumentsIdRoute,
+} as any)
 const ApiDocumentsIdCommentsCommentIdRoute =
   ApiDocumentsIdCommentsCommentIdRouteImport.update({
     id: '/$commentId',
@@ -192,14 +216,17 @@ const ApiDocumentsIdSuggestionsSuggestionIdAcceptRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/categories': typeof CategoriesRoute
   '/correspondents': typeof CorrespondentsRoute
   '/tags': typeof TagsRoute
   '/trash': typeof TrashRoute
+  '/api/categories': typeof ApiCategoriesRouteWithChildren
   '/api/correspondents': typeof ApiCorrespondentsRouteWithChildren
   '/api/tags': typeof ApiTagsRouteWithChildren
   '/api/trash': typeof ApiTrashRouteWithChildren
   '/api/upload': typeof ApiUploadRoute
   '/documents/$id': typeof DocumentsIdRoute
+  '/api/categories/$id': typeof ApiCategoriesIdRoute
   '/api/correspondents/$id': typeof ApiCorrespondentsIdRoute
   '/api/documents/$id': typeof ApiDocumentsIdRouteWithChildren
   '/api/files/$key': typeof ApiFilesKeyRoute
@@ -208,6 +235,7 @@ export interface FileRoutesByFullPath {
   '/demo/api/names': typeof DemoApiNamesRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
+  '/api/documents/$id/category': typeof ApiDocumentsIdCategoryRoute
   '/api/documents/$id/comments': typeof ApiDocumentsIdCommentsRouteWithChildren
   '/api/documents/$id/correspondent': typeof ApiDocumentsIdCorrespondentRoute
   '/api/documents/$id/process': typeof ApiDocumentsIdProcessRoute
@@ -223,14 +251,17 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/categories': typeof CategoriesRoute
   '/correspondents': typeof CorrespondentsRoute
   '/tags': typeof TagsRoute
   '/trash': typeof TrashRoute
+  '/api/categories': typeof ApiCategoriesRouteWithChildren
   '/api/correspondents': typeof ApiCorrespondentsRouteWithChildren
   '/api/tags': typeof ApiTagsRouteWithChildren
   '/api/trash': typeof ApiTrashRouteWithChildren
   '/api/upload': typeof ApiUploadRoute
   '/documents/$id': typeof DocumentsIdRoute
+  '/api/categories/$id': typeof ApiCategoriesIdRoute
   '/api/correspondents/$id': typeof ApiCorrespondentsIdRoute
   '/api/documents/$id': typeof ApiDocumentsIdRouteWithChildren
   '/api/files/$key': typeof ApiFilesKeyRoute
@@ -239,6 +270,7 @@ export interface FileRoutesByTo {
   '/demo/api/names': typeof DemoApiNamesRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
+  '/api/documents/$id/category': typeof ApiDocumentsIdCategoryRoute
   '/api/documents/$id/comments': typeof ApiDocumentsIdCommentsRouteWithChildren
   '/api/documents/$id/correspondent': typeof ApiDocumentsIdCorrespondentRoute
   '/api/documents/$id/process': typeof ApiDocumentsIdProcessRoute
@@ -255,14 +287,17 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/categories': typeof CategoriesRoute
   '/correspondents': typeof CorrespondentsRoute
   '/tags': typeof TagsRoute
   '/trash': typeof TrashRoute
+  '/api/categories': typeof ApiCategoriesRouteWithChildren
   '/api/correspondents': typeof ApiCorrespondentsRouteWithChildren
   '/api/tags': typeof ApiTagsRouteWithChildren
   '/api/trash': typeof ApiTrashRouteWithChildren
   '/api/upload': typeof ApiUploadRoute
   '/documents/$id': typeof DocumentsIdRoute
+  '/api/categories/$id': typeof ApiCategoriesIdRoute
   '/api/correspondents/$id': typeof ApiCorrespondentsIdRoute
   '/api/documents/$id': typeof ApiDocumentsIdRouteWithChildren
   '/api/files/$key': typeof ApiFilesKeyRoute
@@ -271,6 +306,7 @@ export interface FileRoutesById {
   '/demo/api/names': typeof DemoApiNamesRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
+  '/api/documents/$id/category': typeof ApiDocumentsIdCategoryRoute
   '/api/documents/$id/comments': typeof ApiDocumentsIdCommentsRouteWithChildren
   '/api/documents/$id/correspondent': typeof ApiDocumentsIdCorrespondentRoute
   '/api/documents/$id/process': typeof ApiDocumentsIdProcessRoute
@@ -288,14 +324,17 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/categories'
     | '/correspondents'
     | '/tags'
     | '/trash'
+    | '/api/categories'
     | '/api/correspondents'
     | '/api/tags'
     | '/api/trash'
     | '/api/upload'
     | '/documents/$id'
+    | '/api/categories/$id'
     | '/api/correspondents/$id'
     | '/api/documents/$id'
     | '/api/files/$key'
@@ -304,6 +343,7 @@ export interface FileRouteTypes {
     | '/demo/api/names'
     | '/demo/start/api-request'
     | '/demo/start/server-funcs'
+    | '/api/documents/$id/category'
     | '/api/documents/$id/comments'
     | '/api/documents/$id/correspondent'
     | '/api/documents/$id/process'
@@ -319,14 +359,17 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/categories'
     | '/correspondents'
     | '/tags'
     | '/trash'
+    | '/api/categories'
     | '/api/correspondents'
     | '/api/tags'
     | '/api/trash'
     | '/api/upload'
     | '/documents/$id'
+    | '/api/categories/$id'
     | '/api/correspondents/$id'
     | '/api/documents/$id'
     | '/api/files/$key'
@@ -335,6 +378,7 @@ export interface FileRouteTypes {
     | '/demo/api/names'
     | '/demo/start/api-request'
     | '/demo/start/server-funcs'
+    | '/api/documents/$id/category'
     | '/api/documents/$id/comments'
     | '/api/documents/$id/correspondent'
     | '/api/documents/$id/process'
@@ -350,14 +394,17 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/categories'
     | '/correspondents'
     | '/tags'
     | '/trash'
+    | '/api/categories'
     | '/api/correspondents'
     | '/api/tags'
     | '/api/trash'
     | '/api/upload'
     | '/documents/$id'
+    | '/api/categories/$id'
     | '/api/correspondents/$id'
     | '/api/documents/$id'
     | '/api/files/$key'
@@ -366,6 +413,7 @@ export interface FileRouteTypes {
     | '/demo/api/names'
     | '/demo/start/api-request'
     | '/demo/start/server-funcs'
+    | '/api/documents/$id/category'
     | '/api/documents/$id/comments'
     | '/api/documents/$id/correspondent'
     | '/api/documents/$id/process'
@@ -382,9 +430,11 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CategoriesRoute: typeof CategoriesRoute
   CorrespondentsRoute: typeof CorrespondentsRoute
   TagsRoute: typeof TagsRoute
   TrashRoute: typeof TrashRoute
+  ApiCategoriesRoute: typeof ApiCategoriesRouteWithChildren
   ApiCorrespondentsRoute: typeof ApiCorrespondentsRouteWithChildren
   ApiTagsRoute: typeof ApiTagsRouteWithChildren
   ApiTrashRoute: typeof ApiTrashRouteWithChildren
@@ -422,6 +472,13 @@ declare module '@tanstack/react-router' {
       path: '/correspondents'
       fullPath: '/correspondents'
       preLoaderRoute: typeof CorrespondentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/categories': {
+      id: '/categories'
+      path: '/categories'
+      fullPath: '/categories'
+      preLoaderRoute: typeof CategoriesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -464,6 +521,13 @@ declare module '@tanstack/react-router' {
       path: '/api/correspondents'
       fullPath: '/api/correspondents'
       preLoaderRoute: typeof ApiCorrespondentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/categories': {
+      id: '/api/categories'
+      path: '/api/categories'
+      fullPath: '/api/categories'
+      preLoaderRoute: typeof ApiCategoriesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/demo/start/server-funcs': {
@@ -521,6 +585,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/correspondents/$id'
       preLoaderRoute: typeof ApiCorrespondentsIdRouteImport
       parentRoute: typeof ApiCorrespondentsRoute
+    }
+    '/api/categories/$id': {
+      id: '/api/categories/$id'
+      path: '/$id'
+      fullPath: '/api/categories/$id'
+      preLoaderRoute: typeof ApiCategoriesIdRouteImport
+      parentRoute: typeof ApiCategoriesRoute
     }
     '/demo/start/ssr/': {
       id: '/demo/start/ssr/'
@@ -585,6 +656,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiDocumentsIdCommentsRouteImport
       parentRoute: typeof ApiDocumentsIdRoute
     }
+    '/api/documents/$id/category': {
+      id: '/api/documents/$id/category'
+      path: '/category'
+      fullPath: '/api/documents/$id/category'
+      preLoaderRoute: typeof ApiDocumentsIdCategoryRouteImport
+      parentRoute: typeof ApiDocumentsIdRoute
+    }
     '/api/documents/$id/comments/$commentId': {
       id: '/api/documents/$id/comments/$commentId'
       path: '/$commentId'
@@ -608,6 +686,18 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface ApiCategoriesRouteChildren {
+  ApiCategoriesIdRoute: typeof ApiCategoriesIdRoute
+}
+
+const ApiCategoriesRouteChildren: ApiCategoriesRouteChildren = {
+  ApiCategoriesIdRoute: ApiCategoriesIdRoute,
+}
+
+const ApiCategoriesRouteWithChildren = ApiCategoriesRoute._addFileChildren(
+  ApiCategoriesRouteChildren,
+)
 
 interface ApiCorrespondentsRouteChildren {
   ApiCorrespondentsIdRoute: typeof ApiCorrespondentsIdRoute
@@ -676,6 +766,7 @@ const ApiDocumentsIdSuggestionsRouteWithChildren =
   )
 
 interface ApiDocumentsIdRouteChildren {
+  ApiDocumentsIdCategoryRoute: typeof ApiDocumentsIdCategoryRoute
   ApiDocumentsIdCommentsRoute: typeof ApiDocumentsIdCommentsRouteWithChildren
   ApiDocumentsIdCorrespondentRoute: typeof ApiDocumentsIdCorrespondentRoute
   ApiDocumentsIdProcessRoute: typeof ApiDocumentsIdProcessRoute
@@ -684,6 +775,7 @@ interface ApiDocumentsIdRouteChildren {
 }
 
 const ApiDocumentsIdRouteChildren: ApiDocumentsIdRouteChildren = {
+  ApiDocumentsIdCategoryRoute: ApiDocumentsIdCategoryRoute,
   ApiDocumentsIdCommentsRoute: ApiDocumentsIdCommentsRouteWithChildren,
   ApiDocumentsIdCorrespondentRoute: ApiDocumentsIdCorrespondentRoute,
   ApiDocumentsIdProcessRoute: ApiDocumentsIdProcessRoute,
@@ -697,9 +789,11 @@ const ApiDocumentsIdRouteWithChildren = ApiDocumentsIdRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CategoriesRoute: CategoriesRoute,
   CorrespondentsRoute: CorrespondentsRoute,
   TagsRoute: TagsRoute,
   TrashRoute: TrashRoute,
+  ApiCategoriesRoute: ApiCategoriesRouteWithChildren,
   ApiCorrespondentsRoute: ApiCorrespondentsRouteWithChildren,
   ApiTagsRoute: ApiTagsRouteWithChildren,
   ApiTrashRoute: ApiTrashRouteWithChildren,
