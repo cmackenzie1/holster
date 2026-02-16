@@ -18,6 +18,6 @@
 		"wrangler": "catalog:"
 	},
 	"dependencies": {
-		"hono": "^4.11.8"
+		"hono": "^4.11.9"
 	}
 }
