@@ -14,7 +14,11 @@ updates:
         dependency-type: "production"
       dev-dependencies:
         dependency-type: "development"  
-        
+    ignore:
+      # ignore Vitest major updates
+      - dependency-name: "vitest"
+        update-types: ["version-update:semver-major"]
+   
   - package-ecosystem: "github-actions"
     directory: ".github/workflows"
     schedule:
