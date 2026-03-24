@@ -15,7 +15,7 @@
 		"prepare": "husky"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "2.4.7",
+		"@biomejs/biome": "2.4.8",
 		"@cloudflare/vitest-pool-workers": "catalog:",
 		"@cloudflare/workers-types": "catalog:",
 		"husky": "^9.1.7",
