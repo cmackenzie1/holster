@@ -18,7 +18,7 @@
 		"wrangler": "catalog:"
 	},
 	"dependencies": {
-		"hono": "^4.11.8",
+		"hono": "^4.12.14",
 		"ulidx": "^2.4.1",
 		"uuid": "^13.0.0"
 	}
