@@ -35,7 +35,7 @@ jobs:
       - uses: oven-sh/setup-bun@v2
       - run: bun install
       - name: Build and dry-run deploy
-        run: bun --filter paperless run build:verify
+        run: bun run --filter paperless build:verify
 
   test:
     name: Test
