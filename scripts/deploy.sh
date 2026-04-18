@@ -14,7 +14,7 @@ WORKERS=(
 
 for worker in "${WORKERS[@]}"; do
   echo "==> Deploying $worker"
-  bun --filter "$worker" run deploy
+  bun run --filter "$worker" deploy
   echo ""
 done
 
