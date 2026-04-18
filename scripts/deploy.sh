@@ -14,7 +14,7 @@ WORKERS=(
 
 for worker in "${WORKERS[@]}"; do
   echo "==> Deploying $worker"
-  pnpm --filter "$worker" run deploy
+  bun --filter "$worker" run deploy
   echo ""
 done
 

@@ -13,9 +13,9 @@
 		"hono": "^4.11.8"
 	},
 	"devDependencies": {
-		"@cloudflare/workers-types": "catalog:",
+		"@cloudflare/workers-types": "^4.20260207.0",
 		"@holster/typescript-config": "workspace:*",
-		"typescript": "catalog:",
-		"wrangler": "catalog:"
+		"typescript": "^5.9.3",
+		"wrangler": "^4.63.0"
 	}
 }

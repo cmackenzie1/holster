@@ -12,55 +12,39 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: pnpm/action-setup@v6
-      - uses: actions/setup-node@v6
-        with:
-          node-version: lts/*
-          cache: pnpm
-      - run: pnpm install
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install
       - name: Run Biome lint
-        run: pnpm exec biome lint ./
+        run: bunx biome lint ./
 
   format:
     name: Format
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: pnpm/action-setup@v6
-      - uses: actions/setup-node@v6
-        with:
-          node-version: lts/*
-          cache: pnpm
-      - run: pnpm install
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install
       - name: Run Biome format check
-        run: pnpm exec biome format ./
+        run: bunx biome format ./
 
   build:
     name: Build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: pnpm/action-setup@v6
-      - uses: actions/setup-node@v6
-        with:
-          node-version: lts/*
-          cache: pnpm
-      - run: pnpm install
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install
       - name: Build and dry-run deploy
-        run: pnpm --filter paperless run build:verify
+        run: bun --filter paperless run build:verify
 
   test:
     name: Test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: pnpm/action-setup@v6
-      - uses: actions/setup-node@v6
-        with:
-          node-version: lts/*
-          cache: pnpm
-      - run: pnpm install
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install
       - name: Type check
-        run: pnpm run check-types
+        run: bun run check-types
       - name: Run tests
-        run: pnpm run test
+        run: bun run test
