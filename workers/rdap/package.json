@@ -10,12 +10,12 @@
 		"typegen": "wrangler types"
 	},
 	"devDependencies": {
-		"@cloudflare/vitest-pool-workers": "catalog:",
-		"@cloudflare/workers-types": "catalog:",
+		"@cloudflare/vitest-pool-workers": "^0.12.10",
+		"@cloudflare/workers-types": "^4.20260207.0",
 		"@holster/typescript-config": "workspace:*",
-		"typescript": "catalog:",
-		"vitest": "catalog:",
-		"wrangler": "catalog:"
+		"typescript": "^5.9.3",
+		"vitest": "~3.2.4",
+		"wrangler": "^4.63.0"
 	},
 	"dependencies": {
 		"hono": "^4.11.8"
