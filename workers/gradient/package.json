@@ -10,12 +10,12 @@
 		"typegen": "wrangler types"
 	},
 	"dependencies": {
-		"hono": "^4.11.8"
+		"hono": "^4.12.14"
 	},
 	"devDependencies": {
 		"@cloudflare/workers-types": "^4.20260207.0",
 		"@holster/typescript-config": "workspace:*",
-		"typescript": "^5.9.3",
-		"wrangler": "^4.63.0"
+		"typescript": "^6.0.3",
+		"wrangler": "^4.83.0"
 	}
 }
