@@ -1,3 +1,4 @@
+import { escapeHtml, htmlPage } from "@holster/html";
 import { Hono } from "hono";
 
 const getIp = (request: Request) =>
@@ -38,36 +39,7 @@ const propertyMapping: Record<string, keyof IncomingRequestCfProperties> = {
 	timezone: "timezone",
 };
 
-function escapeHtml(s: string) {
-	return s
-		.replace(/&/g, "&amp;")
-		.replace(/</g, "&lt;")
-		.replace(/>/g, "&gt;")
-		.replace(/"/g, "&quot;");
-}
-
-function htmlPage(title: string, body: string) {
-	return `<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>${title}</title>
-<style>
-body { font-family: monospace; max-width: 600px; margin: 40px auto; padding: 0 20px; }
-h1 { font-size: 1.2em; }
-a { color: #0969da; }
-table { border-collapse: collapse; width: 100%; }
-td, th { text-align: left; padding: 4px 8px; border-bottom: 1px solid #ddd; }
-code { background: #f0f0f0; padding: 2px 4px; }
-.value { font-size: 1.4em; margin: 8px 0 24px; }
-</style>
-</head>
-<body>
-${body}
-</body>
-</html>`;
-}
+const ipCss = ".value { font-size: 1.4em; margin: 8px 0 24px; }";
 
 function getAllProperties(cf: IncomingRequestCfProperties | undefined) {
 	const results: Record<string, string | null> = {};
@@ -126,6 +98,7 @@ app.get("/", (c) => {
 ${rows}
 </table>
 <p style="margin-top:24px"><code>curl https://ip.mirio.dev</code></p>`,
+				ipCss,
 			),
 		);
 	}
@@ -206,6 +179,7 @@ app.get("/:property", (c) => {
 <tr><th>Property</th><th>Description</th></tr>
 ${rows}
 </table>`,
+				ipCss,
 			),
 		);
 	}

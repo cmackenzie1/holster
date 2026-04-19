@@ -1,3 +1,4 @@
+import { escapeHtml, htmlPage } from "@holster/html";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 
@@ -40,16 +41,6 @@ const MAX_TEXT_LENGTH = 256;
 const MAX_STOPS = 5;
 const MIN_STOPS = 2;
 const DEFAULT_STOPS = 2;
-
-// --- Utilities ---
-
-function escapeHtml(s: string) {
-	return s
-		.replace(/&/g, "&amp;")
-		.replace(/</g, "&lt;")
-		.replace(/>/g, "&gt;")
-		.replace(/"/g, "&quot;");
-}
 
 function hashString(str: string): number {
 	let hash = 0;
@@ -237,33 +228,8 @@ function buildSvg(opts: SvgOptions): string {
 ${noiseRect}${textElement}</svg>`;
 }
 
-// --- HTML page ---
-
-function htmlPage(title: string, body: string) {
-	return `<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>${title}</title>
-<style>
-body { font-family: monospace; max-width: 600px; margin: 40px auto; padding: 0 20px; }
-h1 { font-size: 1.2em; }
-h2 { font-size: 1em; margin-top: 24px; }
-a { color: #0969da; }
-table { border-collapse: collapse; width: 100%; }
-td, th { text-align: left; padding: 4px 8px; border-bottom: 1px solid #ddd; }
-code { background: #f0f0f0; padding: 2px 4px; }
-pre { background: #f0f0f0; padding: 12px; overflow-x: auto; }
-.examples { display: flex; gap: 12px; flex-wrap: wrap; margin: 16px 0; }
-.examples img { border-radius: 4px; }
-</style>
-</head>
-<body>
-${body}
-</body>
-</html>`;
-}
+const gradientCss = `.examples { display: flex; gap: 12px; flex-wrap: wrap; margin: 16px 0; }
+.examples img { border-radius: 4px; }`;
 
 // --- Routes ---
 
@@ -326,6 +292,7 @@ document.getElementById("avatar").innerHTML = svg;</pre>
   });</pre>
 <h2>Colors</h2>
 <p>${colorNames.join(", ")}</p>`,
+			gradientCss,
 		),
 	);
 });

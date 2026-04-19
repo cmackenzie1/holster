@@ -1,3 +1,4 @@
+import { escapeHtml, htmlPage } from "@holster/html";
 import { Hono } from "hono";
 import { ulid } from "ulidx";
 import { v7 as uuidv7 } from "uuid";
@@ -6,41 +7,11 @@ const app = new Hono();
 
 const MAX_COUNT = 1000;
 
-function escapeHtml(s: string) {
-	return s
-		.replace(/&/g, "&amp;")
-		.replace(/</g, "&lt;")
-		.replace(/>/g, "&gt;")
-		.replace(/"/g, "&quot;");
-}
-
-function htmlPage(title: string, body: string) {
-	return `<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>${title}</title>
-<style>
-body { font-family: monospace; max-width: 600px; margin: 40px auto; padding: 0 20px; }
-h1 { font-size: 1.2em; }
-a { color: #0969da; }
-table { border-collapse: collapse; width: 100%; }
-td, th { text-align: left; padding: 4px 8px; border-bottom: 1px solid #ddd; }
-code { background: #f0f0f0; padding: 2px 4px; }
-pre { background: #f0f0f0; padding: 12px; overflow-x: auto; }
-.val { display: flex; align-items: center; gap: 8px; padding: 4px 0; cursor: pointer; }
+const randCss = `.val { display: flex; align-items: center; gap: 8px; padding: 4px 0; cursor: pointer; }
 .val code { flex: 1; }
 .val.copied { color: #1a7f37; }
 .controls { margin: 16px 0; display: flex; align-items: center; gap: 8px; }
-.controls input { width: 60px; font-family: monospace; padding: 4px; border: 1px solid #ccc; }
-</style>
-</head>
-<body>
-${body}
-</body>
-</html>`;
-}
+.controls input { width: 60px; font-family: monospace; padding: 4px; border: 1px solid #ccc; }`;
 
 const wantsHtml = (request: Request) =>
 	request.headers.get("accept")?.includes("text/html") ?? false;
@@ -103,6 +74,7 @@ ${rows}
 <pre>curl https://rand.mirio.dev/uuid
 curl https://rand.mirio.dev/uuid?n=5
 curl https://rand.mirio.dev/uuid?format=json</pre>`,
+			randCss,
 		),
 	);
 });
@@ -179,6 +151,7 @@ function copyAll() {
   setTimeout(function() { vals.forEach(function(e) { e.parentElement.classList.remove('copied'); }); }, 600);
 }
 </script>`,
+				randCss,
 			),
 		);
 	}
