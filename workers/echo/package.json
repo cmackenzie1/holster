@@ -15,7 +15,7 @@
 		"hono": "^4.12.14"
 	},
 	"devDependencies": {
-		"@cloudflare/vitest-pool-workers": "^0.12.10",
+		"@cloudflare/vitest-pool-workers": "^0.14.7",
 		"@cloudflare/workers-types": "^4.20260207.0",
 		"@holster/typescript-config": "workspace:*",
 		"typescript": "^6.0.3",
