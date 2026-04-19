@@ -97,7 +97,28 @@ app.get("/", (c) => {
 <tr><th>Property</th><th>Value</th><th>Description</th></tr>
 ${rows}
 </table>
-<p style="margin-top:24px"><code>curl https://ip.mirio.dev</code></p>`,
+<h2>curl</h2>
+<pre># Your public IP
+curl https://ip.mirio.dev
+
+# Force IPv4 or IPv6
+curl -4 https://ip.mirio.dev
+curl -6 https://ip.mirio.dev
+
+# Single property
+curl https://ip.mirio.dev/city
+
+# All properties as key=value pairs
+curl https://ip.mirio.dev?format=text
+
+# Full JSON response
+curl https://ip.mirio.dev?format=json</pre>
+<h2>JavaScript</h2>
+<pre>// Get your IP as a string
+const ip = await fetch("https://ip.mirio.dev").then(r =&gt; r.text());
+
+// Get all properties as JSON
+const info = await fetch("https://ip.mirio.dev?format=json").then(r =&gt; r.json());</pre>`,
 				ipCss,
 			),
 		);
