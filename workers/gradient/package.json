@@ -11,6 +11,7 @@
 		"typegen": "wrangler types"
 	},
 	"dependencies": {
+		"@holster/html": "workspace:*",
 		"hono": "^4.12.14"
 	},
 	"devDependencies": {
