@@ -3,8 +3,7 @@ import { Hono } from "hono";
 
 const app = new Hono();
 
-const echoCss = `body { max-width: 900px; }
-table { table-layout: fixed; }
+const echoCss = `table { table-layout: fixed; }
 td:first-child { width: 160px; vertical-align: top; color: #555; }
 td:last-child { word-break: break-all; overflow-wrap: break-word; }
 .method { display: inline-block; background: #333; color: #fff; padding: 2px 8px; border-radius: 3px; }
@@ -156,9 +155,17 @@ ${bodyHtml}
 </div>
 <div class="section">
 <h2>Usage</h2>
-<pre>curl https://echo.mirio.dev/any/path
+<pre># Echo a GET request
+curl https://echo.mirio.dev/any/path
+
+# POST with JSON body
 curl -X POST -d '{"key":"value"}' -H 'Content-Type: application/json' https://echo.mirio.dev/
-curl https://echo.mirio.dev/?format=json | jq</pre>
+
+# Get response as JSON
+curl https://echo.mirio.dev/?format=json | jq
+
+# POST form data
+curl -X POST -d 'name=alice&amp;age=30' https://echo.mirio.dev/</pre>
 </div>`,
 		echoCss,
 	);

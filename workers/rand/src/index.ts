@@ -70,10 +70,35 @@ app.get("/", (c) => {
 <tr><th>Endpoint</th><th>Description</th><th>Options</th></tr>
 ${rows}
 </table>
-<h2>Examples</h2>
-<pre>curl https://rand.mirio.dev/uuid
-curl https://rand.mirio.dev/uuid?n=5
-curl https://rand.mirio.dev/uuid?format=json</pre>`,
+<h2>curl</h2>
+<pre># Random UUID v4
+curl https://rand.mirio.dev/uuid
+
+# Time-sortable UUID v7
+curl https://rand.mirio.dev/uuidv7
+
+# ULID
+curl https://rand.mirio.dev/ulid
+
+# Generate 10 at once
+curl https://rand.mirio.dev/uuid?n=10
+
+# Get as JSON
+curl https://rand.mirio.dev/ulid?format=json</pre>
+<h2>Shell</h2>
+<pre># Generate and copy to clipboard
+curl -s https://rand.mirio.dev/uuid | pbcopy
+
+# Use as a variable
+ID=$(curl -s https://rand.mirio.dev/ulid)
+echo "Created: $ID"</pre>
+<h2>JavaScript</h2>
+<pre>// Single value as text
+const uuid = await fetch("https://rand.mirio.dev/uuid").then(r =&gt; r.text());
+
+// Batch as JSON array
+const ids = await fetch("https://rand.mirio.dev/ulid?n=5&amp;format=json")
+  .then(r =&gt; r.json());</pre>`,
 			randCss,
 		),
 	);

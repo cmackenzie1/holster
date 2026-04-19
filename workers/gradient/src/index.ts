@@ -273,23 +273,28 @@ app.get("/", (c) => {
 <tr><td><code>initials</code></td><td>none</td><td><code>true</code> to auto-extract, or pass value e.g. <code>JD</code></td></tr>
 </table>
 <h2>curl</h2>
-<pre>curl https://gradient.mirio.dev/username
+<pre># Default gradient for any string
+curl https://gradient.mirio.dev/username
+
+# Circle avatar, 48px
 curl https://gradient.mirio.dev/username?shape=circle&amp;size=48
-curl https://gradient.mirio.dev/username?type=radial&amp;stops=3</pre>
+
+# Radial gradient with 3 color stops
+curl https://gradient.mirio.dev/username?type=radial&amp;stops=3
+
+# With initials overlay
+curl https://gradient.mirio.dev/jane+doe?initials=true&amp;shape=circle</pre>
 <h2>HTML</h2>
-<pre>&lt;img src="https://gradient.mirio.dev/username" /&gt;
-&lt;img src="https://gradient.mirio.dev/username?shape=circle&amp;size=48" /&gt;
+<pre>&lt;!-- Simple avatar --&gt;
+&lt;img src="https://gradient.mirio.dev/username" /&gt;
+
+&lt;!-- Circle avatar with initials --&gt;
 &lt;img src="https://gradient.mirio.dev/jane+doe?initials=true&amp;shape=circle" /&gt;</pre>
-<h2>JavaScript (async/await)</h2>
-<pre>const res = await fetch("https://gradient.mirio.dev/username?size=64");
-const svg = await res.text();
+<h2>JavaScript</h2>
+<pre>// Inline the SVG for styling control
+const svg = await fetch("https://gradient.mirio.dev/username?size=64")
+  .then(r =&gt; r.text());
 document.getElementById("avatar").innerHTML = svg;</pre>
-<h2>JavaScript (.then)</h2>
-<pre>fetch("https://gradient.mirio.dev/username?size=64")
-  .then(res =&gt; res.text())
-  .then(svg =&gt; {
-    document.getElementById("avatar").innerHTML = svg;
-  });</pre>
 <h2>Colors</h2>
 <p>${colorNames.join(", ")}</p>`,
 			gradientCss,
