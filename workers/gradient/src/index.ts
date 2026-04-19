@@ -31,10 +31,25 @@ const namedColors: Record<string, string> = {
 	coral: "#FF7F50",
 };
 
+const colorNames = Object.keys(namedColors).filter((c) => c !== "grey");
+
 const MIN_SIZE = 1;
 const MAX_SIZE = 1024;
-const DEFAULT_SIZE = 64;
+const DEFAULT_SIZE = 128;
 const MAX_TEXT_LENGTH = 256;
+const MAX_STOPS = 5;
+const MIN_STOPS = 2;
+const DEFAULT_STOPS = 2;
+
+// --- Utilities ---
+
+function escapeHtml(s: string) {
+	return s
+		.replace(/&/g, "&amp;")
+		.replace(/</g, "&lt;")
+		.replace(/>/g, "&gt;")
+		.replace(/"/g, "&quot;");
+}
 
 function hashString(str: string): number {
 	let hash = 0;
@@ -78,45 +93,11 @@ function hexToHsl(hex: string): { h: number; s: number; l: number } {
 	return { h: h * 360, s: s * 100, l: l * 100 };
 }
 
-function generateColors(
-	seed: string,
-	baseColor?: string,
-): {
-	color1: string;
-	color2: string;
-	angle: number;
-} {
-	const hash = hashString(seed);
-
-	if (baseColor && namedColors[baseColor.toLowerCase()]) {
-		const baseHex = namedColors[baseColor.toLowerCase()];
-		const { h, s, l } = hexToHsl(baseHex);
-
-		const hueShift = ((hash % 60) - 30 + 360) % 360;
-		const hue2 = (h + hueShift) % 360;
-
-		const saturation = Math.max(20, Math.min(100, s + ((hash % 40) - 20)));
-		const lightness1 = Math.max(20, Math.min(80, l));
-		const lightness2 = Math.max(30, Math.min(90, l + ((hash % 40) - 20)));
-
-		const color1 = `hsl(${h}, ${saturation}%, ${lightness1}%)`;
-		const color2 = `hsl(${hue2}, ${saturation}%, ${lightness2}%)`;
-		const angle = (hash * 47) % 360;
-
-		return { color1, color2, angle };
-	}
-
-	const hue1 = hash % 360;
-	const hue2 = (hash * 137) % 360;
-	const angle = (hash * 47) % 360;
-
-	const saturation = 70 + (hash % 30);
-	const lightness = 40 + (hash % 30);
-
-	const color1 = `hsl(${hue1}, ${saturation}%, ${lightness}%)`;
-	const color2 = `hsl(${hue2}, ${saturation}%, ${lightness + 20}%)`;
-
-	return { color1, color2, angle };
+function resolveBaseColor(base: string): string | null {
+	const lower = base.toLowerCase();
+	if (namedColors[lower]) return namedColors[lower];
+	if (/^#[0-9a-f]{6}$/i.test(base)) return base;
+	return null;
 }
 
 function parseSize(
@@ -131,133 +112,234 @@ function parseSize(
 	return parsed;
 }
 
-app.use(cors());
+function parseStops(value: string | undefined): number | null {
+	if (!value) return DEFAULT_STOPS;
+	const parsed = Number.parseInt(value, 10);
+	if (Number.isNaN(parsed) || parsed < MIN_STOPS || parsed > MAX_STOPS) {
+		return null;
+	}
+	return parsed;
+}
 
-app.get("/", (c) => {
-	const html = `<!DOCTYPE html>
+function getInitials(text: string): string {
+	const words = text.trim().split(/[\s._-]+/);
+	if (words.length >= 2) {
+		return (words[0][0] + words[1][0]).toUpperCase();
+	}
+	return text.slice(0, 2).toUpperCase();
+}
+
+// --- Color generation ---
+
+interface GradientResult {
+	stops: Array<{ color: string; offset: number }>;
+	angle: number;
+	focalX: number;
+	focalY: number;
+}
+
+function generateGradient(
+	seed: string,
+	numStops: number,
+	baseHex?: string,
+): GradientResult {
+	const hash1 = hashString(seed);
+	const hash2 = hashString(`${seed}\x01`);
+	const hash3 = hashString(`${seed}\x02`);
+
+	const angle = (hash1 * 47) % 360;
+	const focalX = 30 + (hash2 % 40);
+	const focalY = 30 + (hash3 % 40);
+
+	if (baseHex) {
+		const { h, s, l } = hexToHsl(baseHex);
+		const stops: Array<{ color: string; offset: number }> = [];
+
+		for (let i = 0; i < numStops; i++) {
+			const stepHash = hashString(seed + String(i));
+			const hueShift = ((stepHash % 60) - 30 + 360) % 360;
+			const hue = (h + hueShift * (i / Math.max(numStops - 1, 1))) % 360;
+			const sat = Math.max(25, Math.min(95, s + ((stepHash % 30) - 15)));
+			const lit = Math.max(
+				25,
+				Math.min(75, l + ((stepHash % 40) - 20) * (i / numStops)),
+			);
+			const offset = Math.round((i / (numStops - 1)) * 100);
+			stops.push({ color: `hsl(${hue}, ${sat}%, ${lit}%)`, offset });
+		}
+
+		return { stops, angle, focalX, focalY };
+	}
+
+	const baseHue = hash1 % 360;
+	const stops: Array<{ color: string; offset: number }> = [];
+
+	for (let i = 0; i < numStops; i++) {
+		const stepHash = hashString(seed + String(i));
+		// Golden angle offset for pleasing hue separation
+		const hue = (baseHue + i * 37 + (stepHash % 30)) % 360;
+		const sat = 60 + (stepHash % 30);
+		const lit = 40 + ((stepHash >> 4) % 25);
+		const offset = Math.round((i / (numStops - 1)) * 100);
+		stops.push({ color: `hsl(${hue}, ${sat}%, ${lit}%)`, offset });
+	}
+
+	return { stops, angle, focalX, focalY };
+}
+
+// --- SVG building ---
+
+interface SvgOptions {
+	width: number;
+	height: number;
+	gradient: GradientResult;
+	shape: "rect" | "circle";
+	type: "linear" | "radial";
+	texture: boolean;
+	initials: string | null;
+}
+
+function buildSvg(opts: SvgOptions): string {
+	const { width, height, gradient, shape, type, texture, initials } = opts;
+	const { stops, angle, focalX, focalY } = gradient;
+
+	const stopElements = stops
+		.map((s) => `<stop offset="${s.offset}%" stop-color="${s.color}" />`)
+		.join("");
+
+	const gradientDef =
+		type === "radial"
+			? `<radialGradient id="grad" cx="50%" cy="50%" r="50%" fx="${focalX}%" fy="${focalY}%">${stopElements}</radialGradient>`
+			: `<linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="0%" gradientTransform="rotate(${angle})">${stopElements}</linearGradient>`;
+
+	const clipDef =
+		shape === "circle"
+			? `<clipPath id="clip"><circle cx="${width / 2}" cy="${height / 2}" r="${Math.min(width, height) / 2}" /></clipPath>`
+			: "";
+	const clipAttr = shape === "circle" ? ' clip-path="url(#clip)"' : "";
+
+	const noiseDef = texture
+		? `<filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" seed="${hashString(stops[0].color)}" /><feComposite in="SourceGraphic" operator="in" /></filter>`
+		: "";
+
+	const noiseRect = texture
+		? `<rect width="${width}" height="${height}" filter="url(#noise)" opacity="0.08"${clipAttr} />`
+		: "";
+
+	const fontSize = Math.round(Math.min(width, height) * 0.4);
+	const textElement = initials
+		? `<text x="50%" y="50%" dominant-baseline="central" text-anchor="middle" font-family="system-ui,sans-serif" font-size="${fontSize}" font-weight="600" fill="white" fill-opacity="0.9">${escapeHtml(initials)}</text>`
+		: "";
+
+	return `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
+<defs>${gradientDef}${clipDef}${noiseDef}</defs>
+<rect width="${width}" height="${height}" fill="url(#grad)"${clipAttr} />
+${noiseRect}${textElement}</svg>`;
+}
+
+// --- HTML page ---
+
+function htmlPage(title: string, body: string) {
+	return `<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gradient Generator Demo</title>
-  <style>
-    body {
-      font-family: system-ui, -apple-system, sans-serif;
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 2rem;
-      background: #f5f5f5;
-    }
-    h1 {
-      color: #333;
-    }
-    .demo-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-      gap: 1rem;
-      margin: 2rem 0;
-    }
-    .demo-item {
-      background: white;
-      padding: 1rem;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      text-align: center;
-    }
-    .demo-item img {
-      width: 64px;
-      height: 64px;
-      border-radius: 4px;
-    }
-    .demo-item p {
-      margin: 0.5rem 0 0;
-      font-size: 0.875rem;
-      color: #666;
-    }
-    .usage {
-      background: white;
-      padding: 1.5rem;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    code {
-      background: #f0f0f0;
-      padding: 0.25rem 0.5rem;
-      border-radius: 4px;
-      font-size: 0.875rem;
-    }
-    pre {
-      background: #f0f0f0;
-      padding: 1rem;
-      border-radius: 4px;
-      overflow-x: auto;
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${title}</title>
+<style>
+body { font-family: monospace; max-width: 600px; margin: 40px auto; padding: 0 20px; }
+h1 { font-size: 1.2em; }
+h2 { font-size: 1em; margin-top: 24px; }
+a { color: #0969da; }
+table { border-collapse: collapse; width: 100%; }
+td, th { text-align: left; padding: 4px 8px; border-bottom: 1px solid #ddd; }
+code { background: #f0f0f0; padding: 2px 4px; }
+pre { background: #f0f0f0; padding: 12px; overflow-x: auto; }
+.examples { display: flex; gap: 12px; flex-wrap: wrap; margin: 16px 0; }
+.examples img { border-radius: 4px; }
+</style>
 </head>
 <body>
-  <h1>Gradient Generator Demo</h1>
-
-  <div class="usage">
-    <h2>Usage</h2>
-    <p>Generate unique gradients based on text input:</p>
-    <pre><code>GET /{text}</code></pre>
-    <p>Generate gradients with a base color:</p>
-    <pre><code>GET /{text}?base={color}</code></pre>
-    <p>Specify dimensions (1-1024):</p>
-    <pre><code>GET /{text}?w={width}&amp;h={height}</code></pre>
-    <p>Available base colors: red, blue, green, yellow, purple, orange, pink, cyan, magenta, brown, gray, navy, teal, lime, maroon, olive, aqua, silver, gold, indigo, violet, coral</p>
-  </div>
-
-  <h2>Examples</h2>
-  <div class="demo-grid">
-    <div class="demo-item">
-      <img src="/hello" alt="hello gradient">
-      <p>/hello</p>
-    </div>
-    <div class="demo-item">
-      <img src="/world" alt="world gradient">
-      <p>/world</p>
-    </div>
-    <div class="demo-item">
-      <img src="/user123" alt="user123 gradient">
-      <p>/user123</p>
-    </div>
-    <div class="demo-item">
-      <img src="/example?base=blue" alt="example with blue base">
-      <p>/example?base=blue</p>
-    </div>
-    <div class="demo-item">
-      <img src="/test?base=red" alt="test with red base">
-      <p>/test?base=red</p>
-    </div>
-    <div class="demo-item">
-      <img src="/demo?base=green" alt="demo with green base">
-      <p>/demo?base=green</p>
-    </div>
-    <div class="demo-item">
-      <img src="/gradient?base=purple" alt="gradient with purple base">
-      <p>/gradient?base=purple</p>
-    </div>
-    <div class="demo-item">
-      <img src="/avatar?base=gold" alt="avatar with gold base">
-      <p>/avatar?base=gold</p>
-    </div>
-  </div>
+${body}
 </body>
 </html>`;
+}
 
-	return c.html(html);
+// --- Routes ---
+
+app.use(cors({ origin: "*" }));
+
+app.get("/", (c) => {
+	const examples = [
+		{ text: "alice", params: "" },
+		{ text: "bob", params: "?type=radial" },
+		{ text: "charlie", params: "?base=blue" },
+		{ text: "dana", params: "?base=coral&stops=3" },
+		{ text: "eve", params: "?shape=circle" },
+		{ text: "frank", params: "?shape=circle&initials=true" },
+		{ text: "grace hopper", params: "?shape=circle&initials=true" },
+		{ text: "heidi", params: "?texture=noise&type=radial" },
+	];
+
+	const grid = examples
+		.map((e) => {
+			const sep = e.params ? "&" : "?";
+			const url = `/${encodeURIComponent(e.text)}${e.params}${sep}size=64`;
+			return `<img src="${url}" alt="${escapeHtml(e.text)}" title="${escapeHtml(url)}">`;
+		})
+		.join("\n");
+
+	return c.html(
+		htmlPage(
+			"gradient.mirio.dev",
+			`<h1>gradient.mirio.dev</h1>
+<p>Deterministic gradient SVGs from any string. Same input always produces the same gradient.</p>
+<div class="examples">${grid}</div>
+<table>
+<tr><th>Parameter</th><th>Default</th><th>Description</th></tr>
+<tr><td><code>size</code></td><td>128</td><td>Square size in px (1-1024)</td></tr>
+<tr><td><code>w</code>, <code>h</code></td><td>128</td><td>Width and height separately</td></tr>
+<tr><td><code>base</code></td><td>auto</td><td>Base color (name or hex <code>#ff6600</code>)</td></tr>
+<tr><td><code>shape</code></td><td>rect</td><td><code>circle</code> for round avatars</td></tr>
+<tr><td><code>type</code></td><td>linear</td><td><code>radial</code> for radial gradients</td></tr>
+<tr><td><code>stops</code></td><td>2</td><td>Number of color stops (2-5)</td></tr>
+<tr><td><code>texture</code></td><td>none</td><td><code>noise</code> for subtle texture overlay</td></tr>
+<tr><td><code>initials</code></td><td>none</td><td><code>true</code> to auto-extract, or pass value e.g. <code>JD</code></td></tr>
+</table>
+<h2>curl</h2>
+<pre>curl https://gradient.mirio.dev/username
+curl https://gradient.mirio.dev/username?shape=circle&amp;size=48
+curl https://gradient.mirio.dev/username?type=radial&amp;stops=3</pre>
+<h2>HTML</h2>
+<pre>&lt;img src="https://gradient.mirio.dev/username" /&gt;
+&lt;img src="https://gradient.mirio.dev/username?shape=circle&amp;size=48" /&gt;
+&lt;img src="https://gradient.mirio.dev/jane+doe?initials=true&amp;shape=circle" /&gt;</pre>
+<h2>JavaScript (async/await)</h2>
+<pre>const res = await fetch("https://gradient.mirio.dev/username?size=64");
+const svg = await res.text();
+document.getElementById("avatar").innerHTML = svg;</pre>
+<h2>JavaScript (.then)</h2>
+<pre>fetch("https://gradient.mirio.dev/username?size=64")
+  .then(res =&gt; res.text())
+  .then(svg =&gt; {
+    document.getElementById("avatar").innerHTML = svg;
+  });</pre>
+<h2>Colors</h2>
+<p>${colorNames.join(", ")}</p>`,
+		),
+	);
 });
 
 app.get("/:text", (c) => {
 	const text = c.req.param("text");
-	const baseColor = c.req.query("base");
-	const widthParam = c.req.query("w") || c.req.query("width");
-	const heightParam = c.req.query("h") || c.req.query("height");
-
-	if (!text) {
-		return c.json({ error: "Missing text parameter." }, 400);
-	}
+	const baseParam = c.req.query("base");
+	const sizeParam = c.req.query("size");
+	const widthParam = c.req.query("w") || c.req.query("width") || sizeParam;
+	const heightParam = c.req.query("h") || c.req.query("height") || sizeParam;
+	const shape = c.req.query("shape") === "circle" ? "circle" : "rect";
+	const type = c.req.query("type") === "radial" ? "radial" : "linear";
+	const texture = c.req.query("texture") === "noise";
+	const initialsParam = c.req.query("initials");
 
 	if (text.length > MAX_TEXT_LENGTH) {
 		return c.json(
@@ -268,13 +350,18 @@ app.get("/:text", (c) => {
 		);
 	}
 
-	if (baseColor && !namedColors[baseColor.toLowerCase()]) {
-		return c.json(
-			{
-				error: `Invalid base color. Available colors: ${Object.keys(namedColors).join(", ")}`,
-			},
-			400,
-		);
+	let baseHex: string | undefined;
+	if (baseParam) {
+		const resolved = resolveBaseColor(baseParam);
+		if (!resolved) {
+			return c.json(
+				{
+					error: `Invalid base color. Use a name (${colorNames.join(", ")}) or hex (#ff6600).`,
+				},
+				400,
+			);
+		}
+		baseHex = resolved;
 	}
 
 	const width = parseSize(widthParam, DEFAULT_SIZE);
@@ -289,26 +376,50 @@ app.get("/:text", (c) => {
 
 	if (height === null) {
 		return c.json(
-			{ error: `Invalid height. Must be between ${MIN_SIZE} and ${MAX_SIZE}.` },
+			{
+				error: `Invalid height. Must be between ${MIN_SIZE} and ${MAX_SIZE}.`,
+			},
 			400,
 		);
 	}
 
-	const { color1, color2, angle } = generateColors(text, baseColor);
+	const numStops = parseStops(c.req.query("stops"));
+	if (numStops === null) {
+		return c.json(
+			{
+				error: `Invalid stops. Must be between ${MIN_STOPS} and ${MAX_STOPS}.`,
+			},
+			400,
+		);
+	}
 
-	const svg = `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="0%" gradientTransform="rotate(${angle})">
-      <stop offset="0%" stop-color="${color1}" />
-      <stop offset="100%" stop-color="${color2}" />
-    </linearGradient>
-  </defs>
-  <rect width="${width}" height="${height}" fill="url(#grad)" />
-</svg>`;
+	const gradient = generateGradient(text, numStops, baseHex);
+	let initials: string | null = null;
+	if (initialsParam === "true") {
+		initials = getInitials(decodeURIComponent(text));
+	} else if (initialsParam) {
+		initials = initialsParam.slice(0, 4).toUpperCase();
+	}
+	const svg = buildSvg({
+		width,
+		height,
+		gradient,
+		shape,
+		type,
+		texture,
+		initials,
+	});
+
+	// ETag for 304 support
+	const etag = `"${hashString(svg).toString(36)}"`;
+	if (c.req.header("If-None-Match") === etag) {
+		return c.body(null, 304);
+	}
 
 	return c.body(svg, 200, {
 		"Content-Type": "image/svg+xml",
 		"Cache-Control": "public, max-age=31536000, immutable",
+		ETag: etag,
 	});
 });
 
