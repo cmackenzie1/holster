@@ -6,6 +6,16 @@ import {
 import { describe, expect, it } from "vitest";
 import worker from "../src";
 
+interface EchoJson {
+	method: string;
+	url: string;
+	path: string;
+	query: Record<string, string>;
+	headers: Record<string, string>;
+	body: unknown;
+	bodyEncoding?: string;
+}
+
 async function send(
 	url: string,
 	init?: RequestInit & { headers?: Record<string, string> },
@@ -30,7 +40,7 @@ describe("Echo worker", () => {
 		const res = await send("http://example.com/?format=json");
 		expect(res.status).toBe(200);
 		expect(res.headers.get("content-type")).toContain("application/json");
-		const json = await res.json();
+		const json = await res.json<EchoJson>();
 		expect(json.method).toBe("GET");
 		expect(json.path).toBe("/");
 		expect(json.query.format).toBe("json");
@@ -61,7 +71,7 @@ describe("Echo worker", () => {
 			body: JSON.stringify({ hello: "world" }),
 			headers: { "Content-Type": "application/json" },
 		});
-		const json = await res.json();
+		const json = await res.json<EchoJson>();
 		expect(json.body).toStrictEqual({ hello: "world" });
 		expect(json.bodyEncoding).toBe("json");
 	});
@@ -72,7 +82,7 @@ describe("Echo worker", () => {
 			body: "name=alice&age=30",
 			headers: { "Content-Type": "application/x-www-form-urlencoded" },
 		});
-		const json = await res.json();
+		const json = await res.json<EchoJson>();
 		expect(json.body).toStrictEqual({ name: "alice", age: "30" });
 		expect(json.bodyEncoding).toBe("form");
 	});
@@ -83,7 +93,7 @@ describe("Echo worker", () => {
 			body: "hello world",
 			headers: { "Content-Type": "text/plain" },
 		});
-		const json = await res.json();
+		const json = await res.json<EchoJson>();
 		expect(json.body).toBe("hello world");
 		expect(json.bodyEncoding).toBe("text");
 	});
@@ -95,14 +105,14 @@ describe("Echo worker", () => {
 			body: bytes,
 			headers: { "Content-Type": "application/octet-stream" },
 		});
-		const json = await res.json();
+		const json = await res.json<EchoJson>();
 		expect(json.bodyEncoding).toBe("base64");
 		expect(typeof json.body).toBe("string");
 	});
 
 	it("handles null body for GET in JSON", async () => {
 		const res = await send("http://example.com/?format=json");
-		const json = await res.json();
+		const json = await res.json<EchoJson>();
 		expect(json.body).toBeNull();
 		expect(json.bodyEncoding).toBeUndefined();
 	});
@@ -110,14 +120,14 @@ describe("Echo worker", () => {
 	it("echoes all HTTP methods", async () => {
 		for (const method of ["PUT", "PATCH", "DELETE"]) {
 			const res = await send("http://example.com/?format=json", { method });
-			const json = await res.json();
+			const json = await res.json<EchoJson>();
 			expect(json.method).toBe(method);
 		}
 	});
 
 	it("includes path in response", async () => {
 		const res = await send("http://example.com/foo/bar/baz?format=json");
-		const json = await res.json();
+		const json = await res.json<EchoJson>();
 		expect(json.path).toBe("/foo/bar/baz");
 	});
 });
