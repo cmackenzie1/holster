@@ -2,6 +2,7 @@
 set -euo pipefail
 
 WORKERS=(
+  codec
   echo
   gradient
   hash

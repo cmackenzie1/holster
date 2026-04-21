@@ -11,7 +11,7 @@ const randCss = `.val { display: flex; align-items: center; gap: 8px; padding: 4
 .val code { flex: 1; }
 .val.copied { color: #1a7f37; }
 .controls { margin: 16px 0; display: flex; align-items: center; gap: 8px; }
-.controls input { width: 60px; font-family: monospace; padding: 4px; border: 1px solid #ccc; }`;
+.controls input { width: 60px; font-family: inherit; padding: 4px; border: 1px solid #ccc; }`;
 
 const wantsHtml = (request: Request) =>
 	request.headers.get("accept")?.includes("text/html") ?? false;
