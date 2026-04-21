@@ -5,6 +5,7 @@ const tools = [
 	{ name: "rand", href: "https://rand.mirio.dev", label: "Rand" },
 	{ name: "codec", href: "https://codec.mirio.dev", label: "Codec" },
 	{ name: "jwt", href: "https://jwt.mirio.dev", label: "JWT" },
+	{ name: "dns", href: "https://dns.mirio.dev", label: "DNS" },
 ];
 
 const baseStyles = `* { box-sizing: border-box; }
