@@ -4,6 +4,7 @@ const tools = [
 	{ name: "gradient", href: "https://gradient.mirio.dev", label: "Gradient" },
 	{ name: "rand", href: "https://rand.mirio.dev", label: "Rand" },
 	{ name: "codec", href: "https://codec.mirio.dev", label: "Codec" },
+	{ name: "jwt", href: "https://jwt.mirio.dev", label: "JWT" },
 ];
 
 const baseStyles = `* { box-sizing: border-box; }

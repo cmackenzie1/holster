@@ -8,6 +8,7 @@ WORKERS=(
   hash
   hello-world
   ip
+  jwt
   rand
   rdap
   stocks
