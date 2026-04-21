@@ -11,8 +11,8 @@
 		"typegen": "wrangler types"
 	},
 	"devDependencies": {
-		"@cloudflare/vitest-pool-workers": "^0.12.10",
-		"@cloudflare/workers-types": "^4.20260207.0",
+		"@cloudflare/vitest-pool-workers": "^0.14.8",
+		"@cloudflare/workers-types": "^4.20260421.1",
 		"@holster/typescript-config": "workspace:*",
 		"typescript": "^6.0.3",
 		"vitest": "~3.2.4",
