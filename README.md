@@ -12,6 +12,7 @@ A collection of Cloudflare Workers, managed using Bun Workspaces and Turborepo.
 | [hash](./workers/hash/) | [`hash.mirio.dev`](https://hash.mirio.dev) | Hex digest of a payload. Supports `md5`, `sha1`, `sha256`, `sha384`, and `sha512` |
 | [hello-world](./workers/hello-world/) | - | Hello World example with analytics |
 | [ip](./workers/ip/) | [`ip.mirio.dev`](https://ip.mirio.dev) | Your public IP address and geolocation properties |
+| [jwt](./workers/jwt/) | [`jwt.mirio.dev`](https://jwt.mirio.dev) | Local-first JWT debugger — decode, verify, and re-sign (HS256/384/512) |
 | [rand](./workers/rand/) | [`rand.mirio.dev`](https://rand.mirio.dev) | Random value generator — UUID v4, UUID v7, and ULID |
 | [rdap](./workers/rdap/) | [`rdap.mirio.dev`](https://rdap.mirio.dev) | Query RDAP servers for domain registration information |
 | [stocks](./workers/stocks/) | [`stocks.mirio.dev`](https://stocks.mirio.dev) | Quick stock quote lookup by symbol |

@@ -144,6 +144,22 @@
         "wrangler": "^4.83.0",
       },
     },
+    "workers/jwt": {
+      "name": "jwt",
+      "version": "0.0.0",
+      "dependencies": {
+        "@holster/html": "workspace:*",
+        "hono": "^4.12.14",
+      },
+      "devDependencies": {
+        "@cloudflare/vitest-pool-workers": "^0.12.10",
+        "@cloudflare/workers-types": "^4.20260207.0",
+        "@holster/typescript-config": "workspace:*",
+        "typescript": "^6.0.3",
+        "vitest": "~3.2.4",
+        "wrangler": "^4.83.0",
+      },
+    },
     "workers/paperless": {
       "name": "paperless",
       "dependencies": {
@@ -937,6 +953,8 @@
     "jsesc": ["jsesc@3.1.0", "", { "bin": { "jsesc": "bin/jsesc" } }, "sha512-/sM3dO2FOzXjKQhJuo0Q173wf2KOo8t4I8vHy6lF9poUp7bKT0/NHE8fPX23PwfhnykfqnC2xRxOnVw5XuGIaA=="],
 
     "json5": ["json5@2.2.3", "", { "bin": { "json5": "lib/cli.js" } }, "sha512-XmOWe7eyHYH14cLdVPoyg+GOH3rYX++KpzrylJwSW98t3Nk+U8XOl8FWKOgwtzdb8lXGf6zYwDUzeHMWfxasyg=="],
+
+    "jwt": ["jwt@workspace:workers/jwt"],
 
     "kleur": ["kleur@4.1.5", "", {}, "sha512-o+NO+8WrRiQEE4/7nwRJhN1HWpVmJm511pBHUxPLtp0BUISzlBplORYSmTclCnJvQq2tKu/sgl3xVpkc7ZWuQQ=="],
 
