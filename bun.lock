@@ -66,6 +66,22 @@
         "wrangler": "^4.83.0",
       },
     },
+    "workers/dns": {
+      "name": "dns",
+      "version": "0.0.0",
+      "dependencies": {
+        "@holster/html": "workspace:*",
+        "hono": "^4.12.14",
+      },
+      "devDependencies": {
+        "@cloudflare/vitest-pool-workers": "^0.12.10",
+        "@cloudflare/workers-types": "^4.20260207.0",
+        "@holster/typescript-config": "workspace:*",
+        "typescript": "^6.0.3",
+        "vitest": "~3.2.4",
+        "wrangler": "^4.83.0",
+      },
+    },
     "workers/echo": {
       "name": "echo",
       "version": "0.0.0",
@@ -851,6 +867,8 @@
     "detect-libc": ["detect-libc@2.1.2", "", {}, "sha512-Btj2BOOO83o3WyH59e8MgXsxEQVcarkUOpEYrubB0urwnN10yQ364rsiByU11nZlqWYZm05i/of7io4mzihBtQ=="],
 
     "diff": ["diff@8.0.3", "", {}, "sha512-qejHi7bcSD4hQAZE0tNAawRK1ZtafHDmMTMkrrIGgSLl7hTnQHmKCeB45xAcbfTqK2zowkM3j3bHt/4b/ARbYQ=="],
+
+    "dns": ["dns@workspace:workers/dns"],
 
     "dom-accessibility-api": ["dom-accessibility-api@0.5.16", "", {}, "sha512-X7BJ2yElsnOJ30pZF4uIIDfBEVgF4XEBxL9Bxhy6dnrm5hkzqmsWHGTiHqRiITNhMyFLyAiWndIJP7Z1NTteDg=="],
 

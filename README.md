@@ -7,6 +7,7 @@ A collection of Cloudflare Workers, managed using Bun Workspaces and Turborepo.
 | Name | Host | Description |
 | ---- | ---- | ----------- |
 | [codec](./workers/codec/) | [`codec.mirio.dev`](https://codec.mirio.dev) | Client-side encoder/decoder — base64, base64url, hex, URL, HTML entities, JSON |
+| [dns](./workers/dns/) | [`dns.mirio.dev`](https://dns.mirio.dev) | DNS lookup via Cloudflare DoH — A, AAAA, CAA, CNAME, MX, NS, PTR, SOA, SRV, TXT |
 | [echo](./workers/echo/) | [`echo.mirio.dev`](https://echo.mirio.dev) | Echo back HTTP requests — headers, body, method. Supports text, JSON, and HTML output |
 | [gradient](./workers/gradient/) | [`gradient.mirio.dev`](https://gradient.mirio.dev) | Deterministic gradient SVGs from any string. Supports radial, multi-stop, noise texture, and initials |
 | [hash](./workers/hash/) | [`hash.mirio.dev`](https://hash.mirio.dev) | Hex digest of a payload. Supports `md5`, `sha1`, `sha256`, `sha384`, and `sha512` |
