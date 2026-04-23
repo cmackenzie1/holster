@@ -1,26 +1,23 @@
 {
-	"name": "@mirio/analytics",
-	"version": "1.0.0",
+	"name": "parking",
+	"version": "0.0.0",
 	"private": true,
-	"description": "HTTP analytics helpers for Cloudflare Workers Analytics Engine",
-	"main": "./src/index.ts",
+	"type": "module",
 	"scripts": {
 		"check-types": "tsc --noEmit",
-		"test": "vitest"
+		"dev": "wrangler dev",
+		"deploy": "wrangler deploy",
+		"test": "vitest",
+		"typegen": "wrangler types"
 	},
-	"peerDependencies": {
-		"hono": "^4"
-	},
-	"peerDependenciesMeta": {
-		"hono": {
-			"optional": true
-		}
+	"dependencies": {
+		"@mirio/analytics": "workspace:*",
+		"hono": "^4.12.14"
 	},
 	"devDependencies": {
 		"@cloudflare/vitest-pool-workers": "^0.12.10",
 		"@cloudflare/workers-types": "^4.20260207.0",
 		"@holster/typescript-config": "workspace:*",
-		"hono": "^4.12.14",
 		"typescript": "^6.0.3",
 		"vitest": "~3.2.4",
 		"wrangler": "^4.83.0"

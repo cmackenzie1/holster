@@ -21,10 +21,17 @@
         "@cloudflare/vitest-pool-workers": "^0.12.10",
         "@cloudflare/workers-types": "^4.20260207.0",
         "@holster/typescript-config": "workspace:*",
+        "hono": "^4.12.14",
         "typescript": "^6.0.3",
         "vitest": "~3.2.4",
         "wrangler": "^4.83.0",
       },
+      "peerDependencies": {
+        "hono": "^4",
+      },
+      "optionalPeers": [
+        "hono",
+      ],
     },
     "packages/condition": {
       "name": "@cmackenzie1/condition",
@@ -215,6 +222,22 @@
         "vite": "^8.0.8",
         "vitest": "~3.2.4",
         "web-vitals": "^5.2.0",
+        "wrangler": "^4.83.0",
+      },
+    },
+    "workers/parking": {
+      "name": "parking",
+      "version": "0.0.0",
+      "dependencies": {
+        "@mirio/analytics": "workspace:*",
+        "hono": "^4.12.14",
+      },
+      "devDependencies": {
+        "@cloudflare/vitest-pool-workers": "^0.12.10",
+        "@cloudflare/workers-types": "^4.20260207.0",
+        "@holster/typescript-config": "workspace:*",
+        "typescript": "^6.0.3",
+        "vitest": "~3.2.4",
         "wrangler": "^4.83.0",
       },
     },
@@ -1031,6 +1054,8 @@
     "nth-check": ["nth-check@2.1.1", "", { "dependencies": { "boolbase": "1.0.0" } }, "sha512-lqjrjmaOoAnWfMmBPL+XNnynZh2+swxiX3WUE0s4yEHI6m+AwrK2UZOimIRl3X/4QctVqS8AiZjFqyOGrMXb/w=="],
 
     "paperless": ["paperless@workspace:workers/paperless"],
+
+    "parking": ["parking@workspace:workers/parking"],
 
     "parse5": ["parse5@8.0.0", "", { "dependencies": { "entities": "6.0.1" } }, "sha512-9m4m5GSgXjL4AjumKzq1Fgfp3Z8rsvjRNbnkVwfu2ImRqE5D0LnY2QfDen18FSY9C573YU5XxSapdHZTZ2WolA=="],
 
