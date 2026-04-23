@@ -10,6 +10,7 @@ WORKERS=(
   hello-world
   ip
   jwt
+  parking
   rand
   rdap
   stocks
