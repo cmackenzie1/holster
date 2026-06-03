@@ -21,6 +21,6 @@
 		"@holster/html": "workspace:*",
 		"hono": "^4.12.14",
 		"ulidx": "^2.4.1",
-		"uuid": "^13.0.0"
+		"uuid": "^14.0.0"
 	}
 }
