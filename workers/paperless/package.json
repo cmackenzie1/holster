@@ -29,7 +29,7 @@
 		"@tanstack/router-plugin": "^1.167.22",
 		"drizzle-orm": "^0.45.2",
 		"lucide-react": "^1.8.0",
-		"pdfjs-dist": "^5.6.205",
+		"pdfjs-dist": "^6.0.227",
 		"postal-mime": "^2.7.4",
 		"postgres": "^3.4.9",
 		"react": "^19.2.5",
